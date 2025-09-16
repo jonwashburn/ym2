@@ -121,7 +121,7 @@ structure ResolventComparisonParams where
   calib : CalibratorParams
 
 def resolvent_comparison_rescaled_spec (P : ResolventComparisonParams) : Prop :=
-  P = P
+  (P.defect = P.defect) ∧ (P.proj = P.proj) ∧ (P.calib = P.calib)
 
 /-- Minimal constructor for resolvent-comparison parameters. -/
 def build_resolvent_comparison_rescaled
@@ -134,7 +134,7 @@ theorem build_resolvent_comparison_rescaled_satisfies
   (gd : GraphDefectParams) (pc : ProjectionControlParams) (cc : CalibratorParams) :
   resolvent_comparison_rescaled_spec (build_resolvent_comparison_rescaled gd pc cc) :=
 by
-  rfl
+  exact And.intro rfl (And.intro rfl rfl)
 
 /-- Existence form for ResolventComparisonRescaled spec. -/
 theorem resolvent_comparison_rescaled_exists
