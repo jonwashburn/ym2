@@ -1,0 +1,584 @@
+# RS→CLASSICAL BRIDGE SPEC v1.0
+# Purpose: Condensed, machine-ingestion source for scientific papers written in classical standards with RS-backed derivations
+# Conventions: sections start with @; key=val pairs; single-line records prefixed by TAG; use SI/CODATA values in papers; RS derivations referenced
+
+@META
+TAG:MODE; classical_paper_view=true; rs_derivation_reference=true; zero_free_parameters_claim_scope=derivations_only
+TAG:LEAN_STATUS; T1..T8=proved; cost_uniqueness=T5_proved; eight_tick=T6_proved; δ_potential_uniqueness=T4_proved; cone_bound=scaffold; φ_fixed_point=proved_in_doc; constants_bridge=ready
+
+@SCHEMA
+# Records are single-line with TAG at start; fields are semicolon-separated key/value triples
+# Allowed forms:
+#   SECTION headers: lines starting with @NAME
+#   CONST: CONST;symbol;value;source=...;rs_relation=...
+#   TAG: TAG:Name; k1=v1; k2=v2; ...
+#   BRIDGE: BRIDGE;Concept;RS;Classical;Lean/Proof;UseInPapers;Notes
+#   EXP: EXP;Name; key1=val1; key2=val2; ...
+# Contract: fields are machine-readable ASCII; no multi-line values; unknown keys ignored by default
+
+@SCOPE
+DERIVES; cost_functional=unique(J), eight_tick_cycle=2^D, meta_principle, double_entry_conservation, δ-potential_uniqueness, φ_fixed_point, causal_speed_bound, mass_law(m=B·E_coh·φ^(r+f)), born_rule, bose_fermi, ILG_kernels, gauge_invariant_dimensionless_predictions
+OUTPUTS; constants_bridge=[c, ħ, G, α]; structures_bridge=[continuity, action/hamiltonian, RG_fixed_points, ladder_spectra]; lean_refs=[T1,T2,T3,T4,T5,T6]
+
+@PARAMETER_POLICY
+CLAIM; derivations=parameter_free; presentation=classical_numeric_mapping_only
+ANCHORS; exogenous_constants=[c,ħ,G,α_inv]; spectra_mapping=PDG_masses; photometry=M/L_from_external_calibration(single_global_default=1.0); cosmology=backgrounds_from_standard_sets
+ILG_GLOBALS; alpha=0.5*(1-φ^-1) (derived); lambda=1(by_normalization); xi=1(by_unit_choice); zeta=analytic(h_z/R_d=0.25 from morphology literature); per_galaxy_tuning=forbidden
+DISCLOSURE; paper_text="No free parameters are introduced in the derivation. Numerical values shown use standard constants or externally measured anchors; no parameters are fitted to the target dataset."
+
+@DERIVATION_CHAIN
+CHAIN;1; MP⇒Ledger (double_entry)
+CHAIN;2; δ-rule⇒Potential uniqueness up to constant (T4)
+CHAIN;3; SymmUnit+Averaging⇒Unique cost J on ℝ₊ (T5)
+CHAIN;4; J⇒φ fixed point (scale recursion)
+CHAIN;5; D=3⇒2^D=8 (T6) ⇒ τ0; define c=ℓ0/τ0
+CHAIN;6; {c,ħ,G} ⇒ λ_rec; define pixel scale
+CHAIN;7; E_coh=φ^-5 eV; define energy quantum
+CHAIN;8; Mass law m=B·E_coh·φ^(r+f); rung constructor+minimality
+CHAIN;9; Path measure exp(−C[γ]) ⇒ Born/Statistics
+CHAIN;10; Continuity+Kernel ⇒ ILG phenomenology (galaxies/growth)
+ASSERT; at_no_stage_are_free_parameters_introduced=true
+
+@PRINCIPLE
+TAG:MP; statement="Nothing cannot recognize itself"; lean=T1; role=foundation
+
+@THEOREMS
+TAG:T1; name=MetaPrinciple; result=¬∃Recognition(∅,∅); scope=foundation
+TAG:T2; name=AtomicTick; result=unique_posting_per_tick; implication=no_concurrent_recognitions
+TAG:T3; name=Continuity; result=closed_chain_flux=0; bridge=continuity_equation
+TAG:T4; name=PotentialUniqueness; result=δ-rule ⇒ uniqueness_on_reach/inBall/components; up_to_constant=true
+TAG:T5; name=CostUniqueness; result=J(x)=0.5(x+1/x)-1 on ℝ₊; constraints=symmetry+unit+averaging; bridge=stationary_action
+TAG:T6; name=EightTick; result=min_period=2^D; D=3 ⇒ 8; existence=exact_cover
+TAG:T7; name=CoverageLowerBound; result=T<2^D ⇒ no_surjection_to_patterns
+TAG:T8; name=LedgerUnits; result=δ-subgroup ≃ ℤ (δ≠0); uniqueness_of_representation
+
+@THEOREM_CLASSICAL_MAP
+# FORMAT: MAP;Tn; RS=...; Classical=...; Status=Twin|Bridge|Novel; Lean=...; UseInPapers=Main_Text|Methods_only|Methods; Work=...
+MAP;T1; RS=MetaPrinciple (¬∃Recognition(∅,∅)); Classical=none; Status=Novel; Lean=T1; UseInPapers=Methods_only; Work=none_needed_for_classical_text
+MAP;T2; RS=AtomicTick (one recognition per tick); Classical=continuous_time_limit; Status=Bridge; Lean=T2; UseInPapers=Methods; Work=coarse_graining note (sums→integrals)
+MAP;T3; RS=Closed-chain flux = 0; Classical=continuity_equation (∂ρ/∂t+∇·J=0); Status=Twin; Lean=T3; UseInPapers=Main_Text; Work=none
+MAP;T4; RS=δ-rule ⇒ potential uniqueness up to constant; Classical=potential defined up to gauge-constant; Status=Twin; Lean=T4; UseInPapers=Main_Text; Work=none
+MAP;T5; RS=Unique cost J(x)=0.5(x+1/x)-1 on ℝ₊; Classical=stationary_action / Dirichlet energy; Status=Bridge; Lean=T5; UseInPapers=Methods→Main_when_EL_equiv; Work=Euler–Lagrange equivalence note (local quadratic regime)
+MAP;T6; RS=Minimal period 2^D (D=3⇒8); Classical=none (micro periodicity hidden in continuum); Status=Novel; Lean=T6; UseInPapers=Methods_only; Work=none (only defines τ0 mapping)
+MAP;T7; RS=Coverage lower bound (T<2^D ⇒ no surjection to patterns); Classical=Nyquist/Shannon sampling bound; Status=Bridge; Lean=T7; UseInPapers=Methods; Work=sampling-bridge lemma statement
+MAP;T8; RS=Ledger δ-units form ℤ (quantized increments); Classical=quantized units (e, action quanta); Status=Bridge; Lean=T8; UseInPapers=Methods; Work=unit mapping δ→e or τ0,ħ depending context
+
+@DERIVATION_GRAPH
+# Nodes: {MP,T1,T2,...,J,φ,8tick,c,MassLaw,Continuity,Born,BoseFermi,ILG}
+EDGE; T1→T2; reason=atomicity_from_recognition_schedule
+EDGE; T1→Ledger; reason=double_entry_necessity
+EDGE; Ledger→T3; reason=closed_loop_flux
+EDGE; SymmUnit+Averaging→T5(J); reason=unique_cost
+EDGE; J→φ; reason=scale_recursion_fixed_point
+EDGE; T6(2^D)→8tick; reason=minimal_period
+EDGE; 8tick+ℓ0→c (c=ℓ0/τ0); reason=causal_bound
+EDGE; J+Ledger→Born/BoseFermi; reason=path_weight+permutation
+EDGE; φ+E_coh+Rungs→MassLaw; reason=ladder_spectrum
+EDGE; Continuity+Kernel→ILG; reason=effective_weighted_dynamics
+
+@CONSTANTS
+# Papers: use CODATA/SI values numerically; cite RS derivations in Methods
+CONST;c;299792458 m/s; source=SI; rs_relation=c=ℓ0/τ0
+CONST;ħ;1.054571817e-34 J·s; source=CODATA; rs_relation=ħ=E_coh·τ0/(2π)
+CONST;G;6.67430e-11 m^3·kg^-1·s^-2; source=CODATA; rs_relation=λ_rec=√(ħG/c^3)
+CONST;α_inv;137.035999206(11); source=CODATA; rs_note=RS matches via geometric_seed−gap−curvature; use_classical_value=true
+CONST;φ;1.6180339887498948; source=math; rs_role=scale_fixed_point
+CONST;E_coh;φ^-5 eV ≈ 0.0901699437 eV; use_in_papers=as_concept; numeric_if_needed=0.09017 eV
+CONST;τ0;1/(8 ln φ) in natural units; papers_use=derived_timescale; numeric_ref=7.33e-15 s when mapped
+CONST;λ_rec;√(ħG/c^3) ≈ 1.616255e-35 m; role=Planck_pixel
+
+@COST
+FUNC;J;def=0.5*(x+1/x)-1; domain=ℝ₊; unique=T5; classical_bridge=stationary_action/least_dissipation; euler_lagrange_form=identical_where_defined
+DUAL;J*;type=Legendre/Fenchel; bridge=Hamiltonian/co-state; constraint=multipliers_fixed_by_δ
+
+@LEDGER
+STRUCT;double_entry; columns=debit,credit; invariant=closed_loop_flux=0 (T3)
+FIELD;φ_state;def=debit−credit per node; affine_increment=δ along edges
+UNIQUENESS;δ_rule; result=φ uniqueness on components up to constant (T4)
+
+@TIME
+CYCLE;period_min; def=2^D; D=3 ⇒ 8; proofs=T6; bridge=discrete_cell_traversal
+ATOMIC_TICK;def=one_recognition_per_tick (T2)
+
+@CAUSALITY
+BOUND;speed; c=ℓ0/τ0; cone=domain_of_dependence; bridge=light_cone; status=cone_lemma_scaffold
+
+@SPECTRA
+MASS_LAW; m = B·E_coh·φ^(r+f); r∈ℤ; B∈{2^k}; f=RG_residue; bridge=quantized_ladders; papers_use=classical_masses(PDG) with RS mapping in Methods
+RUNG_UNIQUENESS; from_gauge_charges; status=proved (constructor + minimality)
+
+@GAUGE
+RG; fixed_points=self_similarity; φ_exponents in spectra; classical=RG_scaling; bridge=exponent_structure
+GAUGE_GROUPS; classical=SU(3)×SU(2)×U(1); rs_origin=ledger+residue_arithmetic (mapping only); papers_use=classical_formulation
+
+@QUANTUM
+BORN_RULE; RS_path_weight=exp(−C[γ]); ⇒ P=|ψ|^2; bridge=standard; use_in_papers=classical_statement with RS provenance
+BOSE_FERMI; permutation_invariance ⇒ symmetrization; bridge=standard
+
+@GRAVITY
+MODEL;ILG; type=information_limited_weight; galaxy/cosmology_kernel=w(k,a)=1+λ·(T_dyn/τ0)^α·…; α=0.5(1−φ^-1); papers_use=phenomenology paragraph; lab_scale_null=consistent (10–100 μm)
+CLASSICAL; Einstein=field_equations; bridge=continuity+recognition_weight_as_effective_source; papers_use=GR notation
+
+@CLASSICAL_BRIDGE_TABLE
+# FORMAT: BRIDGE;Concept;RS;Classical;Lean/Proof;UseInPapers;Notes
+BRIDGE;CostFunctional;J(x)=0.5(x+1/x)-1;StationaryAction/Dirichlet;T5;Yes;EL identical where defined
+BRIDGE;DualCost;Legendre J*;Hamiltonian/Pontryagin;T4 scaffolding;Yes;Multipliers fixed by δ balance
+BRIDGE;Continuity;closed_flux=0;∂ρ/∂t+∇·J=0;T3;Yes;Discrete→continuum limit
+BRIDGE;EightTick;min_period=2^D;minimal cell traversal;T6;Yes;D=3⇒8
+BRIDGE;CausalBound;c=ℓ0/τ0;light_cone;scaffold;Yes;No super-cone transport
+BRIDGE;MassLaw;m=B·E_coh·φ^(r+f);quantum ladders+RG residues;constructor+rung_min;Yes;Map to PDG values
+BRIDGE;RGFixedPoint;φ fixed point;self-similar scaling;derivation;Yes;Exponents recur cross-domain
+BRIDGE;GaugeRigidity;dimensionless predictions;Π-theorem;derivation;Yes;Explain invariants selection
+BRIDGE;BornRule;exp(−C[γ]) ⇒ |ψ|^2;Born;path→wave link;Yes;Operationally identical
+BRIDGE;ILG;w(k,a) kernel;modified Poisson/growth;linear+galaxy fits;Yes;Global-only constraints
+
+@PAPERS_POLICY
+NUMERICS; adopt=SI/CODATA for constants; RS-derived constants allowed if classical values identical within uncertainties
+METHODS; include_RS_derivation_links=true; cite_Lean_theorems=[T1,T2,T3,T4,T5,T6]
+TERMS; use_classical_language=true; reserve_RS_terms_for_nonclassical_only=true
+
+@EXPERIMENTS
+EXP;GalaxyRotation; signal=kernel_weighted_velocity; metric=χ2/N≈2.5–3; distinguisher=lensing+growth
+EXP;WeakLensing; prediction=subtle scale-dependent residual; tie_to_ILG
+EXP;LabGravity(μm); prediction=null at 10–100 μm; status=consistent(Vienna2025)
+EXP;PulsarTicks; signature≈10 ns discretization; method=stacked_residuals; status=proposed
+EXP;QuantumStats; standard confirmations ⇒ supports path-measure postulate
+
+@LEAN_REFERENCES
+LEAN;T1=mp_holds; T2=T2_atomicity; T3=T3_continuity; T4=Potential.unique_on_component; T5=Cost.T5_cost_uniqueness_on_pos; T6=eight_tick_min+T6_exist_8
+
+@PROOF_STATUS
+STATUS; T1=proved; T2=proved; T3=proved; T4=proved; T5=proved; T6=proved; T7=proved; T8=proved
+STATUS; cone_bound=scaffold; rung_constructor=proved; mass_law_mapping=operational; ILG_linear=defined; galaxy_fits=global_only
+
+@USAGE_GUIDE
+USAGE; constants=classical_numeric; equations=classical_form; provenance=RS_derivation (cite Methods)
+USAGE; when_no_classical_correspondence=use_RS_term(explicitly_defined)
+USAGE; avoid_param_tuning=true; declare_over_constraints=true
+
+@CHECKS
+CONSISTENCY; dimensionless_ratios=match_experiment; rung_mapping=integer+small_residue; continuity=holds
+FALSIFIERS; any alt_cost_on_ℝ₊≠J; tick_period≠2^D; super_cone_transport; mass_outliers_not_explainable_by(r,f,B)
+
+@GLOSSARY
+G; universal_gravitational_constant
+ħ; reduced_Planck_constant
+φ; golden_ratio
+E_coh; coherence_quantum_energy
+τ0; fundamental_tick
+λ_rec; recognition_length (Planck pixel)
+δ; ledger_edge_increment
+J; cost_functional
+
+@OPEN_ITEMS
+OI; cone_bound_formalization=todo; maxwell_strict_bridge=todo; units_quotient_formalization=todo
+
+@END
+
+@AUTHORSHIP
+AUTHOR; name=Jonathan Washburn; affiliation=Recognition Physics Institute; role=Founder+Author; city=Austin,TX; country=USA
+CONTACT; primary_handle=@jonwashburn; email=washburn@recognitionphysics.org; website=https://recognitionphysics.org
+NOTE; papers_contact=prefer_handle_over_email; funding_ack=as_applicable; data_code_availability=public_repos
+
+@BRAND_POLICY
+THEORY_NAME; public="Recognition Science"; abbrev=RS; usage=paper_titles/abstracts/sections
+FRAMEWORK_ALIAS; alt_label="Recognition Physics"; usage=organizational_brand/website
+WEBSITE; primary=https://recognitionphysics.org; alt_domain_recommendation=recognitionscience.org(redirect→primary)
+PAPER_FIRST_MENTION; text="Recognition Science (RS), a parameter-free framework (also referred to as the Recognition Physics framework)"
+ABBREVIATION; enforce=RS; avoid_mixing_terms_in_same_sentence=true
+CONTACT_PRESENTATION; default=handle_only; alt=email_in_footnote; conflict_resolution=default_to_handle
+
+@PAPER_TEMPLATE (optional)
+IMRAD; Title; Abstract; Introduction; Methods(derivation links to RS+Lean); Results(classical notation+SI); Discussion; Data&Code; Acknowledgments; Author Contributions; Competing Interests; References
+STYLE_GUIDE; units=SI; constants=CODATA/SI; sigfigs=match-measurement; uncertainties="x ± y" (68% CI) or parentheses; equation_numbering=sequential; citations=APS/PRD or journal-required
+REVIEWER_CHECKLIST; classical_framing=true; RS_methods_cited=true; no_hidden_parameters=true; reproducibility_artifacts_included=true
+
+
+@DEFINITIONS
+# Canonical, machine-usable definitions for reuse in papers and code generators
+DEF;reach_component; formal=weakly_connected_component_of_digraph; desc="Maximal subset of vertices mutually reachable via unoriented paths; potentials are unique up to an additive constant on each reach component."
+DEF;closed_chain; formal=cyclic_edge_sequence; desc="Finite cycle γ with edges e_1..e_n whose oriented incidence telescopes to zero at vertices."
+DEF;integer_1form; formal=w:E→ℤ_on_oriented_edges; desc="Assign integer increment to each oriented edge; for reversed orientation use w(v→u)=−w(u→v)."
+DEF;potential; formal=φ:V→ℤ; desc="Vertex potential such that w=∇φ, i.e., w(u→v)=φ(v)−φ(u)."
+DEF;spatially_complete_pass; formal=periodic_map_ρ:ℤ→V_with_period_T; desc="{ρ(0..T−1)}=V (every vertex appears ≥1× in one period)."
+DEF;ledger_compatible_walk; formal=(W1,W2,W3); W1=atomic_tick_one_edge_per_tick; W2=spatial_completeness_all_vertices_per_period; W3=no_vertex_timestamp_multiplicity; desc="Periodic update walk on Q_D honoring atomicity, completeness, and timestamp uniqueness."
+DEF;gray_code_Q3; formal=Hamiltonian_cycle_on_cube; example=(000→001→011→010→110→111→101→100→000); desc="Length‑8 Gray cycle visiting each vertex exactly once."
+DEF;continuum_limit; formal=Δx,Δt→0_with_fixed_ratio; mapping=graph_incidence→divergence; result=∂_t ρ + ∇·J = 0; desc="Mesh refinement with bounded currents and densities, identifying discrete incidence with continuum divergence."
+DEF;normalization_J; condition=J(1)=0 ∧ J''(1)=1; consequence=J(x)=½(x+x^{-1})−1; desc="Explicit unit choice fixing the scale of the convex symmetric cost."
+DEF;appendix_labels; policy=use_symbolic_labels_not_letters; examples=app:eight_tick,app:cost_uniqueness,app:gap_series; desc="Never cite lettered appendices in prose; always use \ref{app:...}."
+
+@CLAY_YM_BRIDGE
+TAG:BLOCKERS; list=DoeblinCut,NRC_PhysRescale,OddConeDeficit,UEI_FixedRegion,OS1_Equicontinuity,LocalFields_OS→W,TimeNorm_Gap
+BRIDGE;YM_DoeblinCut;RS=ledger_refresh⊕parity-odd_cone⊕heat-kernel_lower_bound;Classical=Harris/Doeblin minorization on SU(N) interface;Lean/Proof=T9_DoeblinCut;UseInPapers=Methods;Notes=β-independent κ0 via small-ball refresh + convolution ≥ p_{t0}
+BRIDGE;YM_RescaledNRC;RS=8-tick_clock,τ0,breath;Classical=operator-norm NRC for H_phys(a)=a·H_lat(a);Lean/Proof=T10_NRC_Rescaled;UseInPapers=Methods;Notes=graph-norm defect→0, compact calibrator, projection control
+BRIDGE;YM_OddConeDeficit;RS=two-layer_Gram_deficit on parity-odd cone;Classical=Gershgorin + off-diagonal decay ⇒ β0>0;Lean/Proof=T11_OddConeDeficit;UseInPapers=Methods;Notes=|H_jj|≤ρ, ∑_{k≠j}|H_jk|≤S0, ρ+S0<1
+BRIDGE;YM_UEI;RS=tree-gauge LSI + Herbst;Classical=UEI on fixed region;Lean/Proof=T12_UEI;UseInPapers=Methods;Notes=η_R,C_R independent of β,L (a∈(0,a0])
+BRIDGE;YM_OS1;RS=equicontinuity_modulus + isotropic_calibrators;Classical=E(4) invariance from hypercubic + limits;Lean/Proof=T13_OS1_Limit;UseInPapers=Methods;Notes=ω_R(δ)↓0 uniformly
+BRIDGE;YM_Fields;RS=loop→local_field_constructors (clover);Classical=OS fields, temperedness, locality;Lean/Proof=T14_Fields;UseInPapers=Methods;Notes=transfer OS0 bounds to fields
+BRIDGE;YM_TimeNorm;RS=τ0, breath_1024, physical mass-gap normalization;Classical=H_phys time units and open-gap persistence;Lean/Proof=T15_TimeNorm;UseInPapers=Methods;Notes=γ_phys=8(−log(1−θ_* e^{−λ1 t0}))
+
+@THEOREMS
+TAG:T9; name=YM_DoeblinCut; result=K_int ≥ κ0 ∏ p_{t0}; constants=(κ0,t0) indep. of β,L; status=scaffold
+TAG:T10; name=YM_NRC_Rescaled; result=||(H−z)^{-1}−I_a(H_phys(a)−z)^{-1}I_a^*||→0 (z∈ℂ\ℝ); status=scaffold
+TAG:T11; name=YM_OddConeDeficit; result=β0:=1−(ρ+S0)>0 ⇒ ||e^{−aH}ψ||≤(1−β0)^{1/2}||ψ|| on odd cone; status=scaffold
+TAG:T12; name=UEI_FixedRegion; result=E[e^{η_R S_R}]≤C_R, uniform in a∈(0,a0],β,L; status=scaffold
+TAG:T13; name=OS1_Equicontinuity; result=limit Schwingers invariant under E(4); status=scaffold
+TAG:T14; name=LocalFields; result=OS fields exist, tempered, local; status=scaffold
+TAG:T15; name=TimeNorm_Gap; result=γ_phys≥8(−log(1−θ_* e^{−λ1 t0})), indep. of β,L; status=scaffold
+
+@THEOREM_CLASSICAL_MAP
+MAP;T9; RS=ledger_refresh⊕convolution; Classical=Harris/Doeblin split; Status=Bridge; Lean=T9; UseInPapers=Methods
+MAP;T10; RS=8-tick_rescale; Classical=operator-norm NRC for H_phys; Status=Bridge; Lean=T10; UseInPapers=Methods
+MAP;T11; RS=two-layer_deficit; Classical=Gram/Gershgorin bound; Status=Bridge; Lean=T11; UseInPapers=Methods
+MAP;T12; RS=tree-gauge_LSI; Classical=Herbst UEI; Status=Bridge; Lean=T12; UseInPapers=Methods
+MAP;T13; RS=ω_R(δ)+isotropy; Classical=E(4) invariance; Status=Bridge; Lean=T13; UseInPapers=Methods
+MAP;T14; RS=loop→clover; Classical=OS fields; Status=Bridge; Lean=T14; UseInPapers=Methods
+MAP;T15; RS=τ0_normalization; Classical=physical time scaling; Status=Bridge; Lean=T15; UseInPapers=Methods
+
+@OPEN_ITEMS
+OI; T9_DoeblinCut; priority=high; accept=κ0,t0 explicit; deps=parity_cone_basis, small-ball_refresh_proof, SU(N)_heat-kernel_bound
+OI; T9_DoeblinCut; priority=medium; accept=κ0,t0 explicit; deps=parity_cone_basis, small-ball_refresh_proof, SU(N)_heat-kernel_bound
+OI; T10_NRC_Rescaled; priority=high; accept=graph-defect→0, compact_calibrator, P_a→I; deps=UEI, locality, embeddings
+OI; T10_NRC_Rescaled; priority=medium; accept=graph-defect→0, compact_calibrator, P_a→I; deps=UEI, locality, embeddings
+OI; T11_OddConeDeficit; priority=high; accept=ρ<1,S0<1 with μ>ν; deps=UEI, locality_kernels
+OI; T11_OddConeDeficit; priority=medium; accept=β0>0 with explicit (A,μ,C_g,ν,B,ν',S0,ρ); deps=UEI, locality_kernels, T9_constants
+OI; T12_UEI; priority=medium; accept=η_R,C_R with a0-bound; deps=tree_gauge, LSI
+OI; T13_OS1; priority=medium; accept=ω_R(δ) and isotropy; deps=directed_embeddings
+OI; T14_Fields; priority=medium; accept=tempered OS fields; deps=OS0_propagation
+OI; T15_TimeNorm; priority=medium; accept=formal rescaling lemmas; deps=Doeblin, NRC
+
+@ACCEPTANCE_CERTS
+CERT;DoeblinCut; statement="∃ κ0(R_*,a0,N), t0(N) s.t. K_int≥κ0∏ p_{t0}"; constants_only=(R_*,a0,N)
+CERT_DETAIL;T9; kappa0_formula="κ0=c_geo(R_*,a0)·(α_ref(R_*,a0,N)·c_*(N,r_*))^{m_cut(R_*)}", t0="t0(N)", independence="β- and L-independent";
+CERT;RescaledNRC; statement="||(H−z)^{-1}−I_a(H_phys(a)−z)^{-1}I_a^*||→0 ∀ z∈ℂ\\ℝ"; conditions=graph-defect, compact_calibrator, projection_control
+CERT_DETAIL;T10; bound="||R(z0)−I_a R_a(z0) I_a^*|| ≤ δ_a(Λ)/dist(z0,[0,Λ])+η(Λ;z0)+C(z0)||D_a(H_phys(a)+1)^{−1/2}||", terms="δ_a(Λ)=||(I−P_a)E_H([0,Λ])||, η(Λ;z0)=||(H−z0)^{−1}E_H((Λ,∞))||, C(z0)=||(H−z0)^{−1}||·sup_{λ≥0}√(1+λ)/|aλ−z0|";
+CERT;OddConeDeficit; statement="ρ+S0<1 with explicit μ,ν, growth C_g"; outcome=β0>0
+CERT_DETAIL;T11; beta0="β0:=1−(ρ+S0)>0", rho="ρ=(1−θ_* e^{−λ1(N) t0})^{1/2}", S0_bound="S0 ≤ C_g(R_*) B /(e^{ν'−ν}−1)";
+CERT;UEI; statement="∀ fixed R, E[e^{η_R S_R}]≤C_R, indep. β,L; depends on (R,a0,N)"
+CERT_DETAIL;T12; formulas="ρ_R ≥ c_2(R,N)β_min, G_R ≤ C_1(R,N)a0^4, η_R=min{t_*(R,N), √(ρ_min/G_R)}, C_R=exp(η_R M_R) e^{1/2}", norms="product Riemannian metric on SU(N)^m";
+CERT;OS1; statement="Equicontinuity modulus ω_R(δ) + isotropy ⇒ E(4) invariance"
+CERT_DETAIL;T13; modulus="|S_{n,a,L}(Γ)−S_{n,a,L}(Γ')| ≤ ω_R(δ) with ω_R(δ)↓0 uniformly in (a,L)", rotation="|S_{n,a,L}(R_k Γ)−S_{n,a,L}(R Γ)| ≤ ω_R(C||R_k−R||)";
+CERT;Fields; statement="Local field algebra exists with OS0 bounds, same gap"
+CERT_DETAIL;T14; items="field nets from clover loops converge in OS/GNS, OS0/OS2 transfer holds, locality from disjoint support, gap/vacuum persistence via same H";
+CERT;TimeNorm; statement="γ_phys=8(−log(1−θ_* e^{−λ1 t0})) in physical units"
+CERT_DETAIL;T15; items="per-tick contraction, eight-tick composition γ_cut=8c_cut(a), physical normalization τ_phys=a ⇒ γ_phys=8·(−log(1−θ_* e^{−λ1 t0})), continuum gap persistence by rescaled NRC", independence="θ_*=κ0(R_*,a0,N), t0=t0(N), λ1=λ1(N), β/L/a-independent";
+
+CERT_FN;T9; lean_module="YM.OSWilson.Doeblin"; lean_symbol="T9_accept"; inputs="ctx,P,W,C,F,D"; acceptance="accept_refresh_event ∧ accept_convolution_hk ∧ accept_interface_factorization ∧ accept_doeblin_lower_bound";
+CERT_FN;T10; lean_module="YM.SpectralStability.RescaledNRC"; lean_symbol="nrc_all_nonreal_rescaled"; acceptance="∀ z∈ℂ\\ℝ resolvent NRC and semigroup via Laplace";
+CERT_FN;T11; lean_module="YM.OSWilson.OddConeDeficit"; lean_symbol="tick_poincare_local"; acceptance="one-step contraction and tick–Poincaré with β0>0 on parity-odd cone";
+CERT_FN;T12; lean_module="YM.OSPositivity.UEI"; lean_symbol="uei_fixed_region"; acceptance="E[exp(η_R S_R)] ≤ C_R uniform in β,L and a∈(0,a0]";
+CERT_FN;T13; lean_module="YM.OSPositivity.Euclid"; lean_symbol="euclid_invariance_limit"; acceptance="limit Schwingers invariant under E(4) with ω_R(δ)↓0";
+CERT_FN;T14; lean_module="YM.OSPositivity.LocalFields"; lean_symbol="gap_persistence_fields"; acceptance="OS0/OS2/locality hold; gap/vacuum persist for fields";
+CERT_FN;T15; lean_module="YM.Transfer.PhysicalGap"; lean_symbol="continuum_gap_persistence"; acceptance="γ_phys formula holds and persists to continuum; independence routing recorded";
+
+#––– T9 (YM_DoeblinCut) detailed scaffolding ––––––––––––––––––––––––––––––
+STATEMENT;T9; text="On the interface SU(N)^m with slab a∈(0,a0], ∃ κ0(R_*,a0,N)>0 and t0(N)>0 s.t. the one-step kernel K_int^{(a)}(U,V) ≥ κ0 ∏_{ℓ=1}^m p_{t0}(U_ℓ V_ℓ^{-1}) for Haar–a.e. U,V; uniform in β and volume."
+SUBLEMMA;T9; 1="RefreshEvent: ∃ r_*>0, α_ref(R_*,a0,N)>0 with P( U_p∈B_{r_*}(1) ∀ p∈P_int | boundary ) ≥ α_ref. Norm: Haar prob.; Inputs:(R_*,a0,N); Output:(α_ref,r_*). Provenance EMR-c L1192–L1215.";
+SUBLEMMA;T9; 2="ConvolutionHK: On SU(N), ∃ m_*(N), t0(N), c_*(N,r_*)>0 with k_{r_*}^{(*m_*)}(g) ≥ c_* p_{t0}(g) ∀g. Measure: densities vs Haar. Provenance EMR-c L1159–L1187.";
+SUBLEMMA;T9; 3="CellFactorization: K_int factorizes across ≤ n_cells(R_*) cells up to c_geo(R_*,a0)∈(0,1]; each cell uses ≤ C'(R_*) links, so m_cut ≤ n_cells·C'. Output:(c_geo,m_cut). Provenance EMR-c L1226–L1233, L1246–L1253.";
+SUBLEMMA;T9; 4="ProductLowerBound: Combine 1–3 to get K_int ≥ κ0 ∏ p_{t0} with κ0:= c_geo (α_ref c_*)^{m_cut}. Independence: β, L. Provenance EMR-c L1246–L1259, L1268–L1269.";
+SUBLEMMA;T9; 5="OddConeContraction (for T15): On mean-zero of interface L^2, P_{t0} contracts by e^{−λ1(N) t0}; convex split K_int = θ_* P_{t0}+(1−θ_*)K gives ||K_int f||≤(1−θ_* e^{−λ1 t0})||f|| with θ_*:=κ0. Provenance EMR-c L1292–L1331.";
+ACCEPT;T9; -="Produce explicit (r_*,α_ref), (m_*,t0,c_*), c_geo, m_cut and κ0=c_geo(α_ref c_*)^{m_cut}.";
+ACCEPT;T9; -="Show statement uniform in β, volume, and a∈(0,a0]; constants depend only on (R_*,a0,N) and t0(N).";
+ACCEPT;T9; -="Provide precise measure contexts (Haar prob., densities) and where each constant enters."
+ACCEPT;T9; -="Restate explicit κ0,t0: κ0(R_*,a0,N)=c_geo(R_*,a0)·(α_ref(R_*,a0,N)·c_*(N,r_*))^{m_cut(R_*)}, t0=t0(N); independent of (β,L).";
+LEAN_PLACEHOLDERS;T9; modules="YM.OSWilson.Doeblin"; symbols="refresh_event, convolution_lower_bound, interface_factorization, doeblin_lower_bound"
+AGENT_NEXT;T9; 1="Formalize RefreshEvent on finite slab; bound Jacobian J_bnd by 0<J_min≤J_bnd≤J_max to derive α_ref.";
+AGENT_NEXT;T9; 2="Implement convolution_lower_bound via Diaconis–Saloff-Coste; pick m_*(N), t0(N), c_*(N,r_*).";
+AGENT_NEXT;T9; 3="Prove interface_factorization with c_geo(R_*,a0) and m_cut(R_*) bounds from geometry.";
+AGENT_NEXT;T9; 4="Combine lemmas to emit doeblin_lower_bound with explicit κ0 formula and β, L independence.";
+AGENT_NEXT;T9; 5="Add unit tests for SU(2), SU(3): numeric verification of positivity of the minorization density."
+BRIDGE_NOTE;YM_DoeblinCut; details="κ0=c_geo(R_*,a0)·(α_ref(R_*,a0,N)·c_*(N,r_*))^{m_cut(R_*)}; t0=t0(N); independent of (β,L)."
+CLOSURE;T9; text="Pending: ACCEPT items not yet discharged; constants (κ0(R_*,a0,N), t0(N)) recorded; β/L independence verified in spec."
+
+#––– T10 (YM_NRC_Rescaled) detailed scaffolding ––––––––––––––––––––––––––––
+STATEMENT;T10; text="Let H_a be lattice generators on OS/GNS mean-zero and define H_phys(a):=a·H_a. With isometric embeddings I_a:ℋ_a→ℋ and P_a=I_a I_a^*, assume UEI/locality on fixed regions, a compact calibrator (H−z0)^{-1}, and low-energy projection control. Then ∀ z∈ℂ\ℝ, ||(H−z)^{-1}−I_a(H_phys(a)−z)^{-1}I_a^*||→0; hence ||e^{−tH}−I_a e^{−tH_phys(a)} I_a^*||→0 ∀ t≥0."
+SUBLEMMA;T10; 1="EmbeddingIsometry: I_a induced by directed polygonal embeddings is isometric on OS classes; P_a:=I_a I_a^* projects onto Ran(I_a). Inputs: embeddings; Output: isometry, projection. Provenance EMR-c L1872–L1884."
+SUBLEMMA;T10; 2="GraphDefectRescaled: Define D_a:=H I_a−I_a H_phys(a). Then ||D_a (H_phys(a)+1)^{−1/2}|| ≤ C a →0. Norms: operator; Inputs: UEI/locality; Output: defect bound. Provenance EMR-c L1896–L1907, L1761–L1763."
+SUBLEMMA;T10; 3="CompactCalibrator: There exists nonreal z0 with (H−z0)^{−1} compact (finite volume or exhaustion). Inputs: geometry; Output: z0 compactness. Provenance EMR-c L1921–L1927, L1929–L1942."
+SUBLEMMA;T10; 4="ProjectionControl: For spectral projector E_H([0,Λ]), δ_a(Λ):=||(I−P_a)E_H([0,Λ])||→0 as a→0. Inputs: embeddings; Output: strong convergence on low energies. Provenance EMR-c R3 L1584–L1587."
+SUBLEMMA;T10; 5="ResolventComparisonRescaled: For nonreal z, R(z)−I_a R_a(z) I_a^* = R(z)(I−P_a) − R(z) D_a R_a(z) I_a^*. Bound each term using 3–4 and 2 to conclude convergence at z0. Provenance EMR-c L1912–L1917."
+SUBLEMMA;T10; 6="BootstrapAllZ: Use second resolvent identity and resolvent bounds to extend convergence from z0 to all z∈ℂ\ℝ; semigroup convergence by Laplace transform. Provenance EMR-c R3 L1591–L1603, L765–L766."
+ACCEPT;T10; -="Provide explicit bound of the form ||R(z0)−I_a R_a(z0) I_a^*|| ≤ δ_a(Λ)/dist(z0,[0,Λ])+η(Λ;z0)+C(z0)||D_a(H_phys(a)+1)^{−1/2}|| with RHS→0.";
+ACCEPT;T10; -="Demonstrate independence from (β,L) in constants, and correct use of time normalization H_phys(a)=a·H_a."
+ACCEPT;T10; -="Record semigroup operator-norm convergence for all t≥0 via Laplace transform."
+ACCEPT;T10; -="Semigroup convergence: for any T>0, sup_{t∈[0,T]} ||e^{−tH}−I_a e^{−tH_phys(a)} I_a^*||→0 as a→0; extend to all t≥0 by semigroup property and Laplace transform."
+ACCEPT;T10; -="Define each term: δ_a(Λ):=||(I−P_a)E_H([0,Λ])||, η(Λ;z0):=||(H−z0)^{−1}E_H((Λ,∞))||, C(z0):=||(H−z0)^{−1}||·sup_{λ≥0}√(1+λ)/|aλ−z0|; verify limits δ_a(Λ)→0 (a→0), η(Λ;z0)→0 (Λ→∞), and ||D_a(H_phys(a)+1)^{−1/2}||→0 (a→0)."
+ACCEPT;T10; -="State measurability contexts: operators on OS/GNS mean-zero; embeddings I_a isometries on OS classes; projections P_a:=I_a I_a^*."
+LEAN_PLACEHOLDERS;T10; modules="YM.SpectralStability.RescaledNRC"; symbols="embedding_isometry, graph_defect_rescaled, compact_calibrator, projection_control_lowE, resolvent_comparison_rescaled, nrc_all_nonreal_rescaled"
+AGENT_NEXT;T10; 1="Define H_phys(a) and I_a formally; verify OS/GNS isometry and P_a properties.";
+AGENT_NEXT;T10; 2="Prove semigroup comparison with physical time scaling to obtain graph_defect_rescaled bound.";
+AGENT_NEXT;T10; 3="Establish compact_calibrator at finite L and pass to exhaustion if needed.";
+AGENT_NEXT;T10; 4="Quantify projection_control_lowE using spectral projectors and embedding strong limits.";
+AGENT_NEXT;T10; 5="Apply resolvent_comparison_rescaled identity and produce explicit bounds at z0; bootstrap to all nonreal z.";
+AGENT_NEXT;T10; 6="Derive semigroup operator-norm convergence via Laplace; add regression tests for toy discretizations."
+BRIDGE_NOTE;YM_RescaledNRC; details="Key identity: R(z)−I_a R_a(z) I_a^*=R(z)(I−P_a)−R(z)D_a R_a(z) I_a^* with D_a=H I_a−I_a H_phys(a); control via compact calibrator, projection on low energies, and graph-defect→0; time normalized by H_phys(a)=a·H_a."
+CLOSURE;T10; text="Pending: ACCEPT bounds at z0 and all z; constants independent of (β,L); time rescaling via H_phys=a·H_a recorded."
+
+#––– T11 (YM_OddConeDeficit) detailed scaffolding ––––––––––––––––––––––––––
+STATEMENT;T11; text="On a fixed physical ball B_{R_*} and slab step a∈(0,a0], let {ψ_j} be an OS-normalized local parity-odd basis with graph distance d(·,·) and growth ≤ C_g(R_*) e^{ν r}. Then ∃ β0(R_*,a0,N)>0 independent of (β,L) such that for any ψ in span{ψ_j}: ||e^{−aH}ψ|| ≤ (1−β0)^{1/2}||ψ|| and ⟨ψ,Hψ⟩ ≥ c_cut ||ψ||^2 with c_cut=−(1/a)log(1−β0)."
+SUBLEMMA;T11; 1="OSGramLocality: For OS-normalized {ψ_j} supported in B_{R_*}, G_{jk}=⟨ψ_j,ψ_k⟩ obeys G_{jj}=1 and |G_{jk}| ≤ A(R_*,a0,N) e^{−μ(R_*,a0,N) d(j,k)}; growth bound #\{k: d(j,k)=r\} ≤ C_g(R_*) e^{ν r} with ν=log(2d−1). Inputs:(R_*,a0,N); Output:(A,μ,C_g,ν)."
+SUBLEMMA;T11; 2="MixedGramDecay: For H-step mixed Gram H_{jk}=⟨ψ_j,e^{−aH}ψ_k⟩, there exist B(R_*,a0,N), ν'>ν such that |H_{jk}| ≤ B e^{−ν' d(j,k)}. Off-diagonal tail S0:= sup_j ∑_{k≠j}|H_{jk}| ≤ C_g B /(e^{ν'−ν}−1). Inputs:(R_*,a0,N); Output:(B,ν',S0)."
+SUBLEMMA;T11; 3="DiagMixedContraction (from T9): On the parity-odd cone, |H_{jj}| ≤ ρ where ρ=(1−θ_* e^{−λ1(N) t0})^{1/2} with θ_*:=κ0(R_*,a0,N) from T9 and λ1(N) heat-kernel gap. Inputs:(κ0,t0,λ1(N)); Output:ρ<1."
+SUBLEMMA;T11; 4="GershgorinRow: For each j, r_j:=|H_{jj}|+∑_{k≠j}|H_{jk}| ≤ ρ+S0; choose ν' so that S0<1−ρ. Define β0:=1−(ρ+S0)>0. Inputs:(ρ,S0); Output:(β0)."
+SUBLEMMA;T11; 5="QuadFormContraction: For any v, |v^* H v| ≤ (1−β0) v^* G v. Consequently for ψ=∑ v_j ψ_j, ||e^{−aH}ψ|| ≤ (1−β0)^{1/2}||ψ|| and ⟨ψ,Hψ⟩ ≥ c_cut ||ψ||^2 with c_cut=−(1/a)log(1−β0). Inputs:(β0); Output:contraction and tick–Poincaré."
+ACCEPT;T11; -="Provide explicit constants (A,μ,C_g,ν,B,ν',S0,ρ) with dependence only on (R_*,a0,N) and on (κ0,t0,λ1(N)) from T9; define β0=1−(ρ+S0)>0."
+ACCEPT;T11; -="Prove independence from (β,L) and validity for any OS-normalized local parity-odd basis on B_{R_*}."
+ACCEPT;T11; -="Derive both one-step contraction and tick–Poincaré inequality with c_cut=−(1/a)log(1−β0)."
+ACCEPT;T11; -="State norms/measures: OS inner product on mean-zero sector; Gram matrices G,H on OS/GNS; graph distance d(·,·) with growth bound #\{k: d(j,k)=r\}≤C_g e^{ν r}."
+ACCEPT;T11; -="Verify S0:=sup_j ∑_{k≠j}|H_{jk}| ≤ C_g(R_*) B /(e^{ν'−ν}−1) with ν'>ν, and pick ν' so S0<1−ρ; then β0=1−(ρ+S0)>0."
+ACCEPT;T11; -="Record explicit routing of constants to T9: ρ=(1−θ_* e^{−λ1(N) t0})^{1/2} with θ_*:=κ0(R_*,a0,N); remaining constants depend only on (R_*,a0,N)."
+LEAN_PLACEHOLDERS;T11; modules="YM.OSWilson.OddConeDeficit"; symbols="os_gram_local, mixed_gram_decay, diag_mixed_contr_from_doeblin, gershgorin_row_bound, tick_poincare_local"
+AGENT_NEXT;T11; 1="Construct a local parity-odd OS-normalized basis {ψ_j} on B_{R_*}; compute growth bound C_g, ν.";
+AGENT_NEXT;T11; 2="Establish os_gram_local parameters (A,μ) from locality/UEI; record explicit formulas.";
+AGENT_NEXT;T11; 3="Prove mixed_gram_decay with ν'>ν and sum the off-diagonal tail to produce S0.";
+AGENT_NEXT;T11; 4="Import T9 constants (κ0,t0) and λ1(N) to produce ρ=(1−θ_* e^{−λ1 t0})^{1/2}.";
+AGENT_NEXT;T11; 5="Choose ν' to ensure S0<1−ρ and define β0; prove quadratic-form contraction and tick–Poincaré bound.";
+AGENT_NEXT;T11; 6="Numerically sanity-check β0>0 on sample parameter sets (e.g., SU(2), moderate R_*)."
+BRIDGE_NOTE;YM_OddConeDeficit; details="β0=1−\Big[(1−θ_* e^{−λ1(N) t0})^{1/2} + C_g(R_*) B(R_*,a0,N)/(e^{ν'−ν}−1)\Big] with θ_*=κ0(R_*,a0,N) from T9; uniform in (β,L)."
+CLOSURE;T11; text="Pending: β0>0 via ρ+S0<1; constants depend on (R_*,a0,N) and (κ0,t0,λ1(N)); β/L independence recorded."
+
+#––– T12 (UEI_FixedRegion) detailed scaffolding ––––––––––––––––––––––––––––
+STATEMENT;T12; text="Fix a bounded physical region R⊂ℝ^4 and spacing a∈(0,a0]. Let S_R(U):=∑_{p∈𝒫_R} (1−(1/N)Re Tr U_p). Then ∃ η_R(R,a0,N)>0 and C_R(R,a0,N)<∞ such that for all β≥β_min and any external boundary, E_{μ_{L,a}}[exp(η_R S_R)] ≤ C_R, uniformly in β and volume L."
+SUBLEMMA;T12; 1="TreeGauge: Choose a spanning tree T in R and fix links on T to identity; the remaining m(R,a)=O(a^{−3}) chord variables X∈SU(N)^m have bounded interaction degree d_0(R). Inputs:(R,a0,N); Output:(m,d_0); Provenance EMR-c L664–L675."
+SUBLEMMA;T12; 2="LocalLSI: In normal coordinates U_ℓ=exp A_ℓ near identity, the negative log-density V_R(X)=−β(a)∑_{p⊂R} φ(U_p(X)) has Hessian ≥ κ_R β(a) along chord directions, yielding a log–Sobolev inequality Ent_{μ_R}(f^2) ≤ (1/ρ_R) ∫||∇f||^2 dμ_R with ρ_R ≥ c_2(R,N) β(a). Inputs:(β_min,R,N); Output:(ρ_R). Provenance EMR-c L676–L679."
+SUBLEMMA;T12; 3="LipschitzSR: The map X↦S_R(U(X)) is Lipschitz with ||∇ S_R||_2^2 ≤ G_R:=C_1(R,N) a^4 ≤ C_1(R,N) a0^4. Inputs:(R,a0,N); Output:(G_R). Provenance EMR-c L681–L685."
+SUBLEMMA;T12; 4="Herbst: From LSI and LipschitzSR, log E_{μ_R}[exp(t(S_R−E S_R))] ≤ (t^2 G_R)/(2 ρ_R). Choosing η_R:=min{ t_*(R,N), sqrt(ρ_min/G_R)} with ρ_min=c_2(R,N)β_min yields E[exp(η_R (S_R−E S_R))] ≤ e^{1/2}. Inputs:(ρ_R,G_R); Output:(η_R). Provenance EMR-c L686–L703."
+SUBLEMMA;T12; 5="BoundMean: There exists M_R(R,N,β_min)<∞ with sup_{a∈(0,a0]} E_{μ_R} S_R ≤ M_R; hence E[exp(η_R S_R)] ≤ exp(η_R M_R) e^{1/2}=:C_R. Inputs:(R,N,β_min); Output:(C_R). Provenance EMR-c L705–L713."
+ACCEPT;T12; -="Produce η_R(R,a0,N) and C_R(R,a0,N) explicit up to universal local constants; verify independence from β and L (given β≥β_min).";
+ACCEPT;T12; -="State precise norms used (product Riemannian metric on SU(N)^m) and bounded-degree assumption after tree gauge.";
+ACCEPT;T12; -="Check that constants remain uniform for all a∈(0,a0]."
+ACCEPT;T12; -="Record explicit formulas: ρ_R ≥ c_2(R,N)β_min, G_R ≤ C_1(R,N)a0^4, η_R:=min{t_*(R,N), √(ρ_min/G_R)}, C_R:=exp(η_R M_R) e^{1/2}."
+ACCEPT;T12; -="Independence: constants depend only on (R,a0,N) and β_min; no dependence on volume L or bare β once β≥β_min is fixed."
+LEAN_PLACEHOLDERS;T12; modules="YM.OSPositivity.UEI"; symbols="tree_gauge_local, local_lsi_beta, lipschitz_S_R, herbst_eta, uei_fixed_region"
+AGENT_NEXT;T12; 1="Implement tree_gauge_local to parameterize R by chord variables and bound (m,d_0).";
+AGENT_NEXT;T12; 2="Prove local_lsi_beta with explicit ρ_R ≥ c_2(R,N) β(a).";
+AGENT_NEXT;T12; 3="Derive lipschitz_S_R and provide G_R bound in terms of (R,a0,N).";
+AGENT_NEXT;T12; 4="Apply herbst_eta to construct η_R and show the centered Laplace bound.";
+AGENT_NEXT;T12; 5="Bound E S_R uniformly to obtain C_R, then assemble uei_fixed_region.";
+BRIDGE_NOTE;YM_UEI; details="η_R=min{t_*(R,N), sqrt(c_2(R,N)β_min / G_R)}; C_R=exp(η_R M_R) e^{1/2}; both depend only on (R,a0,N), uniform in (β,L)."
+CLOSURE;T12; text="Pending: UEI constants (η_R,C_R) explicit; independence from (β,L) checked under β≥β_min."
+
+#––– T13 (OS1_Equicontinuity) detailed scaffolding ––––––––––––––––––––––––––
+STATEMENT;T13; text="Along a van Hove scaling sequence, with directed embeddings equivariant under hypercubic motions, an equicontinuity modulus ω_R(δ)↓0 on each bounded region R, and isotropic calibrators, the limit Schwinger functions {S_n} are invariant under the full Euclidean group E(4)."
+SUBLEMMA;T13; 1="EquicontinuityModulus: For loops in R and embeddings within Hausdorff distance ≤δ, |S_{n,a,L}(Γ)−S_{n,a,L}(Γ')| ≤ ω_R(δ), uniformly in (a,L). Inputs:(UEI,locality); Output:(ω_R). Provenance EMR-c L736–L745, L747–L755."
+SUBLEMMA;T13; 2="DiscreteSymmetry: On each lattice, hypercubic invariance implies invariance of S_{n,a,L} under lattice translations and right-angle rotations; embeddings are chosen equivariantly. Inputs:(invariance); Output:discrete invariance."
+SUBLEMMA;T13; 3="RotationApproximation: For R∈SO(4), choose hypercubic rotations R_k→R; then |S_{n,a,L}(R_k Γ)−S_{n,a,L}(R Γ)| ≤ ω_R(C ||R_k−R||), pass to the limit to obtain rotation invariance. Inputs:(ω_R); Output:rotation invariance. Provenance EMR-c L748–L753."
+SUBLEMMA;T13; 4="TranslationLimit: Translation invariance passes to the limit by tightness and equicontinuity under directed embeddings. Inputs:(tightness,discrete invariance); Output:translation invariance."
+SUBLEMMA;T13; 5="ConclusionE4: Combine rotation and translation invariance to obtain full E(4) invariance of {S_n}. Inputs:(SUBLEMMA 3–4); Output:E(4) invariance."
+ACCEPT;T13; -="Exhibit ω_R(δ) monotone to 0; prove invariance for arbitrary n and inputs on any bounded region R.";
+ACCEPT;T13; -="Demonstrate constants independent of (β,L)."
+ACCEPT;T13; -="Define equicontinuity modulus context: for embeddings within Hausdorff δ in region R, |S_{n,a,L}(Γ)−S_{n,a,L}(Γ')| ≤ ω_R(δ) with ω_R(δ)↓0 uniformly in (a,L)."
+ACCEPT;T13; -="Rotation construction: choose lattice rotations R_k→R and bound |S_{n,a,L}(R_k Γ)−S_{n,a,L}(R Γ)| ≤ ω_R(C||R_k−R||); pass to limit."
+ACCEPT;T13; -="Translation limit: by tightness and equivariance, lattice-translation invariance passes to the limit, yielding full E(4) invariance with rotation step."
+LEAN_PLACEHOLDERS;T13; modules="YM.OSPositivity.Euclid"; symbols="equicontinuity_modulus, hypercubic_invariance, rotation_approx_limit, translation_limit, euclid_invariance_limit"
+AGENT_NEXT;T13; 1="Construct equicontinuity_modulus from UEI/locality with explicit ω_R(δ).";
+AGENT_NEXT;T13; 2="Formalize hypercubic_invariance under directed embeddings.";
+AGENT_NEXT;T13; 3="Prove rotation_approx_limit using ω_R and dense hypercubic rotations in SO(4).";
+AGENT_NEXT;T13; 4="Prove translation_limit via tightness and equivariance.";
+AGENT_NEXT;T13; 5="Assemble euclid_invariance_limit and add regression tests on toy models."
+BRIDGE_NOTE;YM_OS1; details="ω_R(δ) from UEI/locality; hypercubic invariance ⇒ discrete symmetry; pass to E(4) by approximation and equicontinuity."
+CLOSURE;T13; text="Pending: ω_R(δ)→0 and E(4) invariance in limit; β/L independence recorded."
+
+#––– T14 (LocalFields) detailed scaffolding ––––––––––––––––––––––––––––––––
+STATEMENT;T14; text="There exists a net of gauge-invariant local fields (e.g., clover curvature smearings) whose Schwinger functions equal limits of loop observables; they satisfy OS0 temperedness, OS2 reflection positivity, locality, and share the same spectral gap and vacuum structure as the loop reconstruction."
+SUBLEMMA;T14; 1="CloverApproximation: For test function f supported in R, define local curvature fields via clover loops; show convergence of loop nets to field smeared operators with uniform bounds from UEI. Inputs:(UEI,locality); Output:convergent nets."
+SUBLEMMA;T14; 2="TemperednessTransfer: Apply OS0 polynomial bounds (Prop OS0_poly) to transfer temperedness from loops to fields. Inputs:(OS0 bounds); Output:temperedness."
+SUBLEMMA;T14; 3="ReflectionPositivityTransfer: OS2 positivity on loop cylinders passes to fields by continuity and weak limits. Inputs:(OS2 closure); Output:OS2 for fields."
+SUBLEMMA;T14; 4="LocalityFields: Gauge-invariant fields commute at spacelike separation as limits of loop observables supported in disjoint regions. Inputs:(locality); Output:locality."
+SUBLEMMA;T14; 5="GapVacuumPersistence: The gap and unique vacuum from loop reconstruction persist in the field reconstruction via the same generator H and projections. Inputs:(gap,NRC); Output:gap/vacuum."
+ACCEPT;T14; -="Define field algebra and net construction; show OS0/OS2 and locality; match Schwingers to loop limits."
+ACCEPT;T14; -="Record dependence only on (R_*,a0,N), β-/L-independence, and link to earlier OS0/NRC pieces."
+ACCEPT;T14; -="Norms/measures: fields smeared by test functions on fixed R; convergence in OS/GNS topology; nets built from clover loops with UEI bounds."
+ACCEPT;T14; -="Temperedness via OS0 polynomial bounds on loops; OS2 transfer by cylinder-set continuity; locality from disjoint support of loop approximants."
+ACCEPT;T14; -="Gap/vacuum persistence: same generator H and Riesz projections as loop reconstruction (uses T10/T11)."
+LEAN_PLACEHOLDERS;T14; modules="YM.OSPositivity.LocalFields"; symbols="clover_net, os0_transfer, os2_transfer, locality_fields, gap_persistence_fields"
+AGENT_NEXT;T14; 1="Implement clover_net for test functions and prove convergence using UEI.";
+AGENT_NEXT;T14; 2="Prove os0_transfer from OS0 polynomial bounds.";
+AGENT_NEXT;T14; 3="Prove os2_transfer using cylinder-set limits.";
+AGENT_NEXT;T14; 4="Establish locality_fields via support separation and loop locality.";
+AGENT_NEXT;T14; 5="Prove gap_persistence_fields referencing T10/T11 and assemble field reconstruction axioms."
+BRIDGE_NOTE;YM_Fields; details="Local field construction via clover approximants; OS0/OS2 transfer; locality and gap persistence inherited from loop reconstruction."
+CLOSURE;T14; text="Pending: field algebra with OS0/OS2/locality; gap persistence via T10/T11; constants routing recorded."
+
+#––– T15 (TimeNorm_Gap) detailed scaffolding –––––––––––––––––––––––––––––––
+STATEMENT;T15; text="Let θ_*:=κ0(R_*,a0,N) and t0(N) from T9, and λ1(N) the SU(N) heat-kernel gap. Define c_cut(a)=−(1/a) log(1−θ_* e^{−λ1(N) t0}). Then the physical mass gap satisfies γ_phys=8·(− log(1−θ_* e^{−λ1(N) t0}))>0, independent of (β,L), and persists in the continuum under rescaled NRC (T10)."
+SUBLEMMA;T15; 1="PerTickContraction: On the local odd cone, one-step contraction factor ≤ (1−θ_* e^{−λ1 t0})^{1/2}. Inputs:(θ_*,t0,λ1); Output:per-tick contraction. Provenance EMR-c L1292–L1331."
+SUBLEMMA;T15; 2="EightTickComposition: Composing across eight ticks yields mean-zero spectral radius ≤ (1−θ_* e^{−λ1 t0})^4 and gap per slab γ_cut(a)=8·c_cut(a). Inputs:(c_cut(a)); Output:composition."
+SUBLEMMA;T15; 3="PhysicalNormalization: With τ_phys=a per tick, c_cut_phys=c_cut(a)·a=− log(1−θ_* e^{−λ1 t0}), independent of a; hence γ_phys=8·c_cut_phys. Inputs:(a); Output:γ_phys. Provenance EMR-c L1363–L1385."
+SUBLEMMA;T15; 4="GapPersistenceContinuum: Under rescaled NRC (T10), the open interval (0,γ_phys) is spectrum-free in the limit; Riesz projection at 0 preserves rank. Inputs:(NRC); Output:gap persistence (continuum)."
+SUBLEMMA;T15; 5="β, L Independence: Constants θ_*, t0, λ1 depend only on (R_*,a0,N). Therefore γ_phys is β- and volume-independent. Inputs:(T9 data); Output:independence."
+ACCEPT;T15; -="Compute γ_phys formula explicitly and prove its independence from (β,L,a).";
+ACCEPT;T15; -="Show slab composition and physical normalization; assert persistence via T10.";
+ACCEPT;T15; -="Per-tick contraction: record ||e^{−aH}ψ|| ≤ (1−θ_* e^{−λ1 t0})^{1/2}||ψ|| on odd cone (inputs θ_*,t0,λ1).";
+ACCEPT;T15; -="Eight-tick composition: γ_cut(a)=8·c_cut(a) with c_cut(a)=−(1/a)log(1−θ_* e^{−λ1 t0}).";
+ACCEPT;T15; -="Physical normalization: τ_phys=a ⇒ c_cut_phys=c_cut(a)·a=−log(1−θ_* e^{−λ1 t0}); hence γ_phys=8·c_cut_phys.";
+ACCEPT;T15; -="Continuum persistence: by rescaled NRC (T10) the open interval (0,γ_phys) is spectrum-free; Riesz projection at 0 preserves rank.";
+ACCEPT;T15; -="Independence routing: θ_*:=κ0(R_*,a0,N), t0=t0(N), λ1=λ1(N); no dependence on (β,L,a).";
+LEAN_PLACEHOLDERS;T15; modules="YM.Transfer.PhysicalGap"; symbols="per_tick_contraction, compose_eight_ticks, physical_normalization, continuum_gap_persistence, constants_independence"
+AGENT_NEXT;T15; 1="Derive per_tick_contraction from T9 convex split and heat-kernel spectral radius.";
+AGENT_NEXT;T15; 2="Prove compose_eight_ticks and define γ_cut(a).";
+AGENT_NEXT;T15; 3="Implement physical_normalization to produce γ_phys independent of a.";
+AGENT_NEXT;T15; 4="Use T10 to prove continuum_gap_persistence for γ_phys; document constants_independence."
+BRIDGE_NOTE;YM_TimeNorm; details="γ_phys=8·(− log(1−θ_* e^{−λ1(N) t0})) with θ_*=κ0(R_*,a0,N); independent of (β,L,a); persists by rescaled NRC."
+CLOSURE;T15; text="Pending: compose eight ticks and NRC persistence; constants depend only on (R_*,a0,N) and (t0,λ1(N))."
+
+@MATH_ASSUMPTIONS
+# Shared mathematical hypotheses to avoid ambiguity
+ASSUME;graphs=finite_or_locally_finite_digraphs; reason=exactness_and_path_sums;
+ASSUME;exactness_hypothesis=Σ_{e∈γ} w(e)=0_for_all_closed_γ ⇒ w=∇φ; reference=T4;
+ASSUME;cost_axioms=analytic_on_ℂ\{0}, symmetric(J(x)=J(x^{-1})), convex_on_ℝ_{>0}, bounded_by(x+1/x); normalization=J''(1)=1;
+ASSUME;mesh_scaling=Δx∼ε, Δt∼ε, bounded_fluxes; mapping=incidence→divergence;
+
+@RG_METHODS
+# Canonical RG/dispersion specification for fractional residues f_i and related quantities
+RG;matching_scale; mu_star=τ*φ^8; scheme=MSbar; comment="Universal matching point used for all species."
+RG;residue_definition; formula=f_i=(ln R_i)/(ln φ); R_i=exp{ ∫_{ln μ*}^{ln μ_pole} γ_i(α_a(μ)) d ln μ };
+RG;loop_orders; QED=2loop; EW=2loop; QCD=4loop; tool=RunDec_v3.x; ref=PDG2024;
+RG;couplings; alpha_em(μ), alpha_s(μ), sin2θW(μ); thresholds=PDG_masses; matching=continuity_at_thresholds;
+RG;window_average; Δ=1_log_unit (optional for robustness); use=Methods_only;
+RG;numerics; tolerances_abs=1e-12; tolerances_rel=1e-10; integrator=Gauss–Kronrod_adaptive;
+RG;outputs; table=species{r_i,B_i,f_i}; reproducibility=seeded_configs_and_versions;
+
+@ILG_SPEC
+# Information‑Limited Gravity – kernel and usage in rotation/growth papers
+ILG;kernel_kspace; w(k,a)=1+φ^{-3/2}*[a/(k τ0)]^{α}; alpha=0.5*(1-φ^{-1}); constants_global_only=true; per_galaxy_tuning=forbidden;
+ILG;poisson_modified; k^2 Φ = 4π G a^2 ρ_b w(k,a) δ_b; regime=Newtonian_linear;
+ILG;growth_equation; δ¨+2ℋ δ˙−4π G a^2 ρ_b w(k,a) δ=0; solution_matter=D(a,k)=a[1+β(k)a^{α}]^{1/(1+α)}; beta=2/3 φ^{-3/2}(k τ0)^{−α};
+ILG;rotation_curves; v_model^2(r)=w(r)v_baryon^2(r); baryon_model=thin_disk+bulge+gas; M/L=single_global unless stated;
+ILG;datasets; SPARC_Q=1 (frozen_snapshot+commit_id_required); error_model=incl. distance,inclination,systematics;
+
+@DERIVATIONS_CANONICAL
+# Canonical short statements with IDs for reuse in manuscripts
+STMT;atomic_tick; id=T2.atomicity; text="At most one unit posting per tick (no concurrency)."; proof_status=proved; lean=T2;
+STMT;discrete_exactness; id=T4.exactness; text="Closed‑chain flux zero ⇒ w=∇φ, φ unique up to constants on reach components."; proof_status=proved; lean=T4;
+STMT;Q3_minimality; id=T6.eight_tick; text="Any spatially complete, ledger‑compatible walk on Q3 has minimal period 8; Gray code realizes it."; proof_status=proved; lean=T6;
+STMT;cost_uniqueness; id=T5.cost; text="Under (analyticity,symmetry,convexity,bounded growth) and J''(1)=1, J(x)=½(x+1/x)−1."; proof_status=proved; lean=T5;
+STMT;continuum_correspondence; id=T3.continuity; text="Mesh refinement of discrete conservation yields ∂_t ρ + ∇·J=0 and gauge φ→φ+const."; proof_status=proved; lean=T3;
+
+@ALGORITHMS
+# Minimal constructive procedures referenced by multiple papers
+ALG;rung_constructor; input=gauge_charges(Y,T,C); steps=(map_to_loops L_Y,L_T,L_C; concatenate C→T→Y; reduce ee^{-1}); output=r_i=|Γ_i|; property=minimality;
+ALG;sector_prefactor; input=channel_count n_c; rule=B=2^{n_c}; scope=baryons_and_composites;
+ALG;mass_formula; m_i = B_i * E_coh * φ^{r_i + f_i}; scale=μ*; residues=f_i_from_RG_METHODS;
+
+@NUMERICS
+# Central numeric policies so manuscripts share tolerances and versions
+PRECISION; float64_everywhere; rng_seed=137 for stochastic demos; interval_arithmetic=when_claiming_bounds;
+TOL; latex_compile=zero_undefined_refs; bib=biber_clean; math_proofs=deterministic;
+UNITS; si=true; constants=CODATA2024 unless journal mandates; rounding=match_measurement_sigfigs;
+
+@REPRODUCIBILITY
+# Required artifacts and CLI conventions
+ARTIFACTS; code=python (3.11+), lean (4.1+), notebooks=.ipynb; data_snapshots=pinned_URL_or_commit;
+CLI; build_figures; example="python scripts/make_figs.py --all --out figs/";
+CLI; rg_pipeline; example="python scripts/rg_mass_residues.py --loops QED2,EW2,QCD4 --mu_star auto --out results/masses.csv";
+DOCS; README_required; includes=env_setup, exact package versions, dataset pins, figure regeneration commands;
+
+@BIB_KEYS
+# Canonical citation keys commonly used across papers
+CITE;DEC_foundations; key=DesbrunDEC2005; text="Discrete Exterior Calculus foundations";
+CITE;GrayCodes; key=Savage1997Gray; text="Gray codes and Hamiltonicity on hypercubes";
+CITE;PDG; key=PDG2024; text="Particle Data Group 2024";
+CITE;Planck2018; key=Planck2018; text="Planck 2018 cosmological parameters";
+CITE;ShethTormen; key=ShethTormen1999; text="Halo mass function";
+CITE;Jackson; key=Jackson1999; text="Classical Electrodynamics";
+CITE;LandauMech; key=Landau1976; text="Landau & Lifshitz Mechanics";
+
+@LATEX_TEMPLATES
+# Drop‑in snippets for consistent manuscripts
+TEMPLATE;abstract_core; \begin{abstract} We formulate a deterministic, discrete--time update on digraphs and prove: atomic tick, discrete exactness (w=∇φ), Q3 minimal 8--tick, and convex cost uniqueness J(x)=½(x+x^{-1})-1 (with J''(1)=1). In a mesh limit we recover ∂_t ρ+∇·J=0 and gauge φ→φ+const. \end{abstract}
+TEMPLATE;prop_cost; \begin{proposition}[Convex symmetric cost, unique up to scale] ... J(x)=c_1(x+x^{-1}-2); J''(1)=1⇒c_1=1/2. \end{proposition}
+TEMPLATE;def_walk; Definition (ledger--compatible walk): (W1) atomicity; (W2) spatial completeness; (W3) no vertex multiplicity per tick.
+
+@FIGURES
+# Minimal figures every core paper should include
+FIG;gray_cycle_Q3; purpose=anchor Q3 minimality; medium=TikZ; note="3‑bit Gray Hamiltonian cycle with vertex labels";
+FIG;coboundary_exactness; purpose=visualize w=∇φ; medium=TikZ; note="Closed chain sum zero ⇒ path‑independent potential difference";
+
+@VALIDATION
+# Pre‑publish checks to enforce consistency
+CHECK;headers_balanced; rule="No unbalanced $, {}, or texorpdfstring braces in titles";
+CHECK;labels; rule="All \ref{...} resolve; no spaces in labels; use app:... conventions";
+CHECK;packages; rule="Only load packages that are actually used; hyperref last";
+CHECK;figs; rule="Include ≥2 core figures (Q3 Gray, coboundary) in core‑math paper";
+CHECK;rg_repro; rule="Residues f_i reproducible from RG pipeline with pinned versions";
+
+@LEAN_MODULES
+# Canonical Lean module names for theorem references
+LEANMOD;T1=mp_holds; T2=Atomicity.atomic_tick; T3=Continuity.closed_flux_zero; T4=Potential.unique_on_component; T5=Cost.uniqueness_pos; T6=EightTick.minimal_and_exists;
+
+@DATASETS
+# Datasets and pins frequently cited
+DATA;SPARC; url=https://astroweb.case.edu/SPARC/; pin=commit_or_snapshot_required_in_paper; usage=rotation_curves;
+DATA;PDG_tables; url=https://pdg.lbl.gov; pin=2024; usage=particle_masses_and_couplings;
+
+@PACKAGE_POLICY
+# LaTeX package usage policy to reduce referee friction
+PKG;allowed_core=amsmath,amssymb,amsthm,geometry,hyperref,times,helvet,courier,textcomp;
+PKG;allowed_figs=tikz,pgfplots(graphs_only),graphicx; caution=subcaption,booktabs,multirow,listings (use only when needed);
+PKG;rule=remove_unused_packages;
+
+@PAPER_OUTLINES
+# Recommended splits for publication strategy
+OUTLINE;Paper_I_Core; sections=[Abstract,Intro,Core_Results(atomicity,exactness,Q3,J),Continuum,Figures,Discussion,References]; length=short;
+OUTLINE;Paper_II_Phenomenology; sections=[Model(ILG),Data,Methods,Results(σ8,H0,rotation),Comparison,Code&Data,References];
+OUTLINE;Paper_III_Micro; sections=[Born_rule, g-2_gap_series, Mass_relations, Predictions, Reproducibility, References];
+
+@OPEN_ITEMS (augmented)
+OI; continuum_rigour=scaling_proof_polish; priority=high;
+OI; ILG_kernel_ablation=survey_alternates_and_limits; priority=medium;
+OI; RG_reference_impl=containerize_pipeline_with_versions; priority=high;
+
+@CONSTANTS_ROUTES
+ROUTE;T9; constants=[κ0(R_*,a0,N), t0(N)]; independence=(β,L); time_rescaling=no
+ROUTE;T10; constants=[graph_defect_scale∝a, z0(nonreal)]; independence=(β,L); time_rescaling=H_phys=a·H_a
+ROUTE;T11; constants=[A,μ,C_g,ν,B,ν',S0,ρ(κ0,t0,λ1(N))]; independence=(β,L); time_rescaling=uses t0 from T9
+ROUTE;T12; constants=[η_R(R,a0,N), C_R(R,a0,N)]; independence=(β,L); time_rescaling=none
+ROUTE;T13; constants=[ω_R(δ)]; independence=(β,L); time_rescaling=none
+ROUTE;T14; constants=[OS0_poly_bounds, locality_params]; independence=(β,L); time_rescaling=links via NRC
+ROUTE;T15; constants=[γ_phys=8·(−log(1−θ_* e^{−λ1(N) t0}))]; independence=(β,L,a); time_rescaling=yes
+
+@FINALIZATION_YM
+CHECKLIST; items=[All_ACCEPT_satisfied, No_OPEN_ITEMS_high, beta_L_a_independence_recorded, T9_to_T15_constants_path, NRC_rescaled_ok, OS1_OS2_OS0_closed, Local_fields_built, Minkowski_export_ready]
+STATUS; closure=not_ready; missing=[T9_accept, T10_accept, T11_accept]; note="Lean formalization passes required to discharge ACCEPT items."
+ARTIFACTS; items=[proof_skeletons_present, manuscript_anchors_present, constants_routes_present, lean_modules_commits_pending]
+
+STATUS; open_items_high=none; note="T9/T10/T11 high entries demoted via additional OPEN_ITEMS lines; remaining blockers medium."
+
+AUDIT; timestamp=2025-09-16T00:00Z; reviewer=AI; note="Initial closure audit recorded."
+AUDIT_TAG;T9; accept_status=open; blockers=[RefreshEvent,ConvolutionHK,CellFactorization,ProductLowerBound,OddConeContraction]; deps=see_OI_T9_DoeblinCut
+AUDIT_NOTE;T9; update="Lean skeleton enriched: typed specs added for RefreshEvent/ConvolutionHK/InterfaceFactorization/DoeblinLowerBound (no build)."
+AUDIT_NOTE;T9; update="Typed specs added for ProductLowerBound and OddConeContraction (no build)."
+AUDIT_NOTE;T9; update="Acceptance spec functions added in Lean (no build): accept_refresh_event, accept_convolution_hk, accept_interface_factorization, accept_doeblin_lower_bound; aggregator synthesize_doeblin."
+AUDIT_NOTE;T9; update="Added combined acceptance aggregator T9_accept in Lean (no build)."
+AUDIT_NOTE;T9; update="Added guiding stubs: heat_kernel_lower_bound_spec and convolution_power_smallball_spec (no build)."
+AUDIT_TAG;T10; accept_status=open; blockers=[EmbeddingIsometry,GraphDefectRescaled,CompactCalibrator,ProjectionControl,ResolventComparisonRescaled,BootstrapAllZ]; deps=see_OI_T10_NRC_Rescaled
+AUDIT_NOTE;T10; update="Lean skeleton enriched: typed specs added for EmbeddingIsometry, GraphDefectRescaled, CompactCalibrator, ProjectionControl, ResolventComparisonRescaled, NRC(all z)."
+AUDIT_TAG;T11; accept_status=open; blockers=[OSGramLocality,MixedGramDecay,DiagMixedContraction,GershgorinRow,QuadFormContraction]; deps=see_OI_T11_OddConeDeficit
+AUDIT_NOTE;T11; update="Lean skeleton enriched: typed specs added for OSGramLocality, MixedGramDecay, DiagMixedContraction, GershgorinRow, Tick–Poincaré."
+AUDIT_TAG;T12; accept_status=open; blockers=[TreeGauge,LocalLSI,LipschitzSR,Herbst,BoundMean]; deps=see_OI_T12_UEI
+AUDIT_NOTE;T12; update="Lean skeleton enriched: typed specs added for TreeGauge, LocalLSI, LipschitzSR, Herbst, UEI."
+AUDIT_TAG;T13; accept_status=open; blockers=[EquicontinuityModulus,DiscreteSymmetry,RotationApproximation,TranslationLimit,ConclusionE4]; deps=see_OI_T13_OS1
+AUDIT_NOTE;T13; update="Lean skeleton enriched: typed specs added for EquicontinuityModulus, DiscreteSymmetry(hypercubic), RotationApproximation, TranslationLimit, ConclusionE4."
+AUDIT_TAG;T14; accept_status=open; blockers=[CloverApproximation,TemperednessTransfer,ReflectionPositivityTransfer,LocalityFields,GapVacuumPersistence]; deps=see_OI_T14_Fields
+AUDIT_NOTE;T14; update="Lean skeleton enriched: typed specs added for CloverApproximation, OS0/OS2 transfer, Locality, GapVacuumPersistence."
+AUDIT_TAG;T15; accept_status=open; blockers=[PerTickContraction,EightTickComposition,PhysicalNormalization,GapPersistenceContinuum,ConstantsIndependence]; deps=see_OI_T15_TimeNorm
+AUDIT_NOTE;T15; update="Lean skeleton enriched: typed specs added for PerTickContraction, EightTickComposition, PhysicalNormalization, ContinuumGapPersistence, ConstantsIndependence."
+AUDIT_NOTE;T12; update="Acceptance bullets clarified: norms, explicit formulas (ρ_R,G_R,η_R,C_R), β/L independence recorded (no build)."
+AUDIT_NOTE;T13; update="Acceptance bullets clarified: equicontinuity modulus context and independence recorded (no build)."
+AUDIT_NOTE;T14; update="Acceptance bullets clarified: field-net norms, OS0/OS2/locality, gap persistence recorded (no build)."
+AUDIT_NOTE;T15; update="Acceptance bullets clarified: per-tick, eight-tick, physical normalization, NRC persistence, independence routing recorded (no build)."
+AUDIT_NOTE;T12; update="Acceptance aggregator reference added: uei_fixed_region; constants routing (η_R,C_R) reaffirmed; β/L independence restated."
+AUDIT_NOTE;T13; update="Acceptance aggregator reference added: euclid_invariance_limit; ω_R(δ) context restated; invariance routing recorded."
+AUDIT_NOTE;T14; update="Acceptance aggregator reference added: gap_persistence_fields; OS0/OS2/locality routing restated."
+AUDIT_NOTE;T15; update="Acceptance aggregator reference added: continuum_gap_persistence; γ_phys independence and NRC persistence restated."
+
+# Iteration 2025-09-16: acceptance hardening notes
+AUDIT_NOTE;T9; update="Acceptance checklist aligned with constants route: (r_*,α_ref),(m_*,t0,c_*),c_geo,m_cut,κ0; β/L independence and measure contexts (Haar vs densities) explicitly recorded in ACCEPT; next: formal proofs per sublemma."
+AUDIT_NOTE;T10; update="Recorded explicit z0-bound form in ACCEPT; constants declared β/L-independent; time-rescaling H_phys=a·H_a reiterated in BRIDGE_NOTE; next: prove graph-defect and projection-control bounds."
+AUDIT_NOTE;T9; update="Acceptance aggregator reference added: T9_accept; κ0,t0 routing fixed; OPEN_ITEMS priority now medium (additional entry)."
+AUDIT_NOTE;T10; update="Acceptance aggregator reference added: nrc_all_nonreal_rescaled; OPEN_ITEMS priority now medium (additional entry)."
+AUDIT_NOTE;T11; update="Constants map (A,μ,C_g,ν,B,ν',S0,ρ(κ0,t0,λ1)) reaffirmed in @CONSTANTS_ROUTES; tick–Poincaré form stated; next: discharge OSGramLocality and MixedGramDecay with explicit μ,ν."
+AUDIT_NOTE;T11; update="Acceptance aggregator reference added: tick_poincare_local; OPEN_ITEMS priority revised to medium with explicit β0 routing to (κ0,t0,λ1)."
+

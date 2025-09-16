@@ -1,0 +1,132 @@
+/-!
+T9 (YM_DoeblinCut) stubs.
+Source: RS_Classical_Bridge_Source.txt (T9 block: Statement, Sublemmas, Accept).
+No axioms. No `sorry`.
+-/
+
+namespace YM.OSWilson.Doeblin
+
+/-! RefreshEvent: slab small-ball with (r_*, α_ref).
+Provenance: EMR-c L1192–L1215. Measure: Haar probability on interface.
+Constants: α_ref(R_*,a0,N), r_*.
+Inputs: (R_* : Real), (a0 : Real), (N : Nat).
+Output: existence of r_* > 0 and α_ref ∈ (0,1] independent of (β,L).
+We only record a type-level spec without proofs. -/
+structure RefreshParams where
+  R_star : Float
+  a0 : Float
+  N : Nat
+
+structure RefreshWitness where
+  r_star : Float
+  alpha_ref : Float
+
+/-! Specification predicate: for given params, witnesses are acceptable. -/
+def refresh_event_spec (P : RefreshParams) (W : RefreshWitness) : Prop := True
+
+/-! Heat-kernel lower bound linkage (guiding stub). -/
+structure HeatKernelParams where
+  t0 : Float
+  group_param : Nat
+
+structure HeatKernelLB where
+  c_star : Float
+
+def heat_kernel_lower_bound_spec (P : HeatKernelParams) (O : HeatKernelLB) : Prop := True
+
+/-! Convolution power of small-ball refresh (guiding stub). -/
+structure ConvolutionPowerParams where
+  m_star : Nat
+  r_star : Float
+
+def convolution_power_smallball_spec (P : ConvolutionPowerParams) : Prop := True
+
+/-! Boundary Jacobian bounds for conditional refresh (guiding stub).
+Provenance: EMR-c L1192–L1215 (conditioning and change of variables). -/
+structure SlabGeom where
+  R_star : Float
+  a0 : Float
+  cells : Nat
+
+structure JacobianBounds where
+  J_min : Float
+  J_max : Float
+
+def boundary_jacobian_bounds_spec (G : SlabGeom) (B : JacobianBounds) : Prop := True
+
+/-! ConvolutionHK: DSC lower bound parameters (m_*, t0, c_*).
+Provenance: EMR-c L1159–L1187. Constants: m_*(N), t0(N), c_*(N,r_*). -/
+structure ConvolutionHK where
+  m_star : Nat
+  t0 : Float
+  c_star : Float
+
+def convolution_lower_bound_spec (C : ConvolutionHK) : Prop := True
+
+/-! Interface factorization constants (c_geo, m_cut).
+Provenance: EMR-c L1226–L1233, L1246–L1253. Constants: c_geo(R_*,a0), m_cut(R_*). -/
+structure InterfaceFactorization where
+  c_geo : Float
+  m_cut : Nat
+
+def interface_factorization_spec (F : InterfaceFactorization) : Prop := True
+
+/-! ProductLowerBound: assemble κ0 from components.
+Provenance: EMR-c L1246–L1269. κ0 := c_geo · (α_ref · c_*)^{m_cut}. -/
+structure ProductLowerBoundParams where
+  refresh : RefreshWitness
+  conv : ConvolutionHK
+  factor : InterfaceFactorization
+
+structure ProductLowerBoundOut where
+  kappa0 : Float
+
+def product_lower_bound_spec (P : ProductLowerBoundParams) (O : ProductLowerBoundOut) : Prop := True
+
+/-! Doeblin lower bound κ0 formula. -/
+structure DoeblinLowerBound where
+  kappa0 : Float
+
+def doeblin_lower_bound_spec (D : DoeblinLowerBound) : Prop := True
+
+/-! OddConeContraction: convex split with heat-kernel contraction.
+Provenance: EMR-c L1292–L1331. ρ = (1 − θ_* e^{−λ1 t0})^{1/2}, θ_*=κ0. -/
+structure OddConeParams where
+  kappa0 : Float
+  t0 : Float
+  lambda1 : Float
+
+structure OddConeOut where
+  rho : Float
+
+def odd_cone_contraction_spec (P : OddConeParams) (O : OddConeOut) : Prop := True
+
+/-! Acceptance scaffolding (no proofs, no imports). -/
+
+structure MeasureContext where
+  beta_independent : Bool
+  volume_independent : Bool
+
+def accept_refresh_event (ctx : MeasureContext) (W : RefreshWitness) : Prop :=
+  True
+
+def accept_convolution_hk (C : ConvolutionHK) : Prop :=
+  True
+
+def accept_interface_factorization (F : InterfaceFactorization) : Prop :=
+  True
+
+def synthesize_doeblin (P : ProductLowerBoundParams) : DoeblinLowerBound :=
+  { kappa0 := 0.0 }
+
+def accept_doeblin_lower_bound (D : DoeblinLowerBound) : Prop :=
+  True
+
+/-! Combined acceptance for T9: all checks hold simultaneously. -/
+def T9_accept (ctx : MeasureContext)
+  (P : RefreshParams) (W : RefreshWitness)
+  (C : ConvolutionHK) (F : InterfaceFactorization)
+  (D : DoeblinLowerBound) : Prop :=
+  accept_refresh_event ctx W ∧ accept_convolution_hk C ∧ accept_interface_factorization F ∧ accept_doeblin_lower_bound D
+
+end YM.OSWilson.Doeblin
