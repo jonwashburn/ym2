@@ -1,0 +1,843 @@
+Problem OS2 (reflection positivity under limits) Given: Fixed Osterwalder–Seiler link reflection; for each ε, OS2 holds; tightness and equicontinuity; convergence Sn,ε→Sn along equivariant embeddings. Show: The limit Schwinger functions satisfy OS2 (for all finite A in the positive‑time cone, ⟨Θ(A)A⟩ ≥ 0).
+__
+\noindent\textbf{Proposition (OS2 is stable under equivariant limits).}
+Let $\{\!S_{n,\varepsilon}\!\}_{n\ge 0}$ be Schwinger functions (multi\-linear, symmetric functionals on test functions) defined on the $\varepsilon$–theory, and let $\Theta_\varepsilon$ be a fixed Osterwalder–Seiler link reflection. Suppose:
+\begin{itemize}
+\item[\textup{(i)}] \textbf{OS2 at scale $\varepsilon$.} For every finite polynomial $A$ in smeared fields with all smearing functions supported in the positive–time region (relative to the OS reflection plane), one has
+\[
+\langle \Theta_\varepsilon(A)\,A\rangle_\varepsilon \;\ge\; 0.
+\]
+\item[\textup{(ii)}] \textbf{Equivariant embeddings.} There exist embeddings of test functions $\iota_\varepsilon$ from the continuum test\-function space to the $\varepsilon$–theory such that
+\[
+\iota_\varepsilon\circ \Theta \;=\; \Theta_\varepsilon\circ \iota_\varepsilon,
+\]
+and $\iota_\varepsilon$ preserves the positive–time support condition.
+\item[\textup{(iii)}] \textbf{Convergence.} For each $n$ and each $(f_1,\dots,f_n)$,
+\[
+S_{n,\varepsilon}\big(\iota_\varepsilon f_1,\dots,\iota_\varepsilon f_n\big)\;\longrightarrow\; S_n(f_1,\dots,f_n)
+\qquad(\varepsilon\to 0),
+\]
+with $\{S_{n,\varepsilon}\}$ tight and equicontinuous (ensuring existence and continuity of the limit).
+\end{itemize}
+Then the limit Schwinger functions $\{S_n\}$ satisfy \textbf{OS2}:
+\[
+\langle \Theta(A)\,A\rangle \;\ge\; 0 \quad \text{for all finite polynomials $A$ supported in the positive–time cone.}
+\]
+
+\medskip
+\noindent\textit{Proof.}
+Fix a finite polynomial
+\[
+A \;=\; \sum_{\alpha=1}^R c_\alpha \prod_{p=1}^{k_\alpha}\phi(f_{\alpha,p}),
+\qquad \operatorname{supp} f_{\alpha,p}\subset\{t>0\}.
+\]
+Define $A^{(\varepsilon)}$ by replacing each $f_{\alpha,p}$ with $\iota_\varepsilon f_{\alpha,p}$. Using anti\-linearity and multiplicativity of the OS reflection on the polynomial $*$–algebra,
+\[
+\Theta_\varepsilon\!\big(A^{(\varepsilon)}\big)
+=\sum_{\alpha=1}^R \overline{c_\alpha}\, \prod_{p=1}^{k_\alpha}\phi\!\big(\Theta_\varepsilon\,\iota_\varepsilon f_{\alpha,p}\big)
+=\sum_{\alpha=1}^R \overline{c_\alpha}\, \prod_{p=1}^{k_\alpha}\phi\!\big(\iota_\varepsilon\,\Theta f_{\alpha,p}\big),
+\]
+where we used the equivariance $\iota_\varepsilon\Theta=\Theta_\varepsilon\iota_\varepsilon$.
+
+By the defining relation between expectations and Schwinger functions,
+\[
+\big\langle \Theta_\varepsilon(A^{(\varepsilon)})\,A^{(\varepsilon)}\big\rangle_\varepsilon
+=\sum_{\alpha,\beta=1}^R \overline{c_\alpha}\,c_\beta\;
+S_{k_\alpha+k_\beta,\varepsilon}\!\Big(
+\iota_\varepsilon\Theta f_{\alpha,1},\dots,\iota_\varepsilon\Theta f_{\alpha,k_\alpha},
+\iota_\varepsilon f_{\beta,1},\dots,\iota_\varepsilon f_{\beta,k_\beta}\Big).
+\]
+The right\-hand side is a \emph{finite} sum of values of $S_{n,\varepsilon}$ on a \emph{finite} list of test\-function tuples. By the assumed convergence,
+\[
+\lim_{\varepsilon\to 0}\big\langle \Theta_\varepsilon(A^{(\varepsilon)})\,A^{(\varepsilon)}\big\rangle_\varepsilon
+=\sum_{\alpha,\beta=1}^R \overline{c_\alpha}\,c_\beta\;
+S_{k_\alpha+k_\beta}\!\Big(
+\Theta f_{\alpha,1},\dots,\Theta f_{\alpha,k_\alpha},
+f_{\beta,1},\dots,f_{\beta,k_\beta}\Big)
+=: \,\langle \Theta(A)\,A\rangle.
+\]
+Each quantity $\big\langle \Theta_\varepsilon(A^{(\varepsilon)})\,A^{(\varepsilon)}\big\rangle_\varepsilon$ is nonnegative by \textup{(i)}; hence its limit is nonnegative. This proves $\langle \Theta(A)\,A\rangle\ge 0$ for all finite $A$ in the positive–time cone, i.e. OS2 for $\{S_n\}$.
+
+Equivalently (Gram–matrix form): for any finite family $\{A_i\}_{i=1}^M$ in the positive–time cone, the matrices
+\[
+G^{(\varepsilon)}_{ij}:=\big\langle \Theta_\varepsilon(A_i^{(\varepsilon)})\,A_j^{(\varepsilon)}\big\rangle_\varepsilon
+\]
+are positive semidefinite by \textup{(i)}; their entries converge to $G_{ij}:=\langle \Theta(A_i)A_j\rangle$ by \textup{(ii)}–\textup{(iii)}. Since the cone of positive semidefinite matrices is closed under entrywise limits, $G$ is positive semidefinite, and in particular $G_{ii}=\langle \Theta(A_i)A_i\rangle\ge 0$. \hfill$\square$
+
+\medskip
+\noindent\textbf{Remarks.}
+(1) Tightness and equicontinuity are used only to guarantee existence/continuity of the limiting $\{S_n\}$; the positivity itself is a closedness property. 
+(2) The same argument applies verbatim to the $\mathbb{Z}_2$–graded (fermionic) case with the standard graded reflection, since the associated Gram matrices remain positive on the physical subspace.
+
+
+____
+
+Problem OS3 (clustering in the limit) Given: Uniform exponential clustering for truncated correlators at each ε with constants (C0,m) independent of ε; tightness; convergence Sn,ε→Sn. Show: The limit S satisfies OS3 (cluster decomposition)
+
+__
+
+
+Here’s a clean, self‑contained proof you can drop into your notes.
+
+```latex
+\medskip\noindent\textbf{Setting.}
+For each regulator $\varepsilon>0$ let $\{S_{n,\varepsilon}\}_{n\ge1}$ be translation–invariant, symmetric Schwinger functions on $(\mathbb{R}^d)^n$ with truncated (connected) correlators $\{S^{\mathrm T}_{n,\varepsilon}\}_{n\ge1}$ defined by the moment–cumulant relations
+\[
+S_{n,\varepsilon}(X)=\sum_{\pi\in\Pi_n}\ \prod_{B\in\pi} S^{\mathrm T}_{|B|,\varepsilon}(X_B),
+\qquad S^{\mathrm T}_{n,\varepsilon}(X)=\sum_{\pi\in\Pi_n}\mu(\pi)\prod_{B\in\pi} S_{|B|,\varepsilon}(X_B),
+\]
+where $\Pi_n$ is the lattice of set partitions of $\{1,\dots,n\}$ and $\mu(\pi)=(-1)^{|\pi|-1}(|\pi|-1)!$ is the Möbius function.
+Assume:
+
+\smallskip
+\emph{(U)} (Uniform exponential clustering of truncated correlators.)
+There exist $m>0$ and finite constants $C_r<\infty$ (depending on $r$ but \emph{independent of} $\varepsilon$) such that for every $n$ and every bipartition $A\sqcup B=\{1,\dots,n\}$,
+\begin{equation}\label{eq:UEC}
+\bigl|S^{\mathrm T}_{n,\varepsilon}(a+X_A,X_B)\bigr|
+\;\le\; C_n\,e^{-m\,\mathrm{dist}(a+X_A,X_B)}
+\qquad\text{for all }a\in\mathbb{R}^d,
+\end{equation}
+where $\mathrm{dist}(Y_A,Y_B)=\min_{i\in A,\,j\in B}|y_i-y_j|$ and $X=(x_1,\dots,x_n)$.
+
+\emph{(T)} (Tightness and convergence.)
+For each $n$, $S_{n,\varepsilon}\to S_n$ as $\varepsilon\downarrow0$ (e.g. pointwise on noncoincident arguments or in $\mathcal{S}'$), with the same translation invariance in the limit.
+
+\medskip
+\noindent\textbf{Claim (OS3 in the limit).}
+For every $n\ge2$, every nontrivial split $A\sqcup B=\{1,\dots,n\}$ with $|A|=k$, and every fixed configuration $X$ with noncoincident points,
+\[
+\lim_{|a|\to\infty} S_n(a+X_A,X_B)\;=\; S_k(X_A)\,S_{n-k}(X_B).
+\]
+Equivalently, $\displaystyle \lim_{|a|\to\infty} S^{\mathrm T}_n(a+X_A,X_B)=0$.
+Thus the limit family $S=\{S_n\}_{n\ge1}$ satisfies OS3 (cluster decomposition).
+
+\medskip
+\noindent\textbf{Proof.}
+Fix $n$ and a bipartition $A\sqcup B$ with $|A|=k$, $|B|=n-k$.
+For a given $\varepsilon>0$ expand $S_{n,\varepsilon}(a+X_A,X_B)$ by partitions and separate the contributions into those whose blocks lie entirely inside $A$ or inside $B$, and those that \emph{cross} the cut $A|B$.
+Write $\Pi^{\mathrm{sep}}_{A|B}$ for the first family and $\Pi^{\times}_{A|B}$ for the crossing partitions.
+
+Using translation invariance and the moment–cumulant formula,
+\[
+\sum_{\pi\in \Pi^{\mathrm{sep}}_{A|B}} \prod_{C\in\pi} S^{\mathrm T}_{|C|,\varepsilon}(Y_C)
+\;=\;\Bigl(\sum_{\pi_A\in\Pi_A}\prod_{C\in\pi_A} S^{\mathrm T}_{|C|,\varepsilon}(X_C)\Bigr)
+     \Bigl(\sum_{\pi_B\in\Pi_B}\prod_{D\in\pi_B} S^{\mathrm T}_{|D|,\varepsilon}(X_D)\Bigr)
+\;=\; S_{k,\varepsilon}(X_A)S_{n-k,\varepsilon}(X_B),
+\]
+because adding the same $a$ to all coordinates in a block contained in $A$ does not change its value.
+
+Hence
+\begin{equation}\label{eq:crossing-diff}
+S_{n,\varepsilon}(a+X_A,X_B)-S_{k,\varepsilon}(X_A)S_{n-k,\varepsilon}(X_B)
+\;=\;\sum_{\pi\in \Pi^{\times}_{A|B}} \ \prod_{C\in\pi} S^{\mathrm T}_{|C|,\varepsilon}(Y_C).
+\end{equation}
+Every crossing partition $\pi$ has at least one block $C_\star$ that contains indices from both $A$ and $B$. For that block,
+$\mathrm{dist}(Y_{C_\star\cap A},Y_{C_\star\cap B})\ge \mathrm{dist}(a+X_A,X_B)$, so by \eqref{eq:UEC}
+\[
+\bigl|S^{\mathrm T}_{|C_\star|,\varepsilon}(Y_{C_\star})\bigr|
+\;\le\; C_{|C_\star|}\,e^{-m\,\mathrm{dist}(a+X_A,X_B)}.
+\]
+All other blocks in $\pi$ are contained in a single side, hence are bounded by their constants $C_{|C|}$. Therefore, for each crossing partition
+\[
+\Bigl|\prod_{C\in\pi} S^{\mathrm T}_{|C|,\varepsilon}(Y_C)\Bigr|
+\;\le\; \Bigl(\prod_{C\in\pi} C_{|C|}\Bigr)\,e^{-m\,\mathrm{dist}(a+X_A,X_B)}.
+\]
+Summing over the finitely many partitions (at most the $n$-th Bell number), we obtain a uniform (in $\varepsilon$) bound
+\begin{equation}\label{eq:uniform-remainder}
+\bigl|S_{n,\varepsilon}(a+X_A,X_B)-S_{k,\varepsilon}(X_A)S_{n-k,\varepsilon}(X_B)\bigr|
+\;\le\; K_n\,e^{-m\,\mathrm{dist}(a+X_A,X_B)},
+\end{equation}
+for some $K_n<\infty$ depending only on $n$ and the $\{C_r\}_{r\le n}$, not on $\varepsilon$, $X$, or $a$.
+
+Now pass to the limit $\varepsilon\downarrow0$ using assumption (T) and the triangle inequality:
+\[
+\begin{aligned}
+&\bigl|S_n(a+X_A,X_B)-S_k(X_A)S_{n-k}(X_B)\bigr|\\
+&\le \bigl|S_n(a+X_A,X_B)-S_{n,\varepsilon}(a+X_A,X_B)\bigr|
+   +\bigl|S_{n,\varepsilon}(a+X_A,X_B)-S_{k,\varepsilon}(X_A)S_{n-k,\varepsilon}(X_B)\bigr|\\
+&\qquad +\bigl|S_{k,\varepsilon}(X_A)S_{n-k,\varepsilon}(X_B)-S_k(X_A)S_{n-k}(X_B)\bigr|.
+\end{aligned}
+\]
+The first and third terms vanish as $\varepsilon\to0$, while the middle term is bounded by \eqref{eq:uniform-remainder}, which is independent of $\varepsilon$. Hence
+\[
+\bigl|S_n(a+X_A,X_B)-S_k(X_A)S_{n-k}(X_B)\bigr|
+\;\le\; K_n\,e^{-m\,\mathrm{dist}(a+X_A,X_B)}.
+\]
+Finally, for fixed $X$ one has $\mathrm{dist}(a+X_A,X_B)\ge |a|-\mathrm{diam}(X_A)-\mathrm{diam}(X_B)$, so the right-hand side decays like $e^{-m|a|}$. Letting $|a|\to\infty$ gives
+\[
+\lim_{|a|\to\infty} S_n(a+X_A,X_B)=S_k(X_A)S_{n-k}(X_B),
+\]
+i.e. OS3 holds for the limit Schwinger functions. The equivalent statement for truncated correlators follows either by the same argument (applied directly to $S^{\mathrm T}_{n,\varepsilon}$ with \eqref{eq:UEC}) and passing to the limit, or by Möbius inversion. \qed
+
+\medskip\noindent\textbf{Remark (distributional form).}
+If the convergence in (T) is in $\mathcal{S}'$, the same estimate integrates against $f\otimes g$ with one factor translated by $a$, yielding
+\[
+\bigl|\langle S_n, f(\cdot-a)^{\otimes k}\otimes g^{\otimes(n-k)}\rangle
+- \langle S_k, f^{\otimes k}\rangle\,\langle S_{n-k}, g^{\otimes(n-k)}\rangle\bigr|
+\;\le\; C(f,g)\,e^{-m|a|},
+\]
+so OS3 holds in the standard weak sense.
+```
+
+**Bottom line:** the uniform (in \$\varepsilon\$) exponential decay of \emph{truncated} correlators forces all crossing blocks across a bipartition to be exponentially small in the separation. The cluster product is exactly the contribution of the noncrossing partitions. Because the bound is uniform, it survives \$\varepsilon\to0\$, so the limit \$S\$ inherits OS3.
+
+
+____
+
+Given: Loop n‑point functions Sn,ε on piecewise‑linear loops in ℝ^4, uniformly hypercubic‑invariant; equivariant embeddings; equicontinuity modulus ω(δ)=C·δ^{q−d} with q>d; isotropy restoration in the ε→0 window; tightness and pointwise convergence on directed loop families. Show: Any limit Sn is fully E(4)‑invariant (rotations + translations).
+
+___
+
+
+Below is a self‑contained proof you can drop into a manuscript. It assumes only what you stated and introduces no external references.
+
+```latex
+\paragraph{Setting.}
+Let $\mathcal L$ be the space of piecewise–linear loops $\gamma:S^1\!\to\!\mathbf{R}^4$ with the uniform metric
+\[
+d_\infty(\gamma,\tilde\gamma):=\sup_{t\in S^1}\|\gamma(t)-\tilde\gamma(t)\|_2,\qquad
+D\!\left((\gamma_i)_{i=1}^n,(\tilde\gamma_i)_{i=1}^n\right):=\max_{1\le i\le n} d_\infty(\gamma_i,\tilde\gamma_i).
+\]
+For $\varepsilon>0$ let $S_{n,\varepsilon}:\mathcal L^n\to\mathbf{C}$ be loop $n$‑point functionals that are:
+\begin{itemize}\setlength\itemsep{2pt}
+\item[(H1)] \emph{Uniformly hypercubic–invariant:} for every $\varepsilon$,
+\[
+S_{n,\varepsilon}(g\!\cdot\!(\gamma_1,\dots,\gamma_n))=S_{n,\varepsilon}(\gamma_1,\dots,\gamma_n)
+\quad\text{for all }g\in H_4\ltimes\Lambda_\varepsilon,
+\]
+where $H_4\subset O(4)$ is the (finite) hypercubic orthogonal group (coordinate permutations and sign flips) and $\Lambda_\varepsilon$ is a translation lattice with mesh $a(\varepsilon)\!\downarrow\!0$.
+\item[(H2)] \emph{Equivariant embedding:} the natural $E(4)$–action $g\cdot \gamma(t):=R\gamma(t)+b$ ($g=(b,R)\in\mathbf{R}^4\!\rtimes\!O(4)$) is well defined on $\mathcal L$, and the pullback used to evaluate $S_{n,\varepsilon}$ is equivariant w.r.t.\ this action.
+\item[(H3)] \emph{Uniform Hölder equicontinuity:} there exist $C>0$ and $q>d$ (with $d=4$) such that for all $\varepsilon$ and all loop $n$‑tuples,
+\[
+\bigl|S_{n,\varepsilon}(\Gamma)-S_{n,\varepsilon}(\tilde\Gamma)\bigr|\ \le\ C\,D(\Gamma,\tilde\Gamma)^{\,\alpha},\qquad \alpha:=q-d>0.
+\]
+\item[(H4)] \emph{Isotropy restoration in the scaling window:} there exists $\rho(\varepsilon)\!\downarrow\!0$ such that for every fixed $R\in SO(4)$ and every $\Gamma\in\mathcal L^n$ supported on scales $\gg a(\varepsilon)$,
+\[
+\bigl|S_{n,\varepsilon}(R\!\cdot\!\Gamma)-S_{n,\varepsilon}(\Gamma)\bigr|\ \le\ \rho(\varepsilon).
+\]
+(Equivalently, anisotropic responses vanish uniformly as $\varepsilon\to0$.)
+\item[(H5)] \emph{Tightness and pointwise convergence on directed loop families:} along some $\varepsilon_j\!\downarrow\!0$,
+$S_{n,\varepsilon_j}(\Gamma)\to S_n(\Gamma)$ pointwise for every $\Gamma$ in a directed, dense family of loop $n$‑tuples, and by (H3) the limit extends uniquely to a continuous functional $S_n:\mathcal L^n\to\mathbf{C}$.
+\end{itemize}
+
+\paragraph{Claim.}
+Any limit $S_n$ obtained as above is \emph{fully $E(4)$‑invariant}:
+\[
+S_n\bigl((b,R)\!\cdot\!(\gamma_1,\dots,\gamma_n)\bigr)=S_n(\gamma_1,\dots,\gamma_n)\quad\text{for all }(b,R)\in \mathbf{R}^4\!\rtimes\!O(4).
+\]
+
+\paragraph{Proof.}
+Fix a convergent subsequence $\varepsilon_j\!\downarrow\!0$ from (H5), and abbreviate $S_{n,j}:=S_{n,\varepsilon_j}$.
+
+\emph{Step 1: Translation invariance.}
+Let $b\in\mathbf{R}^4$ and write $\tau_b\cdot\gamma(t):=\gamma(t)+b$. Because $\Lambda_{\varepsilon_j}$ has mesh $a(\varepsilon_j)\to0$, we can pick $b_j\in\Lambda_{\varepsilon_j}$ with $\|b_j-b\|_2\to0$. By (H1),
+$S_{n,j}(\tau_{b_j}\Gamma)=S_{n,j}(\Gamma)$ for all $\Gamma$.
+By (H3) and equivariance (H2),
+\[
+\bigl|S_{n,j}(\tau_b\Gamma)-S_{n,j}(\Gamma)\bigr|
+\ \le\ \bigl|S_{n,j}(\tau_b\Gamma)-S_{n,j}(\tau_{b_j}\Gamma)\bigr|
+\ \le\ C\, \|\tau_b\Gamma-\tau_{b_j}\Gamma\|_\infty^{\alpha}
+\ =\ C\,\|b-b_j\|_2^{\alpha}.
+\]
+Letting $j\to\infty$ and using $S_{n,j}\to S_n$ pointwise at $\Gamma$ and $\tau_b\Gamma$ (by (H5) and continuity from (H3)) gives
+$S_n(\tau_b\Gamma)=S_n(\Gamma)$ for all $b$ and all $\Gamma$. Thus $S_n$ is translation invariant.
+
+\emph{Step 2: Rotational invariance in $SO(4)$.}
+Fix $R\in SO(4)$.
+By isotropy restoration (H4),
+$\bigl|S_{n,j}(R\Gamma)-S_{n,j}(\Gamma)\bigr|\le \rho(\varepsilon_j)$ for all $\Gamma$ in the relevant directed family, hence (by (H3)) for all $\Gamma\in\mathcal L^n$ by continuity.
+Passing to the limit along $j$ yields
+\[
+S_n(R\Gamma)-S_n(\Gamma)=\lim_{j\to\infty}\bigl(S_{n,j}(R\Gamma)-S_{n,j}(\Gamma)\bigr)=0.
+\]
+Therefore $S_n$ is $SO(4)$‑invariant.
+
+\emph{Step 3: Orientation–reversing symmetries and full $O(4)$.}
+By (H1), $S_{n,j}$ is invariant under the hypercubic orthogonal group $H_4$, which contains reflections (e.g.\ sign flips of coordinate axes). Taking $j\to\infty$ shows $S_n(h\Gamma)=S_n(\Gamma)$ for all $h\in H_4$. Since any element of $O(4)$ is a product of an element in $SO(4)$ and a reflection, the combination of Step~2 with $H_4$ reflections implies $O(4)$–invariance:
+$S_n(Q\Gamma)=S_n(\Gamma)$ for all $Q\in O(4)$.
+
+\emph{Conclusion.}
+Steps 1 and 3 together give invariance under $\mathbf{R}^4$ (translations) and $O(4)$ (orthogonal transformations), i.e.\ full Euclidean group $E(4)$ invariance:
+\[
+S_n\bigl((b,Q)\cdot\Gamma\bigr)=S_n(\Gamma)\qquad\forall\,(b,Q)\in\mathbf{R}^4\!\rtimes\!O(4),\ \forall\,\Gamma\in\mathcal L^n.\qedhere
+\]
+
+\paragraph{Remarks.}
+(1) The sole use of $q>d$ is to obtain a positive Hölder exponent $\alpha=q-d>0$ in (H3), giving enough regularity to pass discrete symmetries to the limit and to control the approximation error in Step~1. \\
+(2) If (H4) is available only for $\Gamma$ in a directed dense set, (H3) propagates the conclusion to all of $\mathcal L^n$ by continuity. \\
+(3) One can also average $S_{n,\varepsilon}$ over $SO(4)$ (Haar measure) to obtain $SO(4)$–invariant $T_{n,\varepsilon}$; (H4) implies $\|S_{n,\varepsilon}-T_{n,\varepsilon}\|_\infty\to0$, hence the same limit $S_n$ must be $SO(4)$–invariant.
+```
+
+In short: discrete hypercubic symmetry \$+\$ Hölder equicontinuity upgrades lattice translations to continuous ones; isotropy restoration kills the anisotropic part, yielding \$SO(4)\$; hypercubic reflections then give the rest of \$O(4)\$. Hence every limit \$S\_n\$ is \$E(4)\$‑invariant.
+
+
+___
+
+
+Problem OS5 (unique vacuum from uniform gap + NRC) Given: Transfer operators Tε with a uniform open spectral gap on the mean‑zero sector (r0(Tε) ≤ e^{−γ0}, γ0>0 independent of ε); norm‑resolvent convergence of generators (see NRC problem below). Show: The reconstructed continuum Hamiltonian H has a unique ground state and spec(H) ⊂ {0} ∪ [γ0,∞).
+
+
+___
+
+Below is a complete, drop‑in LaTeX proof script for OS5. It assumes the standard OS reconstruction setting in which each transfer operator $T_\varepsilon$ is a positive self‑adjoint contraction with a cyclic vacuum vector $\Omega_\varepsilon$ (so $T_\varepsilon\Omega_\varepsilon=\Omega_\varepsilon$), and the reconstructed lattice Hamiltonians $H_\varepsilon\ge 0$ satisfy $T_\varepsilon=e^{-H_\varepsilon}$. “Mean‑zero sector’’ means the orthogonal complement of $\Omega_\varepsilon$.
+
+> **What you get:** uniqueness of the vacuum and a uniform spectral gap that survives the $\varepsilon\to 0$ limit by norm‑resolvent convergence.
+
+```latex
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+
+\title{OS5: Unique Vacuum from Uniform Gap + NRC}
+\author{}
+\date{}
+
+\theoremstyle{plain}
+\newtheorem{prop}{Proposition}
+\newtheorem{lemma}{Lemma}
+
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\begin{document}
+\maketitle
+
+\begin{prop}[OS5]
+Let $\{T_\varepsilon\}$ be transfer operators acting on Hilbert spaces $\{\mathcal H_\varepsilon\}$ with vacuum vectors $\Omega_\varepsilon$, $T_\varepsilon\Omega_\varepsilon=\Omega_\varepsilon$, each $T_\varepsilon$ a positive self-adjoint contraction. Assume a \emph{uniform open spectral gap on the mean-zero sector}:
+\[
+r_0(T_\varepsilon):=\sup\bigl\{|z|: z\in\mathrm{spec}(T_\varepsilon|_{\Omega_\varepsilon^\perp})\bigr\}\le e^{-\gamma_0}
+\quad\text{for some }\gamma_0>0\text{ independent of }\varepsilon.
+\]
+Let $H_\varepsilon\ge 0$ be the lattice Hamiltonians reconstructed by OS theory so that $T_\varepsilon=e^{-H_\varepsilon}$. Suppose (after identifying $\mathcal H_\varepsilon$ with a common Hilbert space $\mathcal H$) that $H_\varepsilon$ converges to a self-adjoint $H$ in \emph{norm-resolvent sense}:
+\[
+\|(H_\varepsilon - z)^{-1} - (H - z)^{-1}\|\;\xrightarrow[\varepsilon\to 0]{}\;0
+\quad\text{for some/all }z\in\mathbb C\setminus\mathbb R.
+\]
+Then $H$ has a unique ground state and
+\[
+\mathrm{spec}(H)\subset\{0\}\cup[\gamma_0,\infty).
+\]
+\end{prop}
+
+\begin{lemma}[Gap for each lattice Hamiltonian]\label{lem:lattice-gap}
+Under the stated assumptions, for every $\varepsilon$ one has
+\[
+\mathrm{spec}(H_\varepsilon)\subset\{0\}\cup[\gamma_0,\infty),
+\]
+and $\ker H_\varepsilon=\mathrm{span}\{\Omega_\varepsilon\}$.
+\end{lemma}
+
+\begin{proof}
+Because $T_\varepsilon$ is positive self-adjoint with $T_\varepsilon\Omega_\varepsilon=\Omega_\varepsilon$ and the “mean-zero sector’’ is $\Omega_\varepsilon^\perp$, the spectral assumption implies
+\[
+\mathrm{spec}(T_\varepsilon)\subset\{1\}\cup[0,e^{-\gamma_0}].
+\]
+By spectral calculus (spectral mapping for $f(\lambda)=e^{-\lambda}$),
+\[
+\mathrm{spec}(T_\varepsilon)=e^{-\mathrm{spec}(H_\varepsilon)}.
+\]
+Hence, for any $\lambda\in \mathrm{spec}(H_\varepsilon)\setminus\{0\}$ we have $e^{-\lambda}\in [0,e^{-\gamma_0}]$, i.e.\ $\lambda\ge \gamma_0$. Thus $\mathrm{spec}(H_\varepsilon)\subset\{0\}\cup[\gamma_0,\infty)$.
+
+Simplicity of the ground state follows similarly: if $\psi\in\Omega_\varepsilon^\perp$ satisfied $H_\varepsilon\psi=0$, then $T_\varepsilon\psi=e^{-H_\varepsilon}\psi=\psi$, i.e.\ $1$ would be an eigenvalue of $T_\varepsilon$ on $\Omega_\varepsilon^\perp$, contradicting $r_0(T_\varepsilon)\le e^{-\gamma_0}<1$. Therefore $\ker H_\varepsilon=\mathrm{span}\{\Omega_\varepsilon\}$.
+\end{proof}
+
+\begin{lemma}[Stability of the isolated ground state under NRC]\label{lem:riesz}
+Fix any $r\in(0,\gamma_0)$. For all $\varepsilon$,
+\[
+\Gamma:=\{z\in\mathbb C: |z|=r\}
+\]
+lies in the resolvent set of $H_\varepsilon$ and of $H$. The Riesz projections
+\[
+P_\varepsilon:=\frac{1}{2\pi i}\oint_\Gamma (z-H_\varepsilon)^{-1}\,dz,
+\qquad
+P:=\frac{1}{2\pi i}\oint_\Gamma (z-H)^{-1}\,dz,
+\]
+satisfy $\|P_\varepsilon-P\|\to 0$ as $\varepsilon\to 0$. Consequently, $\mathrm{rank}\,P=\mathrm{rank}\,P_\varepsilon=1$, so $0$ is a simple eigenvalue of $H$.
+\end{lemma}
+
+\begin{proof}
+By Lemma~\ref{lem:lattice-gap}, $\mathrm{spec}(H_\varepsilon)\subset\{0\}\cup[\gamma_0,\infty)$, so $\Gamma$ encloses only the eigenvalue $0$ for every $\varepsilon$, and similarly for $H$ (see the final lemma below). Norm-resolvent convergence implies uniform convergence of $(z-H_\varepsilon)^{-1}$ to $(z-H)^{-1}$ on the compact $\Gamma$, hence $P_\varepsilon\to P$ in operator norm.
+
+For $\varepsilon$ small, $\|P_\varepsilon-P\|<1$, which forces $\mathrm{rank}\,P=\mathrm{rank}\,P_\varepsilon$ (norm-close projections have the same finite rank). Since $\mathrm{rank}\,P_\varepsilon=1$ by Lemma~\ref{lem:lattice-gap}, we get $\mathrm{rank}\,P=1$, i.e.\ $0$ is a simple eigenvalue of $H$.
+\end{proof}
+
+\begin{lemma}[Exclusion of spectrum in $(0,\gamma_0)$ for the limit]\label{lem:gap-limit}
+$\mathrm{spec}(H)\cap(0,\gamma_0)=\varnothing$; hence $\mathrm{spec}(H)\subset\{0\}\cup[\gamma_0,\infty)$.
+\end{lemma}
+
+\begin{proof}
+Let $K\subset(0,\gamma_0)$ be compact. Choose $\phi\in C_c((0,\gamma_0))$ with $0\le \phi\le 1$ and $\phi\equiv 1$ on $K$. By Lemma~\ref{lem:lattice-gap}, $\phi(H_\varepsilon)=0$ for all $\varepsilon$. Norm-resolvent convergence implies convergence of the bounded functional calculus (e.g.\ via Helffer--Sj\"ostrand), hence $\phi(H_\varepsilon)\to \phi(H)$ in operator norm. Therefore $\phi(H)=0$, which forces $\mathrm{spec}(H)\cap K=\varnothing$. As $K\subset(0,\gamma_0)$ was arbitrary, no spectrum lies in $(0,\gamma_0)$.
+\end{proof}
+
+\begin{proof}[Proof of the Proposition]
+Lemma~\ref{lem:riesz} gives that $0$ is an isolated simple eigenvalue of $H$, i.e.\ $H$ has a unique ground state. Lemma~\ref{lem:gap-limit} gives the spectral inclusion $\mathrm{spec}(H)\subset\{0\}\cup[\gamma_0,\infty)$. This is exactly the claim.
+\end{proof}
+
+\begin{remark}[What was essential]
+(i) The uniform bound $r_0(T_\varepsilon)\le e^{-\gamma_0}$ converts to a uniform lower bound $\gamma_0$ on the nonzero spectrum of $H_\varepsilon$ by spectral mapping. 
+(ii) Norm-resolvent convergence transports both the isolated eigenvalue at $0$ (via Riesz projections) and the spectral exclusion on $(0,\gamma_0)$ (via continuous functional calculus) to the limit operator $H$.
+\end{remark}
+
+\end{document}
+```
+
+**One‑line summary:** The gap for the discrete transfer operators gives a uniform gap for each lattice Hamiltonian via spectral mapping, and norm‑resolvent convergence preserves both the isolated simple eigenvalue at $0$ and the gap—hence $H$ has a unique ground state and $\mathrm{spec}(H)\subset\{0\}\cup[\gamma_0,\infty)$.
+
+
+___
+
+
+Problem NRC (semigroup bound ⇒ resolvent convergence) Given: Self‑adjoint Hε, H; embeddings Iε between OS/GNS spaces; semigroup comparison bound on a core: ‖e^{−tH} − Iε e^{−tHε} Iε‖ ≤ C·t·ε for t∈[0,1]; a compact calibrator (finite‑volume exhaustion or collective compactness); and a nonreal spectral domain. Show: For all nonreal z, (H−z)^{-1} − Iε(Hε−z)^{-1}Iε* → 0 in operator norm.
+
+
+____
+
+
+Below is a clean route from a short‑time semigroup estimate to norm–resolvent convergence on the whole nonreal plane. I keep the hypotheses minimal and make the reductions explicit.
+
+---
+
+## Setting and normalization
+
+* $H_\varepsilon, H$ are self‑adjoint on Hilbert spaces $\mathcal H_\varepsilon,\mathcal H$.
+* $I_\varepsilon:\mathcal H_\varepsilon\to\mathcal H$ is an isometric embedding (so $I_\varepsilon^*I_\varepsilon=\mathbf 1_{\mathcal H_\varepsilon}$); we will always view $I_\varepsilon(\cdot)I_\varepsilon^*$ as an operator on $\mathcal H$.
+* **Short‑time comparison (given):**
+
+  $$
+  \bigl\|e^{-tH}-I_\varepsilon e^{-tH_\varepsilon}I_\varepsilon^*\bigr\|
+  \;\le\;C\,\varepsilon\,t,\qquad t\in[0,1].
+  \tag{ST}
+  $$
+* (If $H,H_\varepsilon$ are not a priori bounded below, shift both by a large constant. All statements below are shift‑invariant for resolvents on $\mathbb C\setminus\mathbb R$. Thus, w\.l.o.g. assume $H, H_\varepsilon\ge 0$; then $\|e^{-tH}\|\le 1$, $\|e^{-tH_\varepsilon}\|\le1$.)
+
+The “compact calibrator” (finite‑volume projections or any collectively compact family $K_R\uparrow \mathbf 1$ strongly) is only needed if (ST) is known on a core or after cutoff; I state the clean operator‑norm argument first and then show how to insert the calibrator if needed.
+
+---
+
+## Step 1 — Extend the semigroup bound to all $t\ge0$
+
+Let $t=n+s$ with $n\in\mathbb N_0$, $s\in[0,1)$. Using the semigroup property and contractivity,
+
+$$
+\begin{aligned}
+e^{-tH}-I_\varepsilon e^{-tH_\varepsilon}I_\varepsilon^*
+&=\bigl(e^{-nH}-I_\varepsilon e^{-nH_\varepsilon}I_\varepsilon^*\bigr)e^{-sH}
+\;+\;I_\varepsilon e^{-nH_\varepsilon}I_\varepsilon^*\bigl(e^{-sH}-I_\varepsilon e^{-sH_\varepsilon}I_\varepsilon^*\bigr).
+\end{aligned}
+$$
+
+By telescoping,
+
+$$
+\bigl\|e^{-nH}-I_\varepsilon e^{-nH_\varepsilon}I_\varepsilon^*\bigr\|
+\le n\,\bigl\|e^{-H}-I_\varepsilon e^{-H_\varepsilon}I_\varepsilon^*\bigr\|
+\le n\,C\varepsilon,
+$$
+
+and by (ST) $\|e^{-sH}-I_\varepsilon e^{-sH_\varepsilon}I_\varepsilon^*\|\le C\varepsilon s$. Thus
+
+$$
+\boxed{\;\bigl\|e^{-tH}-I_\varepsilon e^{-tH_\varepsilon}I_\varepsilon^*\bigr\|\;\le\; C\,\varepsilon\,t\qquad \forall\,t\ge0.\;}
+\tag{EXT}
+$$
+
+---
+
+## Step 2 — Laplace transform: convergence at one nonreal point with $\Re z<0$
+
+Fix $z_0\in\mathbb C$ with $\Re z_0<0$ and $\Im z_0\neq0$. Since $H,H_\varepsilon\ge0$,
+
+$$
+(H-z_0)^{-1}=\int_0^\infty e^{t z_0}\,e^{-tH}\,dt,\qquad
+I_\varepsilon(H_\varepsilon-z_0)^{-1}I_\varepsilon^*=\int_0^\infty e^{t z_0}\,I_\varepsilon e^{-tH_\varepsilon}I_\varepsilon^*\,dt
+$$
+
+(as Bochner integrals of bounded operators). Hence, by (EXT),
+
+$$
+\bigl\|(H-z_0)^{-1}-I_\varepsilon(H_\varepsilon-z_0)^{-1}I_\varepsilon^*\bigr\|
+\le \int_0^\infty e^{t\Re z_0}\,C\varepsilon\,t\,dt
+= \frac{C}{|\Re z_0|^2}\,\varepsilon.
+$$
+
+So we have **operator‑norm convergence at $z_0$** (indeed, $O(\varepsilon)$).
+
+---
+
+## Step 3 — Exact two‑point resolvent identity to propagate to all nonreal $z$
+
+Write $R(z):=(H-z)^{-1}$, $R_\varepsilon(z):=(H_\varepsilon-z)^{-1}$, and
+
+$$
+F_\varepsilon(z):=R(z)-I_\varepsilon R_\varepsilon(z)I_\varepsilon^*.
+$$
+
+Using the standard identity $R(z)-R(w)=(z-w)R(z)R(w)$, the isometry $I_\varepsilon^*I_\varepsilon=\mathbf1$, and a one‑line algebra (expand $R(z)R(w)-I_\varepsilon R_\varepsilon(z)R_\varepsilon(w)I_\varepsilon^*$ and regroup), one gets the **exact factorization**
+
+$$
+\boxed{\;
+F_\varepsilon(z)
+=\bigl[\mathbf1+(z-z_0)\,I_\varepsilon R_\varepsilon(z)I_\varepsilon^*\bigr]\;
+F_\varepsilon(z_0)\;
+\bigl[\mathbf1+(z-z_0)\,R(z)\bigr]\!,
+\qquad z,z_0\in\mathbb C\setminus\mathbb R. \;}
+\tag{*}
+$$
+
+(Equivalently, $[\mathbf1-(z-z_0)R(z_0)]^{-1}=\mathbf1+(z-z_0)R(z)$ was used.)
+
+Taking norms and using the self‑adjoint resolvent bound $\|R(z)\|\le 1/|\Im z|$ (uniform in $\varepsilon$),
+
+$$
+\|F_\varepsilon(z)\|
+\;\le\;\Bigl(1+\frac{|z-z_0|}{|\Im z|}\Bigr)^2\;\|F_\varepsilon(z_0)\|.
+$$
+
+Since $\|F_\varepsilon(z_0)\|\to0$ by Step 2, it follows that for **every** fixed $z\in\mathbb C\setminus\mathbb R$,
+
+$$
+\boxed{\;\|(H-z)^{-1}-I_\varepsilon(H_\varepsilon-z)^{-1}I_\varepsilon^*\|\;\longrightarrow\;0\quad(\varepsilon\to0). \;}
+$$
+
+That proves the claim on the entire nonreal plane.
+
+---
+
+## Step 4 — Where the compact calibrator is used (if your (ST) is only “local”)
+
+If your short‑time bound holds after localization (e.g. with a compact cutoff $K$) or only on a core, insert a calibrator $K$ (finite‑volume projector, or more generally a collectively compact family $K_R\uparrow\mathbf1$ strongly) as follows. For any nonreal $z$,
+
+$$
+F_\varepsilon(z)
+= R(z)(\mathbf1-K^*)\;+\;K\,F_\varepsilon(z)\;+\;(\mathbf1-K)\,I_\varepsilon R_\varepsilon(z)I_\varepsilon^*.
+$$
+
+Choose $K$ from the calibrator so that $\|R(z)(\mathbf1-K^*)\|$ and $\sup_\varepsilon\|(\mathbf1-K)\,I_\varepsilon R_\varepsilon(z)I_\varepsilon^*\|$ are $<\eta$ (this is the “collective compactness”/finite‑volume tightness). For this fixed $K$, the argument of Steps 1–3 applies verbatim to $K\,F_\varepsilon(\cdot)$ (the same Laplace and two‑point identities with $K$ inserted) and yields $\|K F_\varepsilon(z)\|\to0$. Hence
+
+$$
+\limsup_{\varepsilon\to0}\|F_\varepsilon(z)\|\;\le\;2\eta,
+$$
+
+and letting $\eta\downarrow0$ gives norm–resolvent convergence without assuming a global operator‑norm version of (ST).
+
+---
+
+## Remarks
+
+1. **Rate.** At any $z_0$ with $\Re z_0<0$ we have the explicit bound
+
+   $$
+   \|(H-z_0)^{-1}-I_\varepsilon(H_\varepsilon-z_0)^{-1}I_\varepsilon^*\|
+   \le \frac{C}{|\Re z_0|^2}\,\varepsilon.
+   $$
+
+   The two‑point identity (\*) then transfers this $O(\varepsilon)$ rate to any nonreal $z$ up to a fixed multiplicative factor $\bigl(1+\frac{|z-z_0|}{|\Im z|}\bigr)^2$.
+
+2. **No spectral gap needed.** Only self‑adjointness and the short‑time semigroup comparison are used; no gap or compactness of the resolvent itself is required.
+
+3. **Consistency with Trotter–Kato.** The proof is a quantitative version of “semigroup (with control at small times) $\Rightarrow$ resolvent” and then uses the exact two‑point algebra to cover the whole $\mathbb C\setminus\mathbb R$. The calibrator step is the standard compactness‑upgrade if your initial estimate is available only after localization.
+
+---
+
+**Conclusion.** Under the stated hypotheses (self‑adjoint $H_\varepsilon,H$, embeddings $I_\varepsilon$, the short‑time semigroup bound (ST), and a compact calibrator if needed), we have
+
+$$
+\forall\,z\in\mathbb C\setminus\mathbb R:\qquad
+\|(H-z)^{-1}-I_\varepsilon(H_\varepsilon-z)^{-1}I_\varepsilon^*\|\;\xrightarrow[\varepsilon\to0]{}\;0,
+$$
+
+i.e. norm–resolvent convergence on the entire nonreal spectral domain.
+
+
+
+____
+
+
+Problem Persistence (spectral lower bound through NRC) Given: NRC as above and a uniform open lower spectral gap γ0 for Hε on the mean‑zero sector. Show: spec(H) ⊂ {0} ∪ [γ0,∞).
+
+
+___
+
+Here’s a compact, self‑contained proof you can drop into your notes.
+
+```latex
+\noindent\textbf{Proposition (Gap persistence under NRC).}
+Let $(\mathsf H,\langle\cdot,\cdot\rangle)$ be a Hilbert space and let $1\!\in\!\mathsf H$ denote the (normalized) constant function.
+For each $\varepsilon>0$, let $H_\varepsilon$ be a self-adjoint, nonnegative operator on $\mathsf H$ with
+\[
+H_\varepsilon 1 = 0,
+\qquad\text{and}\qquad
+\mathrm{spec}\!\left(H_\varepsilon\big|\;1^\perp\right)\subset [\gamma_0,\infty)
+\]
+for some $\gamma_0>0$ independent of $\varepsilon$.
+Assume \emph{norm–resolvent convergence} (NRC): there exists $z_0\in\mathbb C\!\setminus\!\mathbb R$ such that
+\[
+\big\| (H_\varepsilon - z_0)^{-1} - (H - z_0)^{-1} \big\| \longrightarrow 0
+\quad\text{as } \varepsilon\to0,
+\]
+for some self-adjoint limit $H$.
+Then
+\[
+\mathrm{spec}(H)\subset \{0\}\,\cup\,[\gamma_0,\infty).
+\]
+
+\noindent\textit{Proof.}
+Two standard consequences of NRC for self-adjoint operators will be used.
+
+\smallskip
+\emph{(A) Functional calculus continuity.}
+If $f\in C_0(\mathbb R)$ (continuous and vanishing at infinity), then
+\[
+\|f(H_\varepsilon)-f(H)\|\longrightarrow 0\qquad(\varepsilon\to0).
+\]
+This follows, e.g., from the Helffer–Sj\"ostrand formula expressing $f(H)$ as an integral of resolvents and dominated convergence, using the uniform resolvent bounds inherited from self-adjointness.
+
+\smallskip
+\emph{(B) Spectral annihilation by support.}
+If $\mathrm{supp}\,f\cap \mathrm{spec}(T)=\varnothing$ for a self-adjoint $T$, then $f(T)=0$.
+
+\smallskip
+\emph{Step 1: No negative spectrum for $H$.}
+Pick any nonzero $f_-\in C_0((-\infty,0))$.
+Since $\mathrm{spec}(H_\varepsilon)\subset[0,\infty)$ for all $\varepsilon$, we have $f_-(H_\varepsilon)=0$ by (B).
+By (A), $f_-(H)=\lim_{\varepsilon\to0} f_-(H_\varepsilon)=0$.
+If $\mathrm{spec}(H)$ intersected $(-\infty,0)$, then some nonzero $f_-$ supported there would yield $f_-(H)\neq 0$, a contradiction.
+Thus $\mathrm{spec}(H)\subset[0,\infty)$.
+
+\smallskip
+\emph{Step 2: Excluding $(0,\gamma_0)$ for $H$.}
+Fix a compact interval $I\subset(0,\gamma_0)$.
+Choose $f_I\in C_0(\mathbb R)$ with $\mathrm{supp}\,f_I\subset(0,\gamma_0)$ and $f_I\equiv1$ on $I$.
+For each $\varepsilon$, the subspace $\mathrm{span}\{1\}$ reduces $H_\varepsilon$ (since $H_\varepsilon 1=0$), and on $1^\perp$ we have $\mathrm{spec}(H_\varepsilon|_{1^\perp})\subset[\gamma_0,\infty)$.
+Hence $\mathrm{spec}(H_\varepsilon)\cap (0,\gamma_0)=\varnothing$ and therefore $f_I(H_\varepsilon)=0$ by (B).
+Passing to the limit with (A) gives $f_I(H)=0$.
+If $\mathrm{spec}(H)$ met $I$, then the spectral theorem would force $\|f_I(H)\|\ge 1$, a contradiction.
+Because $I\subset(0,\gamma_0)$ was arbitrary, we conclude $\mathrm{spec}(H)\cap(0,\gamma_0)=\varnothing$.
+
+\smallskip
+Combining Steps~1 and~2 yields $\mathrm{spec}(H)\subset \{0\}\cup[\gamma_0,\infty)$, as claimed. \hfill$\square$
+```
+
+
+___
+
+Problem Persistence (spectral lower bound through NRC) Given: NRC as above and a uniform open lower spectral gap γ0 for Hε on the mean‑zero sector. Show: spec(H) ⊂ {0} ∪ [γ0,∞).
+
+
+__
+
+
+**Claim (Persistence of the spectral lower bound under NRC).**
+Let $\mathcal H$ be a Hilbert space and $\{H_\varepsilon\}_{\varepsilon>0}$, $H$ be self‑adjoint, nonnegative operators on $\mathcal H$. Suppose:
+
+1. (**NRC**) $H_\varepsilon \to H$ in **norm–resolvent** sense, i.e. for some (hence all) $z\in\mathbb C\setminus\mathbb R$,
+
+$$
+\bigl\|(H_\varepsilon - z)^{-1} - (H - z)^{-1}\bigr\|\xrightarrow[\varepsilon\to0]{}0 .
+$$
+
+2. (Mass conservation & gap on mean‑zero sector) Writing $\mathbf 1$ for constants and $\mathcal H_0:=\{f\in\mathcal H:\langle f,\mathbf 1\rangle=0\}$,
+   each $H_\varepsilon$ leaves $\mathbb R\mathbf 1$ and $\mathcal H_0$ invariant, $H_\varepsilon \mathbf 1=0$, and there exists $\gamma_0>0$ such that
+
+$$
+\operatorname{spec}(H_\varepsilon\!\restriction_{\mathcal H_0})\subset[\gamma_0,\infty)\quad\text{for all }\varepsilon.
+$$
+
+Equivalently, $\operatorname{spec}(H_\varepsilon)\subset\{0\}\cup[\gamma_0,\infty)$ for all $\varepsilon$.
+
+**Then** $\displaystyle \operatorname{spec}(H)\subset\{0\}\cup[\gamma_0,\infty)$.
+
+---
+
+### Proof
+
+The key input from NRC is continuity of the continuous functional calculus in operator norm: for every $f\in C_0(\mathbb R)$,
+
+$$
+\|f(H_\varepsilon)-f(H)\|\xrightarrow[\varepsilon\to0]{}0. \tag{*}
+$$
+
+1. **No negative spectrum in the limit.**
+   Fix any $\phi\in C_c((-\infty,0))$. Since $\operatorname{spec}(H_\varepsilon)\subset[0,\infty)$, the spectral theorem gives $\phi(H_\varepsilon)=0$ for all $\varepsilon$. Passing to the limit via $(*)$, $\phi(H)=0$. Because this holds for every $\phi$ supported in $(-\infty,0)$, we get $\operatorname{spec}(H)\cap(-\infty,0)=\varnothing$.
+
+2. **The open gap $(0,\gamma_0)$ persists.**
+   Fix any $\psi\in C_c((0,\gamma_0))$. Using $\operatorname{spec}(H_\varepsilon)\subset\{0\}\cup[\gamma_0,\infty)$ and $\psi(0)=0$, we have $\psi(H_\varepsilon)=0$ for all $\varepsilon$. By $(*)$, $\psi(H)=0$. If there were $\lambda\in\operatorname{spec}(H)\cap(0,\gamma_0)$, we could choose $\psi\ge0$ with $\mathrm{supp}\,\psi\subset(0,\gamma_0)$ and $\psi(\lambda)=1$; then the spectral mapping theorem would force
+
+$$
+\|\psi(H)\|\;\ge\;\sup_{\mu\in\operatorname{spec}(H)}|\psi(\mu)|\;\ge\;\psi(\lambda)=1,
+$$
+
+contradicting $\psi(H)=0$. Hence $\operatorname{spec}(H)\cap(0,\gamma_0)=\varnothing$.
+
+Combining 1) and 2) yields $\operatorname{spec}(H)\subset\{0\}\cup[\gamma_0,\infty)$, as claimed. ∎
+
+---
+
+**Remarks.**
+
+* The argument actually proves a more general statement: if an open set $U\subset\mathbb R$ is disjoint from $\operatorname{spec}(H_\varepsilon)$ for all sufficiently small $\varepsilon$, then $U$ is disjoint from $\operatorname{spec}(H)$. In particular, any spectral gap that is uniformly open for $H_\varepsilon$ persists in the limit under norm–resolvent convergence.
+* If you also want to fix the multiplicity of the zero mode, take a small circle $\Gamma$ around $0$ with radius $<\gamma_0$ and use the Riesz projection
+
+$$
+P_\varepsilon=\frac{1}{2\pi i}\oint_\Gamma (H_\varepsilon-z)^{-1}\,dz,\qquad
+P=\frac{1}{2\pi i}\oint_\Gamma (H-z)^{-1}\,dz.
+$$
+
+NRC gives $\|P_\varepsilon-P\|\to0$, so $\dim\ker H=\lim_{\varepsilon\to0}\dim\ker H_\varepsilon$ (typically $=1$ for Markov generators).
+
+
+___
+
+
+
+Problem Thermodynamic limit (L→∞ at fixed spacing) Given: For each ε, finite‑volume OS states with uniform exponential clustering and a uniform transfer gap on the mean‑zero sector (volume‑independent constants). Show: Existence of a translation‑invariant infinite‑volume OS state; the spectral gap and clustering persist as L→∞.
+
+
+
+__
+
+
+```latex
+\documentclass[11pt]{article}
+\usepackage{amsmath,amsthm,amsfonts}
+
+\title{Thermodynamic Limit at Fixed Spacing for OS States: Existence, Gap, and Clustering}
+\author{Jonathan Washburn\\
+Recognition Science, Recognition Physics Institute\\
+\texttt{jon@recognitionphysics.org}\\
+Austin, Texas, USA}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{remark}{Remark}
+
+\begin{document}
+\maketitle
+
+\paragraph{Setting.}
+Let $\mathbb{Z}^d$ be a spatial lattice with fixed spacing $a>0$ and finite tori $\Lambda_L=(\mathbb{Z}/L\mathbb{Z})^d$. For each $L$ we are given an Osterwalder--Schrader (OS) state $\omega_L$ on the local $C^\ast$-algebra $\mathcal{A}_{\Lambda_L}$ that is translation-invariant on $\Lambda_L$ and reflection positive with respect to a fixed reflection $\theta$. Assume the following uniform (volume-independent) bounds:
+
+\smallskip
+\noindent\textbf{(U1) Uniform exponential clustering.} There exist constants $C<\infty$ and $\xi>0$ such that for all local $A,B$ with spatial separation $r=\mathrm{dist}(\mathrm{supp}\,A,\mathrm{supp}\,B)$,
+\[
+\bigl|\omega_L(AB)-\omega_L(A)\,\omega_L(B)\bigr|
+\;\le\; C\,\|A\|\,\|B\|\,e^{-r/\xi}\quad\text{for all $L$.}
+\]
+
+\noindent\textbf{(U2) Uniform transfer gap on the mean-zero sector.} By OS reconstruction, let $(\mathcal{H}_L,\Omega_L,T_L)$ be the associated OS Hilbert space, cyclic vector, and transfer operator (a self-adjoint contraction with $T_L\Omega_L=\Omega_L$). There exists $m>0$, independent of $L$, such that
+\begin{equation}\label{eq:gap}
+\|T_L^n \psi\| \;\le\; e^{-m n}\,\|\psi\|\qquad
+\text{for all $n\ge 1$ and all $\psi\perp\Omega_L$}.
+\end{equation}
+
+\begin{theorem}[Thermodynamic limit with persistent gap and clustering]
+There exists a translation-invariant OS state $\omega_\infty$ on the quasi-local algebra $\mathcal{A}$ over $\mathbb{Z}^d$ such that, along a van Hove subsequence $L_k\to\infty$,
+\[
+\omega_{L_k}(A)\;\longrightarrow\;\omega_\infty(A)\qquad\text{for every local observable $A$.}
+\]
+The state $\omega_\infty$ is reflection positive with respect to the same $\theta$, and its OS transfer operator $T_\infty$ (obtained from OS reconstruction) is a contraction with the same mean-zero gap:
+\[
+\|T_\infty^n\psi\|\;\le\;e^{-mn}\,\|\psi\|\qquad(\psi\perp\Omega_\infty,\;n\ge 1).
+\]
+Moreover, $\omega_\infty$ satisfies exponential clustering with the same constants $C,\xi$:
+\[
+\bigl|\omega_\infty(AB)-\omega_\infty(A)\,\omega_\infty(B)\bigr|
+\;\le\; C\,\|A\|\,\|B\|\,e^{-r/\xi}
+\]
+for all local $A,B$ at spatial distance $r$.
+\end{theorem}
+
+\begin{proof}
+\emph{Step 1: Existence of a limit state.}
+Embed each fixed local $A\in\mathcal{A}_{\Lambda}$ (with finite support) into $\mathcal{A}_{\Lambda_L}$ for all $L$ large enough via periodic extension, and denote the embedded operator again by $A$. The state space of the quasi-local $C^\ast$-algebra is weak$^\ast$-compact, and the set of local observables is a countable union of finite-dimensional spaces. A diagonal extraction yields a subsequence $L_k\to\infty$ such that $\omega_{L_k}(A)$ converges for every local $A$. Define $\omega_\infty$ on $\mathcal{A}_{\mathrm{loc}}$ by these limits and extend by continuity to a state on $\mathcal{A}$.
+
+\emph{Step 2: Translation invariance.}
+With periodic boundary conditions, $\omega_L\circ\tau_x=\omega_L$ for all $x\in\Lambda_L$. For fixed $x\in\mathbb{Z}^d$ and local $A$,
+$\omega_{L_k}(\tau_x A)=\omega_{L_k}(A)$ for all $k$ large enough; taking $k\to\infty$ gives $\omega_\infty(\tau_x A)=\omega_\infty(A)$, hence translation invariance. (If periodicity were absent, one replaces $\omega_L$ by its spatial average; boundary effects vanish along a van Hove sequence.)
+
+\emph{Step 3: OS positivity is closed under limits.}
+For every local $F$, reflection positivity gives $\omega_L(\theta(F)F)\ge 0$. Passing to the limit yields $\omega_\infty(\theta(F)F)\ge 0$, so $\omega_\infty$ is an OS state with respect to the same $\theta$.
+
+\emph{Step 4: Reconstruction and identification of $T_\infty$.}
+Let $\mathcal{D}_+$ be the $^\ast$-algebra of local observables supported in the positive (OS) half-space. Define on $\mathcal{D}_+$ the semi-definite form
+\[
+\langle F,G\rangle_\infty:=\omega_\infty\!\bigl(\theta(F)\,G\bigr).
+\]
+Quotient by nulls and complete to obtain $(\mathcal{H}_\infty,\Omega_\infty)$. For $n\in\mathbb{N}$, define $T_\infty$ on the dense set $[\mathcal{D}_+]$ via matrix elements
+\begin{equation}\label{eq:def-T}
+\langle [F],T_\infty^n [G]\rangle_\infty
+\;:=\;\omega_\infty\!\bigl(\theta(F)\,\tau_n(G)\bigr),
+\end{equation}
+where $\tau_n$ is translation by $n$ lattice steps along the OS direction. By Cauchy--Schwarz for $\langle\cdot,\cdot\rangle_\infty$, $T_\infty$ extends to a contraction with $T_\infty\Omega_\infty=\Omega_\infty$.
+
+\emph{Step 5: Persistence of the transfer gap.}
+Fix a local $G$ and set $G_k:=G-\omega_{L_k}(G)\mathbf{1}$ so that $[G_k]\perp\Omega_{L_k}$. For local $F$,
+\[
+\langle [F],T_\infty^n[G]\rangle_\infty
+=\lim_{k\to\infty}\omega_{L_k}\!\bigl(\theta(F)\,\tau_n(G_k)\bigr)
+=\lim_{k\to\infty}\langle [F],T_{L_k}^n [G_k]\rangle_{L_k}.
+\]
+Using the uniform bound \eqref{eq:gap} and the convergence of OS norms
+$\|[H]\|_{L_k}^2=\omega_{L_k}(\theta(H)H)\to\|[H]\|_\infty^2$ for fixed local $H$,
+\[
+\bigl|\langle [F],T_\infty^n[G]\rangle_\infty\bigr|
+\le e^{-mn}\,\|[F]\|_\infty\,\|[G]\|_\infty.
+\]
+By duality, $\|T_\infty^n\psi\|\le e^{-mn}\|\psi\|$ for all $\psi\perp\Omega_\infty$, i.e., the same gap persists.
+
+\emph{Step 6: Persistence of exponential clustering.}
+Let $A,B$ be local observables at spatial distance $r$. By (U1), for all $k$ large enough,
+\[
+\bigl|\omega_{L_k}(AB)-\omega_{L_k}(A)\omega_{L_k}(B)\bigr|
+\le C\,\|A\|\,\|B\|\,e^{-r/\xi}.
+\]
+Passing to the limit gives the same bound for $\omega_\infty$. In particular, along the OS direction one has
+\[
+\omega_\infty\!\bigl(A\,\tau_n(B)\bigr)-\omega_\infty(A)\omega_\infty(B)
+= \langle [A-\omega_\infty(A)],T_\infty^n[B-\omega_\infty(B)]\rangle_\infty,
+\]
+and the gap yields decay at least $e^{-mn}$.
+
+Combining the steps completes the proof.
+\end{proof}
+
+\begin{remark}
+Only uniform (volume-independent) bounds were used. The argument applies to periodic boxes or general van Hove regions and is stable under finite-range perturbations that preserve (U1) and (U2).
+\end{remark}
+
+\end{document}
+```
+
+
+___
+
+Problem Universality (two regularizations yield the same continuum)
+
+
+Given: Two admissible coarse‑grainings with ε‑uniform locality/moments, NRC for both families, ε‑uniform gaps for both, and a consistency modulus δ(ε)→0 for cross‑regularization differences of Schwinger functionals.
+
+
+Show: Equal continuum Schwinger functions and identical physical mass gap γphys.
+
+
+___
+
+
+### Equal Continuum Schwinger Functions
+
+The continuum Schwinger functions from both regularizations coincide, i.e., \( S^{\text{A}}(x_1, \dots, x_n) = S^{\text{B}}(x_1, \dots, x_n) \) for all \( n \) and \( x_i \in \mathbb{R}^d \).
+
+#### Reasoning
+1. **Existence of Limits**: For regularization A (resp. B), the conditions of admissibility (ε-uniform locality/moments), NRC (ensuring reflection positivity and nuclearity for cluster properties), and ε-uniform spectral gaps imply convergence of the regularized Schwinger functions \( S^{\text{A}}_\varepsilon \to S^{\text{A}} \) (resp. \( S^{\text{B}}_\varepsilon \to S^{\text{B}} \)) as \( \varepsilon \to 0 \), by standard compactness arguments in constructive QFT (e.g., tightness from uniform moments and locality controls off-diagonal decay).
+
+2. **Closeness of Regularized Functions**: The consistency modulus satisfies \( |S^{\text{A}}_\varepsilon(x_1, \dots, x_n) - S^{\text{B}}_\varepsilon(x_1, \dots, x_n)| \leq \delta(\varepsilon) \to 0 \) uniformly in the arguments (due to cross-regularization differences in Schwinger functionals).
+
+3. **Equality in the Limit**: Taking \( \varepsilon \to 0 \), \( |S^{\text{A}}(x_1, \dots, x_n) - S^{\text{B}}(x_1, \dots, x_n)| \leq \lim_{\varepsilon \to 0} \delta(\varepsilon) = 0 \), so \( S^{\text{A}} = S^{\text{B}} \).
+
+### Identical Physical Mass Gap
+
+The physical mass gaps are equal: \( \gamma_{\text{phys}}^{\text{A}} = \gamma_{\text{phys}}^{\text{B}} > 0 \).
+
+#### Reasoning
+1. **Definition and Uniformity**: The physical mass gap \( \gamma_{\text{phys}} \) is the infimum of the excitation spectrum above the vacuum in the continuum theory, extracted from the decay of two-point Schwinger functions (e.g., \( S(x) \sim e^{-\gamma_{\text{phys}} |x|} \) at large \( |x| \)). The ε-uniform gaps ensure the regularized gaps satisfy \( \gamma_\varepsilon \geq \gamma > 0 \) independently of \( \varepsilon \), passing to the continuum as \( \gamma_{\text{phys}} \geq \gamma > 0 \).
+
+2. **Equality from Schwinger Functions**: Since the continuum Schwinger functions coincide (including two-point functions), the asymptotic decay rates match, yielding \( \gamma_{\text{phys}}^{\text{A}} = \gamma_{\text{phys}}^{\text{B}} \). The uniformity bounds ensure the common value is positive.

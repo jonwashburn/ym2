@@ -1,0 +1,47 @@
+﻿### Derivation of the Born Rule \( P = |\psi|^2 \)
+
+
+The probability \( P \) for a measurement outcome corresponding to a final configuration is given by \( P = |\psi|^2 \), where \( \psi = \sum_{\gamma} a(\gamma) \) is the total amplitude, with each path amplitude \( a(\gamma) \) satisfying \( |a(\gamma)|^2 = \mu(\gamma) = e^{-C[\gamma]} \).
+
+
+#### Reasoning
+1. **Path amplitudes from weights**: The given path weight \( \mu(\gamma) = e^{-C[\gamma]} \) represents the squared magnitude of the path amplitude, so \( |a(\gamma)|^2 = e^{-C[\gamma]} \), implying \( |a(\gamma)| = e^{-C[\gamma]/2} \). The full amplitude includes a phase factor: \( a(\gamma) = e^{-C[\gamma]/2} e^{i \theta[\gamma]} \), where \( \theta[\gamma] \) encodes dynamical phases consistent with the system's evolution.
+
+
+2. **Composition invariance**: For composed paths \( \gamma = \gamma_1 \circ \gamma_2 \), the cost adds: \( C[\gamma] = C[\gamma_1] + C[\gamma_2] \). Thus, amplitudes multiply: \( a(\gamma) = a(\gamma_1) a(\gamma_2) \), since \( |a(\gamma)| = |a(\gamma_1)| |a(\gamma_2)| \) and phases compose additively (\( \theta[\gamma] = \theta[\gamma_1] + \theta[\gamma_2] \)).
+
+
+3. **Phase invariance**: The theory is invariant under global or local phase shifts, meaning physical predictions (e.g., probabilities) do not depend on adding a constant to \( \theta[\gamma] \) across paths. This requires amplitudes to be complex, as real weights alone would yield classical additive probabilities without interference.
+
+
+4. **Total amplitude and probability**: The total amplitude to a final state is \( \psi = \sum_{\gamma} a(\gamma) \), where the sum is over all paths \( \gamma \) from initial to final configuration. The probability is \( P = |\psi|^2 = \left| \sum_{\gamma} a(\gamma) \right|^2 \).
+
+
+5. **Consistency with probabilistic axioms**:
+   - **Non-negativity**: \( |\psi|^2 \geq 0 \) by definition of the modulus squared.
+   - **Normalization**: Assuming the initial state is normalized such that \( \sum_{\gamma} |a(\gamma)|^2 = 1 \) over all possible final states (from composition and total path sum), \( \sum P = 1 \).
+   - **Additivity**: For disjoint outcomes (no interfering paths between them), the total \( \psi_{\rm total} = \psi_1 \oplus \psi_2 \), so \( |\psi_{\rm total}|^2 = |\psi_1|^2 + |\psi_2|^2 = P_1 + P_2 \).
+   
+   Interference terms \( 2 \operatorname{Re}(a_1^* a_2) \) arise for paths to the same outcome but are phase-invariant overall, ensuring \( P \) remains a valid probability under the axioms. Without squaring (e.g., if \( P = \sum \mu(\gamma) \)), phase variations would violate invariance or allow negative values, contradicting the axioms. Thus, \( P = |\psi|^2 \) is the unique form satisfying all conditions.
+
+
+### Admissible Sectors Under Indistinguishability
+
+
+Under particle indistinguishability, admissible representation sectors of the permutation group \( S_n \) reduce to the 1-dimensional irreducible representations (irreps): the trivial (fully symmetric, Bose) and sign (fully antisymmetric, Fermi).
+
+
+#### Reasoning
+1. **Indistinguishability and configuration space**: For \( n \) identical particles, paths \( \gamma \) are defined on the configuration space quotiented by \( S_n \) (permutations of particle labels). Indistinguishability identifies paths differing only by particle exchange, requiring amplitudes \( a(\gamma) \) to transform consistently under \( S_n \) actions to ensure single-valuedness.
+
+
+2. **Representation sectors**: The total amplitude \( \psi \) (and wave function) transforms under an irrep \( \rho \) of \( S_n \). For \( \psi \) to be well-defined on the quotient space, \( a(\sigma \cdot \gamma) = \rho(\sigma) a(\gamma) \) for permutation \( \sigma \in S_n \), preserving the path weight \( \mu(\gamma) = |a(\gamma)|^2 \) (invariant under unitary \( \rho \)).
+
+
+3. **Path weight and composition**: Since \( \mu(\gamma) \) is scalar and composition-invariant, the transformation must preserve scalar probabilities. For higher-dimensional irreps (\( \dim \rho > 1 \), e.g., mixed-symmetry for \( n \geq 3 \)), \( \psi \) becomes vector-valued (\( \psi \in \mathbb{C}^d \), \( d > 1 \)), and defining a unique scalar \( P = |\psi|^2 \) requires choosing a basis or inner product invariant under \( S_n \), which is impossible without distinguishing components (violating indistinguishability).
+
+
+4. **Reduction to 1D irreps**: Only 1D irreps allow scalar \( \psi \):
+   - Trivial irrep (\( \rho(\sigma) = 1 \)): \( \psi \) symmetric (Bose-Einstein statistics).
+   - Sign irrep (\( \rho(\sigma) = \operatorname{sgn}(\sigma) = \pm 1 \)): \( \psi \) antisymmetric (Fermi-Dirac statistics).
+   In both cases, \( |\psi|^2 \) is \( S_n \)-invariant (scalar under permutations), and \( P = |\psi|^2 \) is uniquely defined, consistent with composition (additive \( C \)) and phase invariance (overall phase irrelevant). Higher-dim sectors are inadmissible as they lack a unique, invariant scalar probability, reducing the theory to Bose or Fermi statistics.

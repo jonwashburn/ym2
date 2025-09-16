@@ -1,0 +1,134 @@
+﻿\[
+\textbf{Setting.}
+\]
+Fix a dimension $d\ge 2$ and a hypercubic lattice $\varepsilon\mathbb{Z}^d$ with spacing $\varepsilon\in(0,\varepsilon_0]$. 
+For a nearest–neighbour lattice loop $\Lambda\subset \varepsilon\mathbb{Z}^d$ let
+\[
+A_\varepsilon^{\min}(\Lambda)\in\mathbb{N}
+\quad\text{be the minimal number of plaquettes in any lattice surface spanning }\Lambda,
+\]
+and let $P_\varepsilon(\Lambda)\in\mathbb{N}$ be the number of lattice edges on $\Lambda$ (its lattice perimeter).
+Set the corresponding \emph{physical} area and perimeter
+\[
+\mathsf{Area}_\varepsilon(\Lambda):=\varepsilon^2 A_\varepsilon^{\min}(\Lambda),\qquad 
+\mathsf{Per}_\varepsilon(\Lambda):=\varepsilon P_\varepsilon(\Lambda).
+\]
+For a continuum rectifiable closed curve $\Gamma\subset\mathbb{R}^d$ let $\mathsf{Area}(\Gamma)$ denote the least Euclidean area of any (Lipschitz) spanning surface with boundary $\Gamma$, and let $\mathsf{Per}(\Gamma)$ be its Euclidean length.
+
+
+\[
+\textbf{Uniform lattice area law (input; strong coupling).}
+\]
+Assume there exist functions $\tau_\varepsilon>0$ and $\kappa_\varepsilon\ge 0$, defined for $\varepsilon\in (0,\varepsilon_0]$, and constants
+\[
+T_*:=\inf_{0<\varepsilon\le\varepsilon_0}\frac{\tau_\varepsilon}{\varepsilon^2}>0,
+\qquad
+C_*:=\sup_{0<\varepsilon\le\varepsilon_0}\frac{\kappa_\varepsilon}{\varepsilon}<\infty,
+\]
+such that for all sufficiently large lattice loops $\Lambda\subset\varepsilon\mathbb{Z}^d$ (size measured in lattice units, which will automatically hold for fixed physical loops as $\varepsilon\downarrow 0$),
+\begin{equation}
+\label{eq:lattice-area-law}
+-\log\langle W(\Lambda)\rangle \;\ge\; \tau_\varepsilon\,A_\varepsilon^{\min}(\Lambda)\;-\;\kappa_\varepsilon\,P_\varepsilon(\Lambda)
+\;=\;\Big(\tfrac{\tau_\varepsilon}{\varepsilon^2}\Big)\mathsf{Area}_\varepsilon(\Lambda)\;-\;\Big(\tfrac{\kappa_\varepsilon}{\varepsilon}\Big)\mathsf{Per}_\varepsilon(\Lambda).
+\end{equation}
+(Equation \eqref{eq:lattice-area-law} follows from the character expansion in the strong–coupling regime: writing the Wilson weight in irreducible characters, the activity ratio $\rho(\beta)$ for nontrivial representations obeys $\mu\cdot \rho(\beta) < 1$ for all sufficiently small $\beta$, with a lattice constant $\mu$, yielding $T(\beta):= -\log \rho(\beta) > 0$ and a perimeter correction controlled by $\kappa_\varepsilon$.)
+
+
+\[
+\textbf{Directed embeddings of loops.}
+\]
+Let $\Gamma\subset\mathbb{R}^d$ be a fixed rectifiable closed curve. 
+A \emph{directed family} $\{\Gamma_\varepsilon\}_{\varepsilon\downarrow 0}$ of lattice loops converging to $\Gamma$ means:
+(i) $\Gamma_\varepsilon\subset\varepsilon\mathbb{Z}^d$ is a nearest–neighbour loop,
+(ii) the Hausdorff distance $d_H(\Gamma_\varepsilon,\Gamma)\to 0$ as $\varepsilon\downarrow 0$,
+(iii) each $\Gamma_\varepsilon$ is contained in a tubular neighbourhood of $\Gamma$ of radius $O(\varepsilon)$ and follows the orientation of $\Gamma$ (e.g., via grid–snapping of a $C^1$ parametrization).
+
+
+\[
+\textbf{Two geometric facts.}
+\]
+\emph{Fact A (surface convergence).} For any directed family $\{\Gamma_\varepsilon\to\Gamma\}$,
+\begin{equation}
+\label{eq:area-conv}
+\lim_{\varepsilon\downarrow 0}\mathsf{Area}_\varepsilon(\Gamma_\varepsilon)\;=\;\mathsf{Area}(\Gamma).
+\end{equation}
+\emph{Sketch.} Because lattice surfaces are a subclass of Lipschitz surfaces, 
+$\mathsf{Area}_\varepsilon(\Gamma_\varepsilon)\ge \mathsf{Area}^{\text{cont}}(\Gamma_\varepsilon)$, where the latter is the continuum minimal area for the boundary $\Gamma_\varepsilon$; lower semicontinuity of the Plateau problem under boundary convergence yields
+$\liminf_{\varepsilon\downarrow 0}\mathsf{Area}^{\text{cont}}(\Gamma_\varepsilon)\ge \mathsf{Area}(\Gamma)$.
+For the matching upper bound, approximate a continuum minimizer for $\Gamma$ by a cubical (axis–aligned) polyhedral surface with mesh $o(1)$ lying on $\varepsilon\mathbb{Z}^d$ and having boundary $\Gamma_\varepsilon$; its area exceeds $\mathsf{Area}(\Gamma)$ by $o(1)$, hence $\limsup_{\varepsilon\downarrow 0}\mathsf{Area}_\varepsilon(\Gamma_\varepsilon)\le \mathsf{Area}(\Gamma)$.
+Combining the two inequalities gives \eqref{eq:area-conv}.
+
+
+\emph{Fact B (perimeter control).} There exists a universal constant $\kappa_d:=\sup_{u\in\mathbb{S}^{d-1}}\sum_{i=1}^d |u_i|=\sqrt{d}$ such that for any directed family,
+\begin{equation}
+\label{eq:per-bound}
+\limsup_{\varepsilon\downarrow 0}\mathsf{Per}_\varepsilon(\Gamma_\varepsilon)\;\le\;\kappa_d\,\mathsf{Per}(\Gamma).
+\end{equation}
+\emph{Sketch.} On each sufficiently short segment of $\Gamma$ with unit tangent $u$, the nearest–neighbour routing on the lattice uses approximately $|u_1|, \dots, |u_d|$ fractions of steps along the coordinate directions. The local lattice length density is $\sum_i |u_i|$, which by Cauchy–Schwarz is at most $\sqrt{d}$. Integrating along $\Gamma$ and passing to the limit yields \eqref{eq:per-bound}. For planar loops (the usual Wilson–loop case embedded in a 2D plane), one may take $\kappa_d=\sqrt{2}$.
+
+
+\[
+\textbf{Main statement (continuum area law with perimeter term).}
+\]
+\textbf{Theorem.} 
+Let $\Gamma\subset\mathbb{R}^d$ be a rectifiable closed curve with $\mathsf{Area}(\Gamma)<\infty$. 
+Assume the uniform lattice bound \eqref{eq:lattice-area-law} on the scaling window $(0,\varepsilon_0]$.
+Define the \emph{ε–independent} constants
+\[
+T\;:=\;\inf_{0<\varepsilon\le\varepsilon_0}\frac{\tau_\varepsilon}{\varepsilon^2}\;>\;0,
+\qquad
+C_0\;:=\;\sup_{0<\varepsilon\le\varepsilon_0}\frac{\kappa_\varepsilon}{\varepsilon}\;<\;\infty,
+\qquad
+C\;:=\;\kappa_d\,C_0,
+\]
+with $\kappa_d=\sqrt{d}$ (and in particular $\kappa_2=\sqrt{2}$ for planar loops).
+Then for any directed family $\{\Gamma_\varepsilon\to\Gamma\}$,
+\begin{equation}
+\label{eq:continuum-bound}
+\limsup_{\varepsilon\downarrow 0}\bigl[-\log\langle W(\Gamma_\varepsilon)\rangle\bigr]
+\;\ge\;
+T\,\mathsf{Area}(\Gamma)\;-\;C\,\mathsf{Per}(\Gamma).
+\end{equation}
+In particular, the continuum string tension is positive and bounded below by $T$.
+
+
+\emph{Proof.}
+Starting from \eqref{eq:lattice-area-law} with $\Lambda=\Gamma_\varepsilon$,
+\[
+-\log\langle W(\Gamma_\varepsilon)\rangle
+\;\ge\;
+\Big(\tfrac{\tau_\varepsilon}{\varepsilon^2}\Big)\mathsf{Area}_\varepsilon(\Gamma_\varepsilon)
+\;-\;
+\Big(\tfrac{\kappa_\varepsilon}{\varepsilon}\Big)\mathsf{Per}_\varepsilon(\Gamma_\varepsilon).
+\]
+Taking $\limsup_{\varepsilon\downarrow 0}$ on both sides and using $\limsup(a_\varepsilon-b_\varepsilon)\ge
+(\inf a_\varepsilon) - (\sup b_\varepsilon)$ in the form
+\[
+\limsup_{\varepsilon\downarrow 0}\bigl[A_\varepsilon-B_\varepsilon\bigr]
+\;\ge\;
+\Big(\inf_{0<\varepsilon\le\varepsilon_0}\tfrac{\tau_\varepsilon}{\varepsilon^2}\Big)\cdot
+\liminf_{\varepsilon\downarrow 0}\mathsf{Area}_\varepsilon(\Gamma_\varepsilon)
+\;-\;
+\Big(\sup_{0<\varepsilon\le\varepsilon_0}\tfrac{\kappa_\varepsilon}{\varepsilon}\Big)\cdot
+\limsup_{\varepsilon\downarrow 0}\mathsf{Per}_\varepsilon(\Gamma_\varepsilon),
+\]
+and then applying Facts A and B, we obtain
+\[
+\limsup_{\varepsilon\downarrow 0}\bigl[-\log\langle W(\Gamma_\varepsilon)\rangle\bigr]
+\;\ge\;
+T\,\mathsf{Area}(\Gamma)\;-\;C_0\cdot \kappa_d\,\mathsf{Per}(\Gamma)
+\;=\;T\,\mathsf{Area}(\Gamma)\;-\;C\,\mathsf{Per}(\Gamma),
+\]
+which is \eqref{eq:continuum-bound}. \qed
+
+
+\[
+\textbf{Remarks.}
+\]
+1. The constants $T$ and $C$ are completely $\varepsilon$–independent and explicit in terms of the scaling–window bounds: $T$ is the uniform lower bound on the lattice string tension in \emph{physical} units ($\tau_\varepsilon/\varepsilon^2$), while $C$ is the product of the uniform perimeter coefficient in physical units ($C_0=\sup\kappa_\varepsilon/\varepsilon$) with the sharp geometric factor $\kappa_d=\sqrt{d}$ coming from grid routing. For planar Wilson loops, $C=\sqrt{2}\,C_0$.
+
+
+2. The “large loop’’ qualifier is automatically satisfied in this setup: for any fixed physical loop $\Gamma$, the lattice representative $\Gamma_\varepsilon$ has diameter of order $\varepsilon^{-1}$ in lattice units, so the hypotheses behind \eqref{eq:lattice-area-law} (derived from strong–coupling/cluster or other constructive bounds) apply for all sufficiently small $\varepsilon$.
+
+
+3. The bound \eqref{eq:continuum-bound} is exactly the statement that the continuum string tension $\sigma_{\text{cont}}:=\liminf_{\varepsilon\downarrow 0}\tau_\varepsilon/\varepsilon^2$ is positive (indeed $\sigma_{\text{cont}}\ge T>0$), with a controlled perimeter subtraction that is uniform along any directed family $\Gamma_\varepsilon\to\Gamma$.

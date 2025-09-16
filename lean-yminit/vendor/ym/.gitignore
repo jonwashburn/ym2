@@ -1,0 +1,13 @@
+.lake/
+build/
+lake-packages/
+.DS_Store
+archive/
+paper/
+.github/
+*.olean
+*.ilean
+*.trace
+*.log.json
+
+._*

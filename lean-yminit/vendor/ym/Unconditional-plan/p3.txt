@@ -1,0 +1,36 @@
+﻿We are asked to find a lower bound β0​ for the minimal eigenvalue λmin​ of a 2×2 Hermitian Positive Semidefinite (PSD) matrix M, given constraints on its elements. Let the matrix be:
+M=(az∗​zb​)
+We are given that a and b are real (implicit in M being Hermitian) and satisfy a≥βdiag​ and b≥βdiag​. We want to find a closed-form lower bound β0​(βdiag​,∣z∣)>0.
+We can determine this lower bound using the explicit formula for the eigenvalues of M or by applying the Gershgorin Circle Theorem.
+Method 1: Explicit Eigenvalue Analysis
+The minimal eigenvalue of M is given by the formula:
+λmin​(a,b)=2(a+b)−(a−b)2+4∣z∣2​​
+To find the lower bound β0​, we need to minimize λmin​(a,b) subject to the constraints a≥βdiag​, b≥βdiag​, and the PSD condition ab≥∣z∣2.
+We first analyze the monotonicity of λmin​(a,b). The partial derivative with respect to a is:
+∂a∂λmin​​=21​(1−(a−b)2+4∣z∣2​a−b​)
+Since the fraction (a−b)2+4∣z∣2​a−b​ is between -1 and 1, we have ∂a∂λmin​​≥0. Similarly, ∂b∂λmin​​≥0.
+Thus, λmin​(a,b) is monotonically increasing in both a and b.
+To find the minimum value, we want a and b to be as small as possible within the feasible region.
+We are looking for a strictly positive bound β0​>0. Let us first determine when such a bound exists. If we can find a matrix M satisfying the constraints such that λmin​=0, then no strictly positive lower bound depending only on βdiag​ and ∣z∣ exists.
+λmin​=0 occurs when the determinant is 0, i.e., ab=∣z∣2.
+If we assume βdiag​>0, we can try to construct such a matrix. Let a=βdiag​. Then b=∣z∣2/βdiag​. This matrix satisfies the constraints if b≥βdiag​, which means ∣z∣2/βdiag​≥βdiag​, or ∣z∣≥βdiag​.
+So, if ∣z∣≥βdiag​, the minimal eigenvalue can be 0.
+Therefore, to ensure a strictly positive lower bound β0​>0, we must assume βdiag​>∣z∣.
+Under this assumption, βdiag2​>∣z∣2. The feasible region is dominated by the constraints a≥βdiag​ and b≥βdiag​. The PSD constraint ab≥∣z∣2 is automatically satisfied since ab≥βdiag2​>∣z∣2.
+Since λmin​(a,b) is increasing in a and b, the minimum is attained when a and b take their smallest possible values, i.e., a=βdiag​ and b=βdiag​.
+Substituting these values into the formula for λmin​:
+β0​=λmin​(βdiag​,βdiag​)=2(2βdiag​)−(βdiag​−βdiag​)2+4∣z∣2​​
+β0​=22βdiag​−2∣z∣​=βdiag​−∣z∣
+Method 2: Gershgorin Circle Theorem
+The Gershgorin Circle Theorem states that the eigenvalues of M lie in the union of the discs centered at the diagonal elements with radii equal to the sum of the absolute values of the off-diagonal elements in the corresponding row.
+Disc 1: ∣λ−a∣≤∣z∣
+Disc 2: ∣λ−b∣≤∣z∣
+Since M is Hermitian, its eigenvalues are real. Thus, the eigenvalues lie in the union of the real intervals:
+[a−∣z∣,a+∣z∣]∪[b−∣z∣,b+∣z∣].
+The minimal eigenvalue λmin​ must satisfy:
+λmin​≥min(a−∣z∣,b−∣z∣)
+Given the constraints a≥βdiag​ and b≥βdiag​, we have:
+min(a−∣z∣,b−∣z∣)≥βdiag​−∣z∣
+Therefore, the lower bound is β0​=βdiag​−∣z∣.
+Assuming the context requires a strictly positive bound (i.e., βdiag​>∣z∣), the closed-form lower bound β0​ used as OverlapLowerBoundOS is:
+β0​(βdiag​,∣z∣)=βdiag​−∣z∣

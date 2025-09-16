@@ -1,0 +1,35 @@
+﻿This document addresses Property P8, detailing the demonstration of the uniform coarse-graining bound and operator norm convergence for reflected loop kernels Kn​ during a voxel-to-continuum refinement. We then outline the necessary hypotheses to invoke gap persistence, ensuring a positive continuum spectral gap γ>0.
+We adopt the standard framework where the loop kernels Kn​ are covariance operators or Green's functions, representing the inverses of underlying positive definite operators Hn​ (e.g., Hamiltonians or discrete elliptic operators): Kn​=Hn−1​ and K=H−1. The "reflected" property implies reflection positivity, ensuring Hn​ and Kn​ are self-adjoint. We utilize restriction (Rn​) and prolongation (Pn​) operators to compare the discrete and continuum Hilbert spaces.
+P8: Uniform Coarse-Graining Bound and Convergence
+P8 requires establishing two main properties:
+1. Uniform Bound (βn​≥β0​>0)
+We interpret βn​ as the spectral gap (mass gap) of the underlying operator Hn​:
+$$ \beta_n = \inf \text{spec}(H_n) $$
+The condition βn​≥β0​>0 signifies uniform ellipticity or stability of the discrete systems. It guarantees the uniform boundedness of the kernels Kn​:
+$$ |K_n|_{op} = \frac{1}{\beta_n} \le \frac{1}{\beta_0} $$
+Demonstration Outline:
+The proof relies on the stability of the continuum model and the properties of the discretization.
+* Continuum Coercivity: We assume the continuum operator H is strictly positive definite (massive), i.e., infspec(H)>0.
+* Stable Discretization: The coarse-graining process defining Hn​ must be numerically stable and preserve the positivity structure.
+* Uniformity: It must be shown that the stability is uniform across the refinement. This often involves verifying discrete functional inequalities (e.g., discrete Poincaré inequalities) with constants independent of the voxel size n.
+2. Operator Norm Convergence (Kn​→K)
+We must show convergence in the generalized operator norm:
+$$ |P_n K_n R_n - K|_{op} \to 0 \quad \text{as } n \to \infty $$
+This is equivalent to the Norm Resolvent Convergence (NRC) of Hn​ to H.
+Demonstration Outline:
+The proof relies on the fundamental principle: Stability + Consistency + Compactness implies Norm Convergence.
+* Stability: Provided by the uniform bound established in Part 1.
+* Consistency: The discrete operator Hn​ must locally approximate H. The truncation error must vanish on a dense set of smooth functions.
+* Strong Convergence: Stability and consistency imply strong convergence (Lax Equivalence Theorem).
+* Collective Compactness: To upgrade strong convergence to norm convergence, we invoke the theory of collective compactness. Assuming the continuum kernel K is compact, we must show that the sequence {Pn​Kn​Rn​} is collectively compact. This requires establishing uniform discrete regularity estimates independent of n.
+Hypotheses for Gap Persistence (Continuum γ>0)
+Gap persistence ensures that a spectral gap present in the discrete approximations remains open in the continuum limit. The mathematical basis for this is that Norm Resolvent Convergence (established in P8) implies the convergence of the spectra of Hn​ to the spectrum of H (in the sense of Hausdorff distance).
+To conclude that the continuum system has a gap γ>0, the following hypotheses are necessary:
+H1: Self-Adjointness
+The operators Hn​ and H must be self-adjoint. (This is typically guaranteed by reflection positivity).
+H2: Norm Resolvent Convergence (Result of P8.2)
+The convergence Hn​→H must occur in the norm resolvent sense. This strong mode of convergence is required for the stability of the spectral structure.
+H3: Uniform Discrete Spectral Gap
+There must exist a spectral gap in the discrete operators Hn​ that is uniformly bounded away from zero, independent of n. That is, there exists an interval (a,b) such that the gap size γ0​=b−a>0, and for all sufficiently large n:
+$$ \text{spec}(H_n) \cap (a, b) = \emptyset $$
+Under these hypotheses, the convergence of the spectra guarantees that the continuum operator H inherits the gap: spec(H)∩(a,b)=∅, and thus the continuum gap γ satisfies γ≥γ0​>0.

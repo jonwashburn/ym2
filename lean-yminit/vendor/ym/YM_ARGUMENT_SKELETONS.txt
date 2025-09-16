@@ -1,0 +1,377 @@
+YM Argument Skeletons (per-module): hypotheses, statements, constants, and inequality sources
+
+Scope: Concrete SU(N) Yang–Mills mass gap to Clay criteria, aligned to Lean modules.
+
+============================================================
+Module su/ (SU(N) group and Haar interface)
+============================================================
+Hypotheses
+- N ∈ ℕ, N ≥ 2. SU(N) is the special unitary group: SU(N) = {U ∈ M_N(ℂ): U* U = I, det U = 1}.
+- Compact Lie group; normalized Haar probability measure μ_Haar on SU(N).
+
+Statements
+- Existence and uniqueness of normalized Haar measure μ_Haar.
+- Basic integration invariances: ∫ f(g) dμ = ∫ f(hg) dμ = ∫ f(gh) dμ.
+
+Constants/bounds
+- For any matrix entry |(U)_{ij}| ≤ 1; |Tr(U)| ≤ N.
+- For plaquette factors: 0 ≤ 1 − (1/N) Re Tr(U) ≤ 2.
+
+Inequality sources
+- Compactness ⇒ Haar exists, is unique (standard).
+- Cauchy–Schwarz ⇒ |Tr(U)| ≤ √N · ∥U∥_HS = N.
+
+Lean lemma names (targets)
+- su.haar_normalized : ExistsUnique (ProbabilityMeasure SU(N)).
+- su.integral_left_invariant, su.integral_right_invariant.
+
+============================================================
+Module lattice/ (finite 4D periodic lattice and links)
+============================================================
+Hypotheses
+- L ∈ ℕ (extent per dimension), a > 0 (lattice spacing).
+- Sites: Λ = (ℤ/Lℤ)^4. Directions Dir = {±e0, ±e1, ±e2, ±e3} with time e0.
+- Links: E = {(x, μ): x ∈ Λ, μ ∈ {0,1,2,3}} with orientation.
+
+Statements
+- Periodic neighbor maps x ↦ x±e_μ well-defined.
+- Plaquette U_P is ordered product of four link variables along a unit square.
+
+Constants/bounds
+- Degree per site ≤ 8.
+- Number of plaquettes |P| = 6 L^4.
+
+Inequality sources
+- Counting on hypercubic lattice.
+
+Lean lemma names (targets)
+- lattice.Lambda4D, lattice.Link, lattice.Plaquette, lattice.neighbors_periodic.
+
+============================================================
+Module ym_measure/ (Wilson action and Gibbs measure)
+============================================================
+Hypotheses
+- Configuration U = {U_{x,μ}} ∈ ∏_{(x,μ)∈E} SU(N).
+- Wilson action S_β(U) = β Σ_{P} (1 − (1/N) Re Tr(U_P)).
+- Product Haar measure dU = ⊗ dμ_Haar(U_{x,μ}).
+
+Statements
+- Partition function Z_β = ∫ e^{−S_β(U)} dU is finite and > 0 (compact domain).
+- Define Gibbs probability measure dμ_β(U) = Z_β^{−1} e^{−S_β(U)} dU.
+
+Constants/bounds
+- 0 ≤ S_β(U) ≤ 2β |P|, hence e^{−2β|P|} ≤ e^{−S_β(U)} ≤ 1.
+- Z_β ∈ [e^{−2β|P|}, 1].
+
+Inequality sources
+- SU(N) compactness and 0 ≤ 1 − (1/N) Re Tr(U_P) ≤ 2.
+
+Lean lemma names (targets)
+- wilsonAction_def, wilson_partition_fn_pos, wilson_gibbs_prob_measure.
+
+============================================================
+Module os_pos_wilson/ (OS positivity for Wilson via link reflection)
+============================================================
+Hypotheses
+- Choose a time-reflection θ across a mid-plane between t=0 and t=1 time-slices (link-reflection).
+- Observables F supported in positive time half (t ≥ 1).
+- Measure dμ_β as above; action local and reflection-symmetric.
+
+Statements
+- Reflection positivity: for finite set {F_i} of cylinder observables in t ≥ 1,
+  the Gram matrix G_{ij} = ⟨(θF_i)^* F_j⟩_β is PSD.
+- Existence of positive self-adjoint transfer T realizing one Euclidean time step.
+
+Constants/bounds
+- Holds for all β > 0 and all N ≥ 2 (no small-coupling restriction needed for RP).
+
+Inequality/identity sources
+- Osterwalder–Seiler link-reflection factorization: action splits across the cut; the inter-slab integral defines a positive kernel.
+- Positivity from group-integration: ∫ φ(g)^* K(g,h) φ(h) dμ ≥ 0 when K is of the form ∫ A(g,u)^* A(h,u) dν(u).
+
+Lean lemma names (targets)
+- os_wilson_reflection_psd : OSPsd θ μ_β.
+- os_wilson_transfer_positive_selfAdjoint : Transfer positivity/self-adjointness.
+
+============================================================
+Module transfer_ham/ (transfer matrix and Hamiltonian)
+============================================================
+Hypotheses
+- Transfer operator T acts on L^2 of boundary data on a time-slice; T is positive and self-adjoint; ∥T∥ ≤ 1.
+- Vacuum sector spanned by constants Ω with TΩ = Ω.
+
+Statements
+- H := −log T is self-adjoint, H ≥ 0; U(t) = e^{−tH} is a contraction semigroup.
+- Spectral relation: if spec(T|_{Ω^⊥}) ⊆ [0, e^{−γ}], then spec(H) ∩ (0, γ) = ∅.
+
+Constants/bounds
+- None beyond contractivity; gap γ derived downstream.
+
+Inequality sources
+- Spectral calculus; functional calculus for self-adjoint contractions.
+
+Lean lemma names (targets)
+- transfer_positive_selfAdjoint, hamiltonian_from_transfer, transfer_gap_to_hamiltonian_gap.
+
+============================================================
+Module gap_strong_coupling/ (finite-volume spectral gap at strong coupling)
+============================================================
+Hypotheses
+- Strong coupling regime: β is sufficiently small.
+- Inter-slab interactions across the OS cut have total coupling J_⊥ (geometric constant from lattice).
+- Observables normalized to zero mean in OS inner product (orthogonal to Ω).
+
+Statements
+- Dobrushin influence bound: c_{xy} ≤ tanh(β J_{xy}) ≤ 2β J_{xy}.
+- Cross-cut contraction: α_⊥ := sup_{x∈L} Σ_{y∈R} c_{xy} ≤ 2β J_⊥.
+- Correlation decay: |(F, T^t F)_OS| ≤ ∥F∥^2 α_⊥^t.
+- Spectral radius on mean-zero subspace: r0(T) ≤ α_⊥ ≤ 2β J_⊥.
+- Gap: γ(β) := −log r0(T) ≥ −log(2β J_⊥).
+
+Constants/bounds
+- Take explicit smallness: β ≤ 1/(4 J_*), with J_* := sup_x Σ_y J_{xy} ⇒ 2β J_⊥ ≤ 1/2 ⇒ γ(β) ≥ log 2.
+- N-uniformity: bounds use only unit-norm assumptions and ferromagnetic sign, not N.
+
+Inequality sources
+- Radon–Nikodym derivative bound for single-site conditionals: e^{−2β J_{xj}} ≤ dμ_x/dμ'_x ≤ e^{+2β J_{xj}}.
+- Total variation ≤ tanh(β J_{xj}) ≤ 2β J_{xj}.
+- Spectral theorem: r0(T)^t = sup_{∥F∥=1} |(F, T^t F)|.
+
+Lean lemma names (targets)
+- dobrushin_influence_bound, crosscut_alpha_bound, transfer_radius_leq_alpha, gap_lower_bound_from_alpha.
+
+============================================================
+Module pf3x3_bridge/ (quantitative PF gap for 3×3 row-stochastic)
+============================================================
+Hypotheses
+- A ∈ ℝ^{3×3} strictly positive, row-stochastic: A 1 = 1, A_{ij} > 0.
+
+Statements
+- Perron–Frobenius: simple eigenvalue at 1 with positive eigenvector; subdominant eigenvalues |λ| < 1.
+- Overlap bound for 3×3 embedding: β ≥ 3 · min_{i,j} A_{ij}.
+- Spectral gap δ ≥ 1 − max{|λ_2|, |λ_3|} > 0 with quantitative lower bound from β.
+
+Constants/bounds
+- m := min_{i,j} A_{ij} > 0 ⇒ β ≥ 3m.
+
+Inequality sources
+- Row sums = 1 ⇒ each row has at least three entries ≥ m ⇒ row overlap ≥ 3m.
+- Standard PF theory for primitive stochastic matrices.
+
+Lean lemma names (targets)
+- pf3x3_row_stochastic_gap, matrix_overlap_lower_bound_beta.
+
+============================================================
+Module rs_vs_wilson/ (RS↔Wilson kernel comparability in a scale window)
+============================================================
+Hypotheses
+- Kernels K_RS, K_W on loop index set Γ with shared symmetries (time-translation, reflection).
+- Locality: |K_X(γ,γ')| ≤ A_X e^{−μ_X d(γ,γ')} (X ∈ {RS, W}).
+- On-site: b_X ≤ K_X(γ,γ) ≤ B_X; Growth: # {γ': d(γ,γ') = r} ≤ C_g e^{ν r}.
+- μ_X > ν; define S(α) = C_g/(e^{α − ν} − 1); S_X := S(μ_X).
+
+Statements
+- Gershgorin bounds: (b_X − A_X S_X) ∥v∥^2 ≤ v*Gram_X v ≤ (B_X + A_X S_X) ∥v∥^2.
+- Comparability: c1·Gram_W ≤ Gram_RS ≤ c2·Gram_W with
+  c1 = (b_RS − A_RS S_RS)/(B_W + A_W S_W), c2 = (B_RS + A_RS S_RS)/(b_W − A_W S_W).
+- OS version holds with θ-reflection Gram.
+
+Constants/bounds
+- β0^{OS}(K_X) ≥ b_X − A_X S_X > 0.
+
+Inequality sources
+- Schur/Gershgorin diagonal dominance using locality and growth bounds.
+
+Lean lemma names (targets)
+- kernel_gram_bounds, rs_wilson_gram_comparability, os_comparability.
+
+============================================================
+Module spectral_stability/ (persistence and Lipschitz/Weyl controls)
+============================================================
+Hypotheses
+- Operators T_n → T in operator norm (or via norm–resolvent for H_n → H).
+- Each T_n has gap ≥ γ > 0 on Ω^⊥.
+
+Statements
+- Weyl 1-Lipschitz eigenvalue order: |λ_k(T_n) − λ_k(T)| ≤ ∥T_n − T∥.
+- Gap persistence: if ∥T_n − T∥ ≤ ε < 1 − e^{−γ}, then spec(T|_{Ω^⊥}) ⊆ [0, e^{−(γ−δ)}] with δ = −log(1−ε).
+- Norm–resolvent ⇒ spectral inclusion and β0 preservation (R3).
+
+Constants/bounds
+- δ controlled by norm difference; choose ε from construction.
+
+Inequality sources
+- Min–max principle and Weyl inequalities; second resolvent identity.
+
+Lean lemma names (targets)
+- gap_persistence_lipschitz, norm_resolvent_gap_persists.
+
+============================================================
+Module continuum_limit/ (R3 implementation and continuum gap)
+============================================================
+Hypotheses
+- Embeddings I_a : H_a → H; projections P_a = I_a I_a^*.
+- Defects ε_a := ∥(H I_a − I_a H_a)(H_a + 1)^{−1/2}∥ → 0; compact (H − z0)^{−1}.
+- inf spec(H_a) ≥ β0 > 0 uniformly.
+
+Statements
+- Quantitative resolvent bound (for nonreal z0):
+  ∥(H − z0)^{−1} − I_a(H_a − z0)^{−1}I_a^*∥ ≤ δ_a(Λ)/dist(z0,[0,Λ]) + η(Λ; z0) + C(β0,z0) ε_a,
+  where δ_a(Λ)=∥(I−P_a)E_H([0,Λ])∥, η(Λ; z0)=sup_{λ≥Λ} 1/|λ−z0|.
+- For all nonreal z, convergence via resolvent identity; spec(H) ⊆ [β0,∞).
+
+Constants/bounds
+- Choose Λ s.t. η(Λ; z0) small; then a large so that δ_a(Λ) and ε_a small.
+- C(β0,z0) := ∥(H − z0)^{−1}∥ sup_{λ≥β0} √(1+λ)/|λ−z0|.
+
+Inequality sources
+- Master identity: R(z) − I R_a(z) I^* = R(z)(I − P_a) − R(z) D_a R_a(z) I^*.
+- Neumann series and functional calculus.
+
+Lean lemma names (targets)
+- continuum_resolvent_bound, continuum_norm_resolvent, continuum_spec_lower_bound.
+
+============================================================
+Module ym/Main.lean (assembly and export)
+============================================================
+Hypotheses
+- Modules above provide: OS positivity for Wilson; transfer positivity; strong-coupling finite-volume gap; R3 continuum passage with β0 preserved.
+
+Statements
+- Existence of γ>0 such that MassGapCont γ holds.
+- Export: theorem SU_N_YangMills_on_R4_has_mass_gap : ∃ γ>0, MassGapCont γ.
+
+Constants/bounds
+- Explicit γ(β) ≥ −log(2βJ_⊥) in strong coupling window; choose β small enough (uniform in N).
+
+Inequality sources
+- Composition of the modules as listed.
+
+Lean lemma names (targets)
+- ym_unconditional_mass_gap_from_wilson, SU_N_YangMills_on_R4_has_mass_gap.
+
+
+============================================================
+Renormalization_and_units/ (β(a) scaling, units, Δ_phys)
+============================================================
+Hypotheses
+- Spatial lattice spacing a_s>0; temporal spacing τ>0 (allow anisotropy; isotropic case a_s=τ=a).
+- Transfer T := e^{−τ H_phys}. Lattice spectral radius bound r0(β) on Ω^⊥ and lattice gap γ_latt(β):=−log r0(β).
+- Cross‑cut constant J_⊥ independent of L and a (geometric/local).
+
+Statements
+- Physical mass gap Δ_phys(β,τ) := γ_latt(β)/τ.
+- Choose scaling schedule β=β(τ) so that α_⊥(β(τ)) = e^{−τ Δ0} with Δ0>0 fixed, and r0(β) ≤ α_⊥(β).
+  Using α_⊥(β) ≤ 2 β J_⊥, suffices to take β(τ) = (1/(2 J_⊥)) e^{−τ Δ0}.
+  Then r0(β(τ)) ≤ e^{−τ Δ0} and Δ_phys(β(τ),τ) ≥ Δ0 uniformly as τ→0.
+
+Constants/bounds
+- For small τ: β(τ) = (1/(2 J_⊥)) (1 − τ Δ0 + O(τ^2)) < 1/(2 J_⊥).
+- Uniform in N: J_⊥, the Dobrushin bound, and the transfer calculus do not depend on N.
+
+Inequality sources
+- r0(T) ≤ α_⊥(β) ≤ 2 β J_⊥ and T=e^{−τ H_phys} ⇒ r0=e^{−τ Δ_phys}.
+
+Lean lemma names (targets)
+- scaling_beta_schedule, physical_gap_from_schedule : Δ_phys ≥ Δ0.
+
+============================================================
+Continuum_OS_axioms_and_reconstruction/ (C1 explicit)
+============================================================
+Hypotheses
+- For each (a_s,τ), Euclidean state S_{a} with OS0–OS5:
+  OS0 Regularity: bounded cylinder observables; moments bounded uniformly.
+  OS1 Invariance: hypercubic invariance; tightness to Euclidean invariance.
+  OS2 Reflection positivity: link‑reflection PSD Gram.
+  OS3 Symmetry: permutation invariance of correlations.
+  OS4 Clustering: exponential decay with mass gap γ_latt(β(a)).
+  OS5 Ergodicity: unique vacuum via PF gap.
+- Tightness/uniformity across L→∞ and along β(a), with α/β bounds uniform on windows; τ→0 scaling with β(τ) above.
+
+Statements
+- Existence of continuum OS state S (limit along L→∞ then τ→0,a_s→0) satisfying OS0–OS5.
+- OS reconstruction yields a (gauge‑invariant) QFT/Hamiltonian with mass gap Δ_phys ≥ Δ0.
+
+Inequality sources
+- Prokhorov/tightness from compactness of group variables and uniform exponential bounds; dominated convergence on cylinder algebras; standard OS reconstruction.
+
+Lean lemma names (targets)
+- continuum_os_state_exists, os_reconstruction_continuum_qft.
+
+============================================================
+Gauge_sector_and_observables/ (Wilson algebra and Clay criterion)
+============================================================
+Hypotheses
+- Observable algebra A generated by Wilson loops W_Γ = Tr Π_{ℓ∈Γ} U_ℓ (gauge‑invariant).
+- Optional BRST/Gauss‑law formulation for local gauge potentials if needed; but Clay criterion accepts gauge‑invariant observable QFT.
+
+Statements
+- The reconstructed Hilbert space and Hamiltonian act on the GNS space of the Wilson loop algebra; vacuum unique; mass gap Δ_phys ≥ Δ0.
+- This meets the Clay criterion for a quantum YM theory with mass gap on ℝ^4.
+
+Lean lemma names (targets)
+- wilson_gns_reconstruction, clay_criterion_satisfied.
+
+============================================================
+Limits_order_L_to_infty_then_a_to_0/ (uniformity in L)
+============================================================
+Hypotheses
+- First take L→∞ at fixed (a_s,τ,β): translation invariance, clustering, unique vacuum; bounds on α_⊥, γ_latt independent of L.
+- Then take (a_s,τ)→0 along β(τ) schedule; uniform window constants.
+
+Statements
+- Infinite‑volume OS state S_{a} exists with same α/β/γ bounds; then continuum limit preserves mass gap.
+
+Inequality sources
+- Uniform Dobrushin/cluster bounds; thermodynamic limit via standard subadditivity/tightness arguments.
+
+Lean lemma names (targets)
+- infinite_volume_limit_uniform, continuum_limit_after_infinite_volume.
+
+============================================================
+Operator_domain_and_FAnalytic_details/ (transfer_ham, spectral_stability)
+============================================================
+Hypotheses
+- T positive self‑adjoint contraction on L^2(OS); define H := −log T by spectral calculus.
+- For stability: ∥T_a − T∥ ≤ ε_a → 0 (or norm–resolvent for H_a → H with compact (H−z0)^{−1}).
+
+Statements
+- H is self‑adjoint, H≥0; domain D(H)=\{ψ: ∫ (−log λ)^2 d⟨E_λ ψ,ψ⟩ < ∞\}.
+- Weyl/Lipschitz eigenvalue control and gap persistence with explicit ε→δ map.
+
+Norms/constants
+- Operator norm on L^2(OS) for T; resolvent norm ∥(H−z)^{−1}∥ ≤ 1/|Im z|; C(β0,z0) as in R3.
+
+Inequality sources
+- Spectral theorem; second resolvent identity; Neumann series.
+
+Lean lemma names (targets)
+- h_sa_and_domain, lipschitz_gap_persistence, norm_resolvent_persistence.
+
+============================================================
+Uniform_in_N/ (where used)
+============================================================
+- Dobrushin bound uses only unit‑norm spin proxies and ferromagnetic sign ⇒ N‑free.
+- OS positivity and transfer construction rely on group compactness/invariance, independent of N.
+- Constants J_⊥, J_* geometric; c1,c2 comparability constants do not depend on N.
+
+Lean lemma names (targets)
+- nuniform_dobrushin_gap, nuniform_os_transfer.
+
+============================================================
+Acceptance_checklist_per_module/
+============================================================
+- su/: Haar normalized; invariance lemmas.
+- lattice/: periodic neighbors; plaquette well‑defined; counts (|E|,|P|).
+- ym_measure/: 0 ≤ S_β ≤ 2β|P|; Z_β ∈ [e^{−2β|P|},1]; μ_β prob.
+- os_pos_wilson/: Gram PSD under link reflection; OverlapLowerBoundOS with β0(β).
+- transfer_ham/: T positive self‑adjoint; H := −log T; vacuum sector.
+- gap_strong_coupling/: α_⊥ ≤ 2βJ_⊥; r0 ≤ α_⊥; γ(β) ≥ −log(2βJ_⊥).
+- pf3x3_bridge/: β ≥ 3 min A_ij; PF gap for 3×3 row‑stochastic.
+- rs_vs_wilson/: c1,c2 Gram comparability; OS version; β0^{OS} bounds.
+- spectral_stability/: Lipschitz gap persistence; R3 norm–resolvent with constants.
+- renorm_units/: β(τ) = (1/(2J_⊥)) e^{−τΔ0}; Δ_phys ≥ Δ0.
+- continuum_OS/: OS0–OS5 in limit; reconstruction to QFT.
+- limits_order/: L→∞ uniform; then (a_s,τ)→0 with schedule.
+- main/: Export SU_N_YangMills_on_R4_has_mass_gap with Δ0>0.
+

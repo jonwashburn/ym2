@@ -1,0 +1,162 @@
+﻿% R3 — Coarse‑graining convergence with uniform calibration (norm–resolvent)
+% Self‑contained statement and proof. No external references required.
+
+
+\newcommand{\Ran}{\operatorname{Ran}}
+\newcommand{\spec}{\operatorname{spec}}
+\newcommand{\dist}{\operatorname{dist}}
+
+
+\par\noindent\textbf{Setting.}
+Let $H$ be a (densely defined) selfadjoint operator on a complex Hilbert space $\mathcal H$.
+For each $n\in\mathbb N$ let $\mathcal H_n$ be a Hilbert space and $H_n$ a selfadjoint operator on $\mathcal H_n$ such that
+\[
+\inf\spec(H_n)\ \ge\ \beta_0\ >\ 0\qquad\text{for all }n.
+\]
+Assume there are isometric embeddings $I_n:\mathcal H_n\to\mathcal H$ with $I_n^*I_n=\mathrm{id}_{\mathcal H_n}$ and denote the orthogonal projections
+\[
+P_n\ :=\ I_n I_n^* \quad\text{onto}\quad X_n:=\Ran(I_n)\subset\mathcal H.
+\]
+Assume further that $I_n\operatorname{dom}(H_n)\subset\operatorname{dom}(H)$ and define the (well‑defined on $\operatorname{dom}(H_n)$) defect operators
+\[
+D_n\ :=\ H I_n\ -\ I_n H_n:\operatorname{dom}(H_n)\longrightarrow \mathcal H.
+\]
+
+
+\medskip
+\par\noindent\textbf{Hypotheses.}
+\begin{itemize}
+\item[(H1)] (\emph{Approximation of the identity}) $P_n\to I$ strongly on $\mathcal H$ (equivalently, $\overline{\bigcup_n X_n}=\mathcal H$).
+\item[(H2)] (\emph{Graph‑norm consistency}) 
+\[
+\varepsilon_n\ :=\ \bigl\|\, D_n\,(H_n+1)^{-1/2}\,\bigr\|\ \xrightarrow[n\to\infty]{}\ 0.
+\]
+\item[(H3)] (\emph{Compact calibrator}) For some (hence every) nonreal $z_0\in\mathbb C\setminus\mathbb R$, the resolvent $(H-z_0)^{-1}$ is compact.
+\end{itemize}
+
+
+\medskip
+\par\noindent\textbf{Calibration length.}
+Let $z_0\in\mathbb C\setminus\mathbb R$ be fixed.
+For $\Lambda>0$, write $E_H([0,\Lambda])$ for the spectral projection of $H$ and set
+\[
+\eta(\Lambda;z_0)\ :=\ \bigl\|\,(H-z_0)^{-1}\,E_H((\Lambda,\infty))\,\bigr\|\ =\ \sup_{\lambda\ge\Lambda}\frac{1}{|\lambda-z_0|}\ =\ \frac{1}{\dist(z_0,[\Lambda,\infty))}.
+\]
+By (H3), $E_H([0,\Lambda])\mathcal H$ is finite‑dimensional for every $\Lambda>0$ and therefore, by (H1), there exists $N(\Lambda)$ such that
+\[
+\delta_n(\Lambda)\ :=\ \bigl\|\,(I-P_n)\,E_H([0,\Lambda])\,\bigr\|\ \le\ \tfrac12\qquad\text{for all }n\ge N(\Lambda).
+\]
+Define the \emph{calibration length} $L_0:=\Lambda^{-1/2}$ (``energy cutoff'' $\Lambda$ corresponds to length scale $L_0$).
+Note that $L_0$ depends on $H$ and the chosen $z_0$ but is independent of $n$.
+
+
+\medskip
+\par\noindent\textbf{Theorem (R3 — Coarse‑graining convergence with uniform calibration).}
+Under (H1)–(H3) and the uniform lower bound $\inf\spec(H_n)\ge\beta_0>0$, the following hold.
+\begin{itemize}
+\item[(i)] (\emph{Norm–resolvent convergence at one nonreal point}) For the fixed $z_0\in\mathbb C\setminus\mathbb R$,
+\[
+\bigl\|\, (H-z_0)^{-1}\ -\ I_n\,(H_n-z_0)^{-1}I_n^*\,\bigr\|\ \xrightarrow[n\to\infty]{}\ 0.
+\]
+More quantitatively, for every $\Lambda>0$ and all $n\ge N(\Lambda)$,
+\[
+\bigl\|\, (H-z_0)^{-1}\ -\ I_n\,(H_n-z_0)^{-1}I_n^*\,\bigr\|
+\ \le\ \underbrace{\frac{\delta_n(\Lambda)}{\dist(z_0,[0,\Lambda])}}_{\text{low energy}}\ +\ \underbrace{\eta(\Lambda;z_0)}_{\text{high energy}}\ +\ \underbrace{C(\beta_0,z_0)\,\varepsilon_n}_{\text{consistency}},
+\]
+where
+\[
+C(\beta_0,z_0)\ :=\ \bigl\|(H-z_0)^{-1}\bigr\|\,\sup_{\lambda\ge\beta_0}\frac{\sqrt{1+\lambda}}{|\lambda-z_0|}\ <\ \infty.
+\]
+\item[(ii)] (\emph{Norm–resolvent convergence for all nonreal $z$}) For every $z\in\mathbb C\setminus\mathbb R$,
+\[
+\bigl\|\, (H-z)^{-1}\ -\ I_n\,(H_n-z)^{-1}I_n^*\,\bigr\|\ \xrightarrow[n\to\infty]{}\ 0.
+\]
+\item[(iii)] (\emph{Uniform spectral lower bound for the limit}) $\spec(H)\subset[\beta_0,\infty)$.
+\end{itemize}
+
+
+\medskip
+\par\noindent\textbf{Proof.}
+Fix $z\in\mathbb C\setminus\mathbb R$ and set $R(z):=(H-z)^{-1}$, $R_n(z):=(H_n-z)^{-1}$.
+The basic comparison identity is obtained by multiplying on the left by $(H-z)$ and using $P_n=I_nI_n^*$ and $D_n:=HI_n-I_nH_n$:
+\begin{align*}
+(H-z)\Bigl(R(z)-I_n R_n(z) I_n^*\Bigr)
+&= I - \bigl(H-z\bigr)I_n R_n(z) I_n^*\\
+&= I - \bigl( H I_n - z I_n \bigr)R_n(z) I_n^*\\
+&= I - \Bigl( I_n + D_n R_n(z)\Bigr) I_n^*\\
+&= I - P_n\ -\ D_n R_n(z) I_n^*.
+\end{align*}
+Thus
+\begin{equation}
+\label{eq:master}
+R(z)-I_n R_n(z) I_n^*\ =\ R(z)\,(I-P_n)\ -\ R(z)\,D_n R_n(z) I_n^*.
+\end{equation}
+
+
+\emph{Step 1 (Operator‑norm bound).}
+By \eqref{eq:master} and the triangle inequality,
+\[
+\|R(z)-I_n R_n(z) I_n^*\|
+\ \le\ \|R(z)(I-P_n)\|\ +\ \|R(z)\|\,\|D_n(H_n+1)^{-1/2}\|\,\|(H_n+1)^{1/2}R_n(z)\|.
+\]
+Because $\inf\spec(H_n)\ge\beta_0$, the functional calculus gives the uniform bound
+\[
+\sup_{n}\,\|(H_n+1)^{1/2}R_n(z)\|\ =\ \sup_{\lambda\ge\beta_0}\frac{\sqrt{1+\lambda}}{|\lambda-z|}\ <\ \infty,
+\]
+and the second term is therefore $\le C(\beta_0,z)\,\varepsilon_n$ with $C(\beta_0,z)$ as stated.
+
+
+For the first term, split the spectrum of $H$ at $\Lambda>0$:
+\[
+\|R(z)(I-P_n)\|
+\ \le\ \|R(z)E_H([0,\Lambda])\|\cdot\|(I-P_n)E_H([0,\Lambda])\|\ +\ \|R(z)E_H((\Lambda,\infty))\|.
+\]
+Since $z=z_0$ is fixed in part (i), $\|R(z_0)E_H([0,\Lambda])\|=\sup_{\lambda\in[0,\Lambda]}\frac{1}{|\lambda-z_0|}=\frac{1}{\dist(z_0,[0,\Lambda])}$ and $\|R(z_0)E_H((\Lambda,\infty))\|=\eta(\Lambda;z_0)$.
+By compactness of $R(z_0)$ (hypothesis (H3)), $E_H([0,\Lambda])\mathcal H$ is finite‑dimensional and (H1) implies $\delta_n(\Lambda)=\|(I-P_n)E_H([0,\Lambda])\|\to 0$.
+Combining,
+\[
+\|R(z_0)(I-P_n)\|\ \le\ \frac{\delta_n(\Lambda)}{\dist(z_0,[0,\Lambda])}\ +\ \eta(\Lambda;z_0).
+\]
+Inserting into the previous estimate yields the quantitative bound in (i).
+
+
+Given any $\epsilon>0$, choose $\Lambda$ so large that $\eta(\Lambda;z_0)<\epsilon/3$, then choose $n$ so large that $\delta_n(\Lambda)<\epsilon\,\dist(z_0,[0,\Lambda])/3$ and $\varepsilon_n<\epsilon/(3C(\beta_0,z_0))$. This proves (i).
+
+
+\emph{Step 2 (All nonreal $z$).}
+For any $z\in\mathbb C\setminus\mathbb R$, the second resolvent identity gives
+\[
+R(z)-I_n R_n(z) I_n^*\ =\ \bigl[I+(z-z_0)R(z)\bigr]\ \bigl(R(z_0)-I_n R_n(z_0) I_n^*\bigr)\ \bigl[I+(z-z_0)I_n R_n(z) I_n^*\bigr].
+\]
+Both bracketed factors are uniformly bounded in $n$ (by the resolvent bounds $\|R(z)\|\le 1/|\Im z|$ and $\|R_n(z)\|\le 1/\dist(z,[\beta_0,\infty))$), while the middle factor converges to $0$ in norm by (i). Hence (ii) follows.
+
+
+\emph{Step 3 (Spectral lower bound).}
+Fix any real $\lambda<\beta_0$ and the same $z_0\in\mathbb C\setminus\mathbb R$ as above.
+For all $n$ one has the resolvent bound
+\[
+\|(z_0-\lambda)R_n(z_0)\|\ \le\ \sup_{\mu\ge\beta_0}\frac{|z_0-\lambda|}{|\mu-z_0|}\ =\ \frac{|z_0-\lambda|}{\dist(z_0,[\beta_0,\infty))}\ <\ 1,
+\]
+because $\lambda<\beta_0$.
+Passing to the norm limit in $n$ yields $\|(z_0-\lambda)R(z_0)\|<1$.
+Therefore $I+(z_0-\lambda)R(z_0)$ is invertible (Neumann series), and
+\[
+(H-\lambda)^{-1}\ :=\ \bigl[I+(z_0-\lambda)R(z_0)\bigr]^{-1} R(z_0)
+\]
+is a bounded inverse of $(H-\lambda)$:
+\[
+(H-\lambda)\,(H-\lambda)^{-1}
+=\ (H-z_0)\,\bigl[I+(z_0-\lambda)R(z_0)\bigr]\ \bigl[I+(z_0-\lambda)R(z_0)\bigr]^{-1} R(z_0)
+=\ I.
+\]
+Hence $\lambda\in\rho(H)$ for every $\lambda<\beta_0$, and since $H$ is selfadjoint (so $\spec(H)\subset\mathbb R$), we conclude $\spec(H)\subset[\beta_0,\infty)$. This proves (iii).
+\qed
+
+
+\medskip
+\par\noindent\textbf{Remarks on the calibration length $L_0$.}
+\begin{itemize}
+\item The construction $L_0=\Lambda^{-1/2}$ uses only the continuum operator $H$ (via its spectral measure) and the fixed nonreal anchor $z_0$; it is completely \emph{independent of $n$}.
+\item Operationally: pick $\Lambda$ so that the ``high‑energy'' tail norm $\eta(\Lambda;z_0)=\|(H-z_0)^{-1}E_H((\Lambda,\infty))\|$ is as small as desired (possible by (H3)). Then $L_0=\Lambda^{-1/2}$ is a calibration length beyond which the resolvent is uniformly captured by the coarse subspaces $X_n$; only the finite‑dimensional low‑energy part requires $n$ large enough to resolve, which is ensured by (H1).
+\item In common discretizations of local, coercive Hamiltonians on bounded domains (or with confining potentials), (H3) holds (compact resolvent), and $\varepsilon_n\to0$ is the usual first‑order consistency. The theorem then yields operator‑norm convergence of the embedded resolvents and propagates the uniform spectral gap $\beta_0$ to the limit.
+\end{itemize}
