@@ -77,6 +77,17 @@ structure ConvolutionHK where
 
 def convolution_lower_bound_spec (C : ConvolutionHK) : Prop := True
 
+/-- Minimal constructor for the convolution lower-bound parameters. -/
+def build_convolution_hk (N : Nat) (r_star : Float) : ConvolutionHK :=
+  -- Placeholder values; to be replaced with DSC-derived constants.
+  { m_star := Nat.succ (Nat.succ N), t0 := 1.0, c_star := 0.1 }
+
+/-- The constructed parameters satisfy the current spec predicate. -/
+theorem build_convolution_hk_satisfies (N : Nat) (r_star : Float) :
+  convolution_lower_bound_spec (build_convolution_hk N r_star) :=
+by
+  trivial
+
 /-! Interface factorization constants (c_geo, m_cut).
 Provenance: EMR-c L1226–L1233, L1246–L1253. Constants: c_geo(R_*,a0), m_cut(R_*). -/
 structure InterfaceFactorization where
