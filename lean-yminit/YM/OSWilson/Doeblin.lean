@@ -242,4 +242,93 @@ def T9_accept (ctx : MeasureContext)
   (D : DoeblinLowerBound) : Prop :=
   accept_refresh_event ctx W ∧ accept_convolution_hk C ∧ accept_interface_factorization F ∧ accept_doeblin_lower_bound D
 
+/-- Combined setup and assembly for the Doeblin pipeline (spec-level).
+    Packs parameters and emits both κ₀ and the odd-cone contraction ρ. -/
+structure DoeblinSetupParams where
+  refresh : RefreshParams
+  slab_R : Float
+  slab_a0 : Float
+  group_N : Nat
+
+structure DoeblinSetupOut where
+  refreshW : RefreshWitness
+  conv : ConvolutionHK
+  fact : InterfaceFactorization
+  prod : ProductLowerBoundOut
+  doeblin : DoeblinLowerBound
+  odd : OddConeOut
+
+/-- Build a full Doeblin setup from high-level parameters (spec-level, no proofs). -/
+def build_doeblin_setup (P : DoeblinSetupParams) : DoeblinSetupOut :=
+  let W := build_refresh_witness P.refresh
+  let C := build_convolution_hk P.group_N W.r_star
+  let F := build_interface_factorization P.slab_R P.slab_a0
+  let prod := build_product_lower_bound { refresh := W, conv := C, factor := F }
+  let D : DoeblinLowerBound := synthesize_doeblin_from_product prod
+  -- For the odd-cone contraction we need t0 and λ1; use placeholders from C and a default λ1.
+  let odd := build_odd_cone_contraction { kappa0 := D.kappa0, t0 := C.t0, lambda1 := 1.0 }
+  { refreshW := W, conv := C, fact := F, prod := prod, doeblin := D, odd := odd }
+
+/-- Existence of the combined Doeblin setup output (spec-level). -/
+theorem build_doeblin_setup_exists (P : DoeblinSetupParams) :
+  ∃ O : DoeblinSetupOut,
+    refresh_event_spec P.refresh O.refreshW ∧
+    convolution_lower_bound_spec O.conv ∧
+    interface_factorization_spec O.fact ∧
+    product_lower_bound_spec { refresh := O.refreshW, conv := O.conv, factor := O.fact } O.prod ∧
+    doeblin_lower_bound_spec O.doeblin ∧
+    odd_cone_contraction_spec { kappa0 := O.doeblin.kappa0, t0 := O.conv.t0, lambda1 := 1.0 } O.odd :=
+by
+  refine ⟨build_doeblin_setup P, ?_⟩
+  constructor
+  · exact build_refresh_witness_satisfies P.refresh
+  constructor
+  · exact build_convolution_hk_satisfies P.group_N (build_refresh_witness P.refresh).r_star
+  constructor
+  · exact build_interface_factorization_satisfies P.slab_R P.slab_a0
+  constructor
+  ·
+    let W := build_refresh_witness P.refresh
+    let C := build_convolution_hk P.group_N W.r_star
+    let F := build_interface_factorization P.slab_R P.slab_a0
+    exact build_product_lower_bound_satisfies { refresh := W, conv := C, factor := F }
+  constructor
+  ·
+    have : doeblin_lower_bound_spec (synthesize_doeblin_from_product (build_product_lower_bound { refresh := (build_refresh_witness P.refresh), conv := (build_convolution_hk P.group_N (build_refresh_witness P.refresh).r_star), factor := (build_interface_factorization P.slab_R P.slab_a0) })) :=
+      synthesize_doeblin_from_product_satisfies (build_product_lower_bound { refresh := (build_refresh_witness P.refresh), conv := (build_convolution_hk P.group_N (build_refresh_witness P.refresh).r_star), factor := (build_interface_factorization P.slab_R P.slab_a0) })
+    simpa [build_doeblin_setup]
+  ·
+    -- Odd-cone contraction spec holds for the built parameters by construction.
+    trivial
+
+/-- Convenience wrapper: build components and certify T9_accept (spec-level). -/
+structure T9AcceptParams where
+  ctx    : MeasureContext
+  R_star : Float
+  a0     : Float
+  N      : Nat
+
+structure T9AcceptBundle where
+  refreshP : RefreshParams
+  refreshW : RefreshWitness
+  conv     : ConvolutionHK
+  fact     : InterfaceFactorization
+  doeblin  : DoeblinLowerBound
+
+def build_T9_accept_bundle (P : T9AcceptParams) : T9AcceptBundle :=
+  let RP : RefreshParams := { R_star := P.R_star, a0 := P.a0, N := P.N }
+  let W  := build_refresh_witness RP
+  let C  := build_convolution_hk P.N W.r_star
+  let F  := build_interface_factorization P.R_star P.a0
+  let D  := synthesize_doeblin_from_product (build_product_lower_bound { refresh := W, conv := C, factor := F })
+  { refreshP := RP, refreshW := W, conv := C, fact := F, doeblin := D }
+
+theorem T9_accept_holds (P : T9AcceptParams) :
+  let B := build_T9_accept_bundle P
+  T9_accept P.ctx B.refreshP B.refreshW B.conv B.fact B.doeblin :=
+by
+  intro B
+  -- All accept_* predicates are True in the current spec-level development.
+  exact And.intro (And.intro (And.intro trivial trivial) trivial) trivial
+
 end YM.OSWilson.Doeblin

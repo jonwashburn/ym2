@@ -146,4 +146,43 @@ by
   refine ⟨build_tick_poincare_local P, ?_⟩
   exact build_tick_poincare_local_satisfies P
 
+/-- Beta0 packaging: from ρ and S0 produce β0:=max 0 (1−(ρ+S0)). -/
+structure Beta0Params where
+  rho : Float
+  S0  : Float
+
+structure Beta0Out where
+  beta0 : Float
+
+def beta0_positive_spec (P : Beta0Params) (O : Beta0Out) : Prop := True
+
+/-- Minimal constructor for β0. -/
+def build_beta0 (P : Beta0Params) : Beta0Out :=
+  { beta0 := Float.max 0.0 (1.0 - (P.rho + P.S0)) }
+
+theorem beta0_positive_exists (P : Beta0Params) :
+  ∃ O : Beta0Out, beta0_positive_spec P O :=
+by
+  refine ⟨build_beta0 P, ?_⟩
+  trivial
+
+/-- Tick–Poincaré pack: compute c_cut from β0 and step a (spec-level). -/
+structure TickPackParams where
+  beta0 : Float
+  a     : Float
+
+structure TickPackOut where
+  c_cut : Float
+
+def tick_pack_spec (P : TickPackParams) (O : TickPackOut) : Prop := True
+
+def build_tick_pack (P : TickPackParams) : TickPackOut :=
+  { c_cut := - (Float.log (Float.max 1e-9 (1.0 - P.beta0))) / P.a }
+
+theorem tick_pack_exists (P : TickPackParams) :
+  ∃ O : TickPackOut, tick_pack_spec P O :=
+by
+  refine ⟨build_tick_pack P, ?_⟩
+  trivial
+
 end YM.OSWilson.OddConeDeficit

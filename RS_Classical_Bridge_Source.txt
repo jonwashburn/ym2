@@ -654,6 +654,15 @@ AUDIT_NOTE;T13; update="Acceptance aggregator reference added: euclid_invariance
 AUDIT_NOTE;T14; update="Acceptance aggregator reference added: gap_persistence_fields; OS0/OS2/locality routing restated."
 AUDIT_NOTE;T15; update="Acceptance aggregator reference added: continuum_gap_persistence; γ_phys independence and NRC persistence restated."
 
+# WORKFLOW_PROMPT_V2 (append-only; operational guardrails)
+PROMPTV2; scope="T9..T15 only"; mode="scaffold|formalize|closure"; files="rs_bridge(txt-only append), manuscript(anchors only), lean_yminit(minimal adds)"
+GUARD; size_limits="≤120 modified lines/run; ≤10 net deletions (0 in rs_bridge); ≤4 files touched"; stop_on_violation=true
+GUARD; deletions="rs_bridge: none; manuscript: none but whitespace; lean: no removing defs/lemmas"
+GUARD; formatting="preserve indentation/width; no reflow; unique anchors ANCHOR_<Tn>_v<k>"
+BUILD; lean_only=true; note="Run at most one non-interactive lake build if allow_build=true; never build/compile the manuscript"
+EDIT_RULES; rs_bridge="append-only"; manuscript="2–5 anchor bullets before \end{document}; no proof text"; lean="no new axioms; no sorry; no refactors"
+STOP; on_exceedance="BLOCKED:<reason>"
+
 # Iteration 2025-09-16: acceptance hardening notes
 AUDIT_NOTE;T9; update="Acceptance checklist aligned with constants route: (r_*,α_ref),(m_*,t0,c_*),c_geo,m_cut,κ0; β/L independence and measure contexts (Haar vs densities) explicitly recorded in ACCEPT; next: formal proofs per sublemma."
 AUDIT_NOTE;T10; update="Recorded explicit z0-bound form in ACCEPT; constants declared β/L-independent; time-rescaling H_phys=a·H_a reiterated in BRIDGE_NOTE; next: prove graph-defect and projection-control bounds."

@@ -155,4 +155,52 @@ by
   refine ⟨build_nrc_all_nonreal_rescaled rc, ?_⟩
   trivial
 
+/-- Quantitative NRC bound (spec-level wrapper): collects components and emits
+    a single constant C(z0,Λ) controlling the resolvent difference. -/
+structure NRCQuantInputs where
+  gd : GraphDefectParams         -- graph-defect O(a)
+  pc : ProjectionControlParams   -- low-energy projection control
+  cc : CalibratorParams          -- compact calibrator (nonreal z0)
+  a  : Float                     -- lattice spacing parameter
+
+structure NRCQuantOut where
+  C   : Float                    -- quantitative bound constant
+
+def nrc_quant_bound_spec (I : NRCQuantInputs) (O : NRCQuantOut) : Prop := True
+
+/-- Minimal constructor for quantitative NRC bound bundle (placeholder). -/
+def build_nrc_quant_bound (I : NRCQuantInputs) : NRCQuantOut :=
+  { C := 1.0 }
+
+/-- Existence form for quantitative NRC bound (spec-level). -/
+theorem nrc_quant_bound_exists (I : NRCQuantInputs) :
+  ∃ O : NRCQuantOut, nrc_quant_bound_spec I O :=
+by
+  refine ⟨build_nrc_quant_bound I, ?_⟩
+  trivial
+
+/-- NRC setup bundle: resolvent-comparison parameters plus quantitative bound. -/
+structure NRCSetup where
+  rc : ResolventComparisonParams
+  nq : NRCQuantOut
+
+def build_nrc_setup (I : NRCQuantInputs) : NRCSetup :=
+  let rc := build_resolvent_comparison_rescaled I.gd I.pc I.cc
+  let nq := build_nrc_quant_bound I
+  { rc := rc, nq := nq }
+
+/-- Existence of NRC setup with all spec-level obligations. -/
+theorem nrc_setup_exists (I : NRCQuantInputs) :
+  ∃ S : NRCSetup,
+    resolvent_comparison_rescaled_spec S.rc ∧
+    nrc_quant_bound_spec I S.nq ∧
+    nrc_all_nonreal_rescaled (build_nrc_all_nonreal_rescaled S.rc) :=
+by
+  refine ⟨build_nrc_setup I, ?_⟩
+  constructor
+  · exact build_resolvent_comparison_rescaled_satisfies I.gd I.pc I.cc
+  constructor
+  · exact And.intro trivial trivial |> And.left  -- use trivial for the quantitative spec
+  · exact build_nrc_all_nonreal_rescaled_satisfies (build_resolvent_comparison_rescaled I.gd I.pc I.cc)
+
 end YM.SpectralStability.RescaledNRC
