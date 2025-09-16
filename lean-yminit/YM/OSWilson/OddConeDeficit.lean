@@ -22,7 +22,9 @@ structure OSGramWitness where
   C_g : Float
   nu : Float
 
-def os_gram_local_spec (P : OSGramParams) (W : OSGramWitness) : Prop := True
+-- OS Gram locality spec: basic admissibility of recorded parameters.
+def os_gram_local_spec (P : OSGramParams) (W : OSGramWitness) : Prop :=
+  (0 ≤ W.A) ∧ (0 < W.mu) ∧ (0 ≤ W.C_g) ∧ (0 < W.nu)
 
 /-- Minimal constructor for OS Gram locality witness. -/
 def build_os_gram_local (P : OSGramParams) : OSGramWitness :=
@@ -32,7 +34,8 @@ def build_os_gram_local (P : OSGramParams) : OSGramWitness :=
 theorem build_os_gram_local_satisfies (P : OSGramParams) :
   os_gram_local_spec P (build_os_gram_local P) :=
 by
-  trivial
+  -- A=1.0 ≥ 0, mu=0.5 > 0, C_g=10.0 ≥ 0, nu=1.0 > 0
+  exact And.intro (by decide) (And.intro (by decide) (And.intro (by decide) (by decide)))
 
 /-- Existence form for OSGramLocality spec. -/
 theorem os_gram_local_exists (P : OSGramParams) :
@@ -51,7 +54,9 @@ structure MixedGramOut where
   nu_prime : Float
   S0 : Float
 
-def mixed_gram_decay_spec (P : MixedGramParams) (O : MixedGramOut) : Prop := True
+-- Mixed Gram decay spec: basic admissibility of decay and tail parameters.
+def mixed_gram_decay_spec (P : MixedGramParams) (O : MixedGramOut) : Prop :=
+  (0 < O.B) ∧ (0 < O.nu_prime) ∧ (0 ≤ O.S0)
 
 /-- Minimal constructor for mixed Gram decay outputs. -/
 def build_mixed_gram_decay (P : MixedGramParams) : MixedGramOut :=
@@ -61,7 +66,8 @@ def build_mixed_gram_decay (P : MixedGramParams) : MixedGramOut :=
 theorem build_mixed_gram_decay_satisfies (P : MixedGramParams) :
   mixed_gram_decay_spec P (build_mixed_gram_decay P) :=
 by
-  trivial
+  -- B=0.1 > 0, nu'=1.5 > 0, S0=0.2 ≥ 0
+  exact And.intro (by decide) (And.intro (by decide) (by decide))
 
 /-- Existence form for MixedGramDecay spec. -/
 theorem mixed_gram_decay_exists (P : MixedGramParams) :
@@ -78,7 +84,9 @@ structure DiagMixedParams where
 structure DiagMixedOut where
   rho : Float
 
-def diag_mixed_contr_from_doeblin_spec (P : DiagMixedParams) (O : DiagMixedOut) : Prop := True
+-- Diagonal mixed contraction spec: exact equality to explicit ρ formula.
+def diag_mixed_contr_from_doeblin_spec (P : DiagMixedParams) (O : DiagMixedOut) : Prop :=
+  O.rho = Float.sqrt (Float.max 0.0 (1.0 - P.kappa0 * Float.exp (-(P.lambda1 * P.t0))))
 
 /-- Minimal constructor for diagonal mixed contraction from Doeblin data. -/
 def build_diag_mixed_contr_from_doeblin (P : DiagMixedParams) : DiagMixedOut :=
@@ -88,7 +96,7 @@ def build_diag_mixed_contr_from_doeblin (P : DiagMixedParams) : DiagMixedOut :=
 theorem build_diag_mixed_contr_from_doeblin_satisfies (P : DiagMixedParams) :
   diag_mixed_contr_from_doeblin_spec P (build_diag_mixed_contr_from_doeblin P) :=
 by
-  trivial
+  rfl
 
 /-- Existence form for DiagMixedContraction-from-Doeblin spec. -/
 theorem diag_mixed_contr_from_doeblin_exists (P : DiagMixedParams) :
@@ -104,7 +112,9 @@ structure GershgorinParams where
 structure GershgorinOut where
   beta0 : Float
 
-def gershgorin_row_bound_spec (P : GershgorinParams) (O : GershgorinOut) : Prop := True
+-- Gershgorin row bound spec: exact equality to β0 formula.
+def gershgorin_row_bound_spec (P : GershgorinParams) (O : GershgorinOut) : Prop :=
+  O.beta0 = Float.max 0.0 (1.0 - (P.rho + P.S0))
 
 /-- Minimal constructor for the Gershgorin row bound output. -/
 def build_gershgorin_row_bound (P : GershgorinParams) : GershgorinOut :=
@@ -114,7 +124,7 @@ def build_gershgorin_row_bound (P : GershgorinParams) : GershgorinOut :=
 theorem build_gershgorin_row_bound_satisfies (P : GershgorinParams) :
   gershgorin_row_bound_spec P (build_gershgorin_row_bound P) :=
 by
-  trivial
+  rfl
 
 /-- Existence form for Gershgorin row bound spec. -/
 theorem gershgorin_row_bound_exists (P : GershgorinParams) :
@@ -130,7 +140,8 @@ structure TickPoincareParams where
 structure TickPoincareOut where
   c_cut : Float
 
-def tick_poincare_local_spec (P : TickPoincareParams) (O : TickPoincareOut) : Prop := True
+def tick_poincare_local_spec (P : TickPoincareParams) (O : TickPoincareOut) : Prop :=
+  O.c_cut = - (Float.log (Float.max 1e-9 (1.0 - P.beta0))) / P.a
 
 /-- Minimal constructor for local tick–Poincaré output. -/
 def build_tick_poincare_local (P : TickPoincareParams) : TickPoincareOut :=
@@ -140,7 +151,7 @@ def build_tick_poincare_local (P : TickPoincareParams) : TickPoincareOut :=
 theorem build_tick_poincare_local_satisfies (P : TickPoincareParams) :
   tick_poincare_local_spec P (build_tick_poincare_local P) :=
 by
-  trivial
+  rfl
 
 /-- Existence form for Tick–Poincaré local spec. -/
 theorem tick_poincare_local_exists (P : TickPoincareParams) :
@@ -168,7 +179,9 @@ structure Beta0Params where
 structure Beta0Out where
   beta0 : Float
 
-def beta0_positive_spec (P : Beta0Params) (O : Beta0Out) : Prop := True
+-- β0 spec: exact equality to truncation formula.
+def beta0_positive_spec (P : Beta0Params) (O : Beta0Out) : Prop :=
+  O.beta0 = Float.max 0.0 (1.0 - (P.rho + P.S0))
 
 /-- Minimal constructor for β0. -/
 def build_beta0 (P : Beta0Params) : Beta0Out :=
@@ -178,7 +191,7 @@ theorem beta0_positive_exists (P : Beta0Params) :
   ∃ O : Beta0Out, beta0_positive_spec P O :=
 by
   refine ⟨build_beta0 P, ?_⟩
-  trivial
+  rfl
 
 /-- Tick–Poincaré pack: compute c_cut from β0 and step a (spec-level). -/
 structure TickPackParams where
@@ -188,7 +201,8 @@ structure TickPackParams where
 structure TickPackOut where
   c_cut : Float
 
-def tick_pack_spec (P : TickPackParams) (O : TickPackOut) : Prop := True
+def tick_pack_spec (P : TickPackParams) (O : TickPackOut) : Prop :=
+  O.c_cut = - (Float.log (Float.max 1e-9 (1.0 - P.beta0))) / P.a
 
 def build_tick_pack (P : TickPackParams) : TickPackOut :=
   { c_cut := - (Float.log (Float.max 1e-9 (1.0 - P.beta0))) / P.a }
@@ -197,7 +211,7 @@ theorem tick_pack_exists (P : TickPackParams) :
   ∃ O : TickPackOut, tick_pack_spec P O :=
 by
   refine ⟨build_tick_pack P, ?_⟩
-  trivial
+  rfl
 
 / -! Aggregated odd-cone setup: (κ0,t0,λ1,S0,a) ↦ (ρ,β0,c_cut) with spec-level links. -/
 
@@ -268,7 +282,8 @@ structure PFGapParams where
 structure PFGapOut where
   gamma_pf : Float
 
-def pf_gap_omega_perp_spec (P : PFGapParams) (O : PFGapOut) : Prop := True
+def pf_gap_omega_perp_spec (P : PFGapParams) (O : PFGapOut) : Prop :=
+  O.gamma_pf = Float.max 0.0 (1.0 - P.rho)
 
 /-- Minimal constructor for PF gap on Ω⊥ from ρ. -/
 def build_pf_gap_omega_perp (P : PFGapParams) : PFGapOut :=
@@ -279,11 +294,11 @@ def build_pf_gap_omega_perp (P : PFGapParams) : PFGapOut :=
 
 theorem build_pf_gap_omega_perp_satisfies (P : PFGapParams) :
   pf_gap_omega_perp_spec P (build_pf_gap_omega_perp P) := by
-  trivial
+  simpa [pf_gap_omega_perp_spec]
 
 theorem pf_gap_omega_perp_exists (P : PFGapParams) :
   ∃ O : PFGapOut, pf_gap_omega_perp_spec P O := by
-  refine ⟨build_pf_gap_omega_perp P, ?_⟩; trivial
+  refine ⟨build_pf_gap_omega_perp P, ?_⟩; simpa [pf_gap_omega_perp_spec]
 
 /-- Helper: PF gap from an `OddConeSetupOut`. -/
 def pf_gap_from_odd_cone (O : OddConeSetupOut) : PFGapOut :=
@@ -294,7 +309,7 @@ def pf_gap_from_odd_cone (O : OddConeSetupOut) : PFGapOut :=
 
 theorem pf_gap_from_odd_cone_exists (O : OddConeSetupOut) :
   pf_gap_omega_perp_spec { rho := O.rho } (pf_gap_from_odd_cone O) := by
-  trivial
+  simpa [pf_gap_omega_perp_spec]
 
 /-- Acceptance bundle for T11 (spec-level): collect odd-cone components. -/
 structure T11AcceptBundle where
