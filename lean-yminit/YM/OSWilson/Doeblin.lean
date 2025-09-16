@@ -24,6 +24,20 @@ structure RefreshWitness where
 /-! Specification predicate: for given params, witnesses are acceptable. -/
 def refresh_event_spec (P : RefreshParams) (W : RefreshWitness) : Prop := True
 
+/-- A minimal, constructive witness builder for the RefreshEvent spec.
+    This does not use any imports or external lemmas and serves as a
+    placeholder to thread parameters to witnesses in later formalization. -/
+def build_refresh_witness (P : RefreshParams) : RefreshWitness :=
+  -- Choose harmless defaults in admissible ranges; proofs will later
+  -- provide the correct α_ref and r_* dependencies.
+  { r_star := 0.1, alpha_ref := 1.0 }
+
+/-- The built witness trivially satisfies the current spec predicate. -/
+theorem build_refresh_witness_satisfies (P : RefreshParams) :
+  refresh_event_spec P (build_refresh_witness P) :=
+by
+  trivial
+
 /-! Heat-kernel lower bound linkage (guiding stub). -/
 structure HeatKernelParams where
   t0 : Float

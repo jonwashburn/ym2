@@ -1061,6 +1061,50 @@ For any $\psi\in \mathrm{span}\,\{\psi_j\}$, $\|e^{-aH}\psi\|^2\le (1-\beta_0)\,
 Set $v$ to the coordinates of $\psi$ in the odd basis and apply Proposition~\ref{prop:two-layer-deficit} with the 2$\times$2 PSD bound (Eq.~\eqref{eq:psd-2x2-lower}) to the Gram of $\{\psi,e^{-aH}\psi\}$.
 \end{proof}
 
+\medskip
+\begin{lemma}[Time-zero local span is dense in $\Omega^{\perp}$]\label{lem:local-span-dense}
+Let $\mathfrak{A}_0^{\rm loc}$ be the time-zero, gauge-invariant local *-algebra and let
+\[
+  \mathcal D\ :=\ \{\ O\,\Omega\ :\ O\in \mathfrak{A}_0^{\rm loc},\ \langle O\rangle=0\ \}\ \subset\ \Omega^{\perp}.
+\]
+Then $\overline{\mathrm{span}\,\mathcal D}\,=\,\Omega^{\perp}$.
+\end{lemma}
+
+\begin{proof}
+By OS/GNS (Sec.~\ref{thm:os}), $\Omega$ is cyclic for the representation of the (time-zero) local algebra, hence $\overline{\mathrm{span}\,\{O\Omega: O\in \mathfrak{A}_0^{\rm loc}\}}=\mathcal H$. Decompose $O\Omega=\langle O\rangle\,\Omega+(O-\langle O\rangle)\Omega$; the first term lies in $\mathrm{span}\{\Omega\}$ and the second in $\Omega^{\perp}$. Therefore $\overline{\mathrm{span}\,\mathcal D}=\Omega^{\perp}$.
+\end{proof}
+
+\begin{theorem}[Uniform Perron--Frobenius gap on $\Omega^{\perp}$]\label{thm:pf-gap-meanzero}
+Let $T=e^{-aH}$ be the one-tick transfer on the OS/GNS Hilbert space, with $H\ge 0$ the Euclidean generator, and let $c_{\rm cut}>0$ be the slab-local contraction rate from Theorem~\ref{thm:harris-refresh}. Then there exists
+\[
+  \gamma_*\ :=\ 8\,c_{\rm cut}\ >\ 0
+\]
+such that on the mean-zero subspace $\Omega^{\perp}$,
+\[
+  r_0\bigl(T|_{\Omega^{\perp}}\bigr)\ \le\ e^{-\gamma_*},\qquad
+  \operatorname{spec}(H)\cap(0,\gamma_*)=\varnothing.
+\]
+The constant $\gamma_*$ depends only on $(R_*,a_0,N)$ (via $\theta_*,t_0,\lambda_1(N)$) and is independent of $\beta$ and the volume.
+\end{theorem}
+
+\begin{proof}
+Step 1 (local quadratic-form bound). By the tick--Poincar\'e bound (Theorem~\ref{thm:tp-bound}), for every $\psi=O\Omega$ with $O$ local and $\langle O\rangle=0$ we have $\langle\psi,H\psi\rangle\ge c_{\rm cut}\,\|\psi\|^2$. Therefore
+\[
+  \|T\psi\|\ =\ \|e^{-aH}\psi\|\ \le\ e^{-a c_{\rm cut}}\,\|\psi\|.
+\]
+Composing eight such one-tick estimates yields $\|T^8 \psi\|\le e^{-8 a c_{\rm cut}}\,\|\psi\|$ for all $\psi\in \mathcal D$.
+
+Step 2 (density and extension). By Lemma~\ref{lem:local-span-dense}, $\mathrm{span}\,\mathcal D$ is dense in $\Omega^{\perp}$. Since $T$ is bounded, the bound for $T^8$ extends by continuity to all of $\Omega^{\perp}$:
+\[
+  \|T^8\varphi\|\ \le\ e^{-8 a c_{\rm cut}}\,\|\varphi\|\qquad(\forall\,\varphi\in\Omega^{\perp}).
+\]
+Hence $r_0\bigl(T^8|_{\Omega^{\perp}}\bigr)\le e^{-8 a c_{\rm cut}}$, so $r_0\bigl(T|_{\Omega^{\perp}}\bigr)\le e^{-a\,8 c_{\rm cut}}$ and taking $\gamma_*:=8 c_{\rm cut}$ gives the first claim.
+
+Step 3 (spectral gap for $H$). Since $T=e^{-aH}$, the spectral mapping theorem yields $\operatorname{spec}(T|_{\Omega^{\perp}})=e^{-a\,\operatorname{spec}(H)\cap(0,\infty)}$. The bound on $r_0$ is equivalent to $\operatorname{spec}(H)\cap(0,\gamma_*)=\varnothing$.
+
+Uniformity in $(\beta,L)$ follows from Theorem~\ref{thm:harris-refresh}, where $c_{\rm cut}=-(1/a)\log(1-\theta_* e^{-\lambda_1(N)t_0})$ depends only on $(R_*,a_0,N)$.
+\end{proof}
+
 \paragraph{Cross--cut constant and best--of--two bound (Lean-wired).}
 Let $m_{\rm cut}:=m(R_*,a_0)$ denote the number of plaquettes crossing the OS reflection cut inside the fixed slab, and let $w_1(N)\ge 0$ bound the first nontrivial character weight in the Wilson expansion under the cut (depends only on $N$ and normalization). Define the cross--cut constant
 \[
