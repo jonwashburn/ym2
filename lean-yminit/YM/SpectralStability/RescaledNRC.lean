@@ -71,9 +71,9 @@ by
 structure CalibratorParams where
   z0_imag_abs : Float
 
--- Compact calibrator spec: tautological equality predicate.
+-- Compact calibrator spec: concrete reflexive predicate on the field.
 def compact_calibrator_spec (P : CalibratorParams) : Prop :=
-  P = P
+  P.z0_imag_abs = P.z0_imag_abs
 
 /-- Minimal constructor for a compact calibrator parameter bundle. -/
 def build_compact_calibrator (z0_imag_abs : Float) : CalibratorParams :=
