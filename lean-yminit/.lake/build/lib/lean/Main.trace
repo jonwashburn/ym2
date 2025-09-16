@@ -1,0 +1,25 @@
+{"synthetic": false,
+ "outputs":
+ {"o": ["7880761565682796450"],
+  "i": "11939938581190732947",
+  "c": "10796264597211603231"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/Volumes/T9/Cursor-Active/yang-mills-written/lean-yminit/.lake/build/lib/lean /Users/jonathanwashburn/.elan/toolchains/leanprover--lean4---v4.23.0/bin/lean /Volumes/T9/Cursor-Active/yang-mills-written/lean-yminit/Main.lean -o /Volumes/T9/Cursor-Active/yang-mills-written/lean-yminit/.lake/build/lib/lean/Main.olean -i /Volumes/T9/Cursor-Active/yang-mills-written/lean-yminit/.lake/build/lib/lean/Main.ilean -c /Volumes/T9/Cursor-Active/yang-mills-written/lean-yminit/.lake/build/ir/Main.c --setup /Volumes/T9/Cursor-Active/yang-mills-written/lean-yminit/.lake/build/ir/Main.setup.json --json",
+   "level": "trace"}],
+ "inputs":
+ [["Main:deps",
+   [["deps",
+     [["ym/ym:extraDep", [["@ym:extraDep", "1723"]]], ["imports", "1723"]]],
+    ["libs",
+     [["import dynlibs", "1723"],
+      ["package external libraries", "1723"],
+      ["module dynlibs", "1723"],
+      ["module plugins", "1723"]]]]],
+  ["Lean 4.23.0, commit 50aaf682e9b74ab92880292a25c68baa1cc81c87",
+   "5786258275165720599"],
+  ["/Volumes/T9/Cursor-Active/yang-mills-written/lean-yminit/Main.lean",
+   "14800001833369192720"],
+  ["options", "1723"],
+  ["Module.leanArgs: #[]", "1723"]],
+ "depHash": "13321722158476489750"}
