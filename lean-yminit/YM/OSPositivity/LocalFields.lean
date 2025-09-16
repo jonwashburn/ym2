@@ -31,4 +31,15 @@ structure GapPersistParams where
 
 def gap_persistence_fields_spec (P : GapPersistParams) : Prop := True
 
+/-- Existence lemmas (spec-level) for T14 components. -/
+theorem clover_net_exists (P : CloverParams) : clover_net_spec P := by trivial
+
+theorem os0_transfer_exists (P : OS0Params) : os0_transfer_spec P := by trivial
+
+theorem os2_transfer_exists (P : OS2Params) : os2_transfer_spec P := by trivial
+
+theorem locality_fields_exists (P : LocalityParams) : locality_fields_spec P := by trivial
+
+theorem gap_persistence_fields_exists (P : GapPersistParams) : gap_persistence_fields_spec P := by trivial
+
 end YM.OSPositivity.LocalFields

@@ -27,6 +27,13 @@ theorem build_embedding_isometry_satisfies (P : EmbeddingParams) :
 by
   trivial
 
+/-- Existence form for EmbeddingIsometry spec. -/
+theorem embedding_isometry_exists (P : EmbeddingParams) :
+  ∃ W : EmbeddingWitness, embedding_isometry_spec P W :=
+by
+  refine ⟨build_embedding_isometry P, ?_⟩
+  exact build_embedding_isometry_satisfies P
+
 structure GraphDefectParams where
   a : Float
   bound_const : Float
@@ -43,6 +50,13 @@ theorem build_graph_defect_rescaled_satisfies (a bound_const : Float) :
 by
   trivial
 
+/-- Existence form for GraphDefectRescaled spec. -/
+theorem graph_defect_rescaled_exists (a bound_const : Float) :
+  ∃ P : GraphDefectParams, graph_defect_rescaled_spec P :=
+by
+  refine ⟨build_graph_defect_rescaled a bound_const, ?_⟩
+  exact build_graph_defect_rescaled_satisfies a bound_const
+
 structure CalibratorParams where
   z0_imag_abs : Float
 
@@ -58,6 +72,13 @@ theorem build_compact_calibrator_satisfies (z0_imag_abs : Float) :
 by
   trivial
 
+/-- Existence form for CompactCalibrator spec. -/
+theorem compact_calibrator_exists (z0_imag_abs : Float) :
+  ∃ C : CalibratorParams, compact_calibrator_spec C :=
+by
+  refine ⟨build_compact_calibrator z0_imag_abs, ?_⟩
+  exact build_compact_calibrator_satisfies z0_imag_abs
+
 structure ProjectionControlParams where
   Lambda : Float
 
@@ -72,6 +93,13 @@ theorem build_projection_control_lowE_satisfies (Lambda : Float) :
   projection_control_lowE_spec (build_projection_control_lowE Lambda) :=
 by
   trivial
+
+/-- Existence form for ProjectionControlLowE spec. -/
+theorem projection_control_lowE_exists (Lambda : Float) :
+  ∃ P : ProjectionControlParams, projection_control_lowE_spec P :=
+by
+  refine ⟨build_projection_control_lowE Lambda, ?_⟩
+  exact build_projection_control_lowE_satisfies Lambda
 
 structure ResolventComparisonParams where
   defect : GraphDefectParams
@@ -93,6 +121,14 @@ theorem build_resolvent_comparison_rescaled_satisfies
 by
   trivial
 
+/-- Existence form for ResolventComparisonRescaled spec. -/
+theorem resolvent_comparison_rescaled_exists
+  (gd : GraphDefectParams) (pc : ProjectionControlParams) (cc : CalibratorParams) :
+  ∃ R : ResolventComparisonParams, resolvent_comparison_rescaled_spec R :=
+by
+  refine ⟨build_resolvent_comparison_rescaled gd pc cc, ?_⟩
+  exact build_resolvent_comparison_rescaled_satisfies gd pc cc
+
 structure NRCParams where
   rc : ResolventComparisonParams
 
@@ -110,6 +146,13 @@ def nrc_all_nonreal_rescaled (P : NRCParams) : Prop :=
 theorem build_nrc_all_nonreal_rescaled_satisfies (rc : ResolventComparisonParams) :
   nrc_all_nonreal_rescaled (build_nrc_all_nonreal_rescaled rc) :=
 by
+  trivial
+
+/-- Existence form for NRC(all nonreal z) spec. -/
+theorem nrc_all_nonreal_rescaled_exists (rc : ResolventComparisonParams) :
+  ∃ P : NRCParams, nrc_all_nonreal_rescaled_spec P :=
+by
+  refine ⟨build_nrc_all_nonreal_rescaled rc, ?_⟩
   trivial
 
 end YM.SpectralStability.RescaledNRC

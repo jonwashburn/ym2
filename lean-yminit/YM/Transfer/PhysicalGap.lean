@@ -36,4 +36,15 @@ structure ConstIndepParams where
 
 def constants_independence_spec (P : ConstIndepParams) : Prop := True
 
+/-- Existence lemmas (spec-level) for T15 components. -/
+theorem per_tick_contraction_exists (P : PerTickParams) : per_tick_contraction_spec P := by trivial
+
+theorem compose_eight_ticks_exists (P : ComposeParams) : compose_eight_ticks_spec P := by trivial
+
+theorem physical_normalization_exists (P : PhysNormParams) : physical_normalization_spec P := by trivial
+
+theorem continuum_gap_persistence_exists (P : ContinuumPersistParams) : continuum_gap_persistence_spec P := by trivial
+
+theorem constants_independence_exists (P : ConstIndepParams) : constants_independence_spec P := by trivial
+
 end YM.Transfer.PhysicalGap

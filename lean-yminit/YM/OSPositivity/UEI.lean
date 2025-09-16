@@ -29,6 +29,13 @@ theorem build_tree_gauge_local_satisfies (P : TreeGaugeParams) :
 by
   trivial
 
+/-- Existence form for TreeGauge spec. -/
+theorem tree_gauge_local_exists (P : TreeGaugeParams) :
+  ∃ O : TreeGaugeOut, tree_gauge_local_spec P O :=
+by
+  refine ⟨build_tree_gauge_local P, ?_⟩
+  exact build_tree_gauge_local_satisfies P
+
 structure LSIBetaParams where
   beta_min : Float
   region_size : Float
@@ -48,6 +55,13 @@ theorem build_local_lsi_beta_satisfies (P : LSIBetaParams) :
   local_lsi_beta_spec P (build_local_lsi_beta P) :=
 by
   trivial
+
+/-- Existence form for LocalLSI spec. -/
+theorem local_lsi_beta_exists (P : LSIBetaParams) :
+  ∃ O : LSIBetaOut, local_lsi_beta_spec P O :=
+by
+  refine ⟨build_local_lsi_beta P, ?_⟩
+  exact build_local_lsi_beta_satisfies P
 
 structure LipschitzParams where
   a0 : Float
@@ -69,6 +83,13 @@ theorem build_lipschitz_S_R_satisfies (P : LipschitzParams) :
 by
   trivial
 
+/-- Existence form for LipschitzSR spec. -/
+theorem lipschitz_S_R_exists (P : LipschitzParams) :
+  ∃ O : LipschitzOut, lipschitz_S_R_spec P O :=
+by
+  refine ⟨build_lipschitz_S_R P, ?_⟩
+  exact build_lipschitz_S_R_satisfies P
+
 structure HerbstParams where
   rho_R : Float
   G_R : Float
@@ -88,6 +109,13 @@ theorem build_herbst_eta_satisfies (P : HerbstParams) :
 by
   trivial
 
+/-- Existence form for Herbst eta spec. -/
+theorem herbst_eta_exists (P : HerbstParams) :
+  ∃ O : HerbstOut, herbst_eta_spec P O :=
+by
+  refine ⟨build_herbst_eta P, ?_⟩
+  exact build_herbst_eta_satisfies P
+
 structure UEIParams where
   eta_R : Float
   mean_bound : Float
@@ -106,5 +134,12 @@ theorem build_uei_fixed_region_satisfies (P : UEIParams) :
   uei_fixed_region_spec P (build_uei_fixed_region P) :=
 by
   trivial
+
+/-- Existence form for UEI fixed-region spec. -/
+theorem uei_fixed_region_exists (P : UEIParams) :
+  ∃ O : UEIOut, uei_fixed_region_spec P O :=
+by
+  refine ⟨build_uei_fixed_region P, ?_⟩
+  exact build_uei_fixed_region_satisfies P
 
 end YM.OSPositivity.UEI

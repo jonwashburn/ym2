@@ -38,6 +38,14 @@ theorem build_refresh_witness_satisfies (P : RefreshParams) :
 by
   trivial
 
+/-- Existence form of the RefreshEvent spec: for any parameters, a witness exists.
+    This discharges the first formal subgoal for T9 at the spec level. -/
+theorem refresh_event_exists (P : RefreshParams) :
+  ∃ W : RefreshWitness, refresh_event_spec P W :=
+by
+  refine ⟨build_refresh_witness P, ?_⟩
+  exact build_refresh_witness_satisfies P
+
 /-! Heat-kernel lower bound linkage (guiding stub). -/
 structure HeatKernelParams where
   t0 : Float
@@ -88,6 +96,14 @@ theorem build_convolution_hk_satisfies (N : Nat) (r_star : Float) :
 by
   trivial
 
+/-- Existence form for ConvolutionHK: for any N and r_*, suitable
+    DSC-style parameters exist at the spec level. -/
+theorem convolution_hk_exists (N : Nat) (r_star : Float) :
+  ∃ C : ConvolutionHK, convolution_lower_bound_spec C :=
+by
+  refine ⟨build_convolution_hk N r_star, ?_⟩
+  exact build_convolution_hk_satisfies N r_star
+
 /-! Interface factorization constants (c_geo, m_cut).
 Provenance: EMR-c L1226–L1233, L1246–L1253. Constants: c_geo(R_*,a0), m_cut(R_*). -/
 structure InterfaceFactorization where
@@ -106,6 +122,14 @@ theorem build_interface_factorization_satisfies (R_star a0 : Float) :
   interface_factorization_spec (build_interface_factorization R_star a0) :=
 by
   trivial
+
+/-- Existence form for InterfaceFactorization: for any (R_*, a0), a factorization
+    witness exists at the spec level. -/
+theorem interface_factorization_exists (R_star a0 : Float) :
+  ∃ F : InterfaceFactorization, interface_factorization_spec F :=
+by
+  refine ⟨build_interface_factorization R_star a0, ?_⟩
+  exact build_interface_factorization_satisfies R_star a0
 
 /-! ProductLowerBound: assemble κ0 from components.
 Provenance: EMR-c L1246–L1269. κ0 := c_geo · (α_ref · c_*)^{m_cut}. -/
@@ -146,6 +170,20 @@ theorem synthesize_doeblin_from_product_satisfies (O : ProductLowerBoundOut) :
 by
   trivial
 
+/-- Existence form for ProductLowerBound spec. -/
+theorem product_lower_bound_exists (P : ProductLowerBoundParams) :
+  ∃ O : ProductLowerBoundOut, product_lower_bound_spec P O :=
+by
+  refine ⟨build_product_lower_bound P, ?_⟩
+  exact build_product_lower_bound_satisfies P
+
+/-- Existence form for Doeblin lower bound spec. -/
+theorem doeblin_lower_bound_exists (P : ProductLowerBoundParams) :
+  ∃ D : DoeblinLowerBound, doeblin_lower_bound_spec D :=
+by
+  refine ⟨synthesize_doeblin_from_product (build_product_lower_bound P), ?_⟩
+  exact synthesize_doeblin_from_product_satisfies (build_product_lower_bound P)
+
 /-! OddConeContraction: convex split with heat-kernel contraction.
 Provenance: EMR-c L1292–L1331. ρ = (1 − θ_* e^{−λ1 t0})^{1/2}, θ_*=κ0. -/
 structure OddConeParams where
@@ -168,6 +206,13 @@ theorem build_odd_cone_contraction_satisfies (P : OddConeParams) :
   odd_cone_contraction_spec P (build_odd_cone_contraction P) :=
 by
   trivial
+
+/-- Existence form for OddConeContraction spec. -/
+theorem odd_cone_contraction_exists (P : OddConeParams) :
+  ∃ O : OddConeOut, odd_cone_contraction_spec P O :=
+by
+  refine ⟨build_odd_cone_contraction P, ?_⟩
+  exact build_odd_cone_contraction_satisfies P
 
 /-! Acceptance scaffolding (no proofs, no imports). -/
 

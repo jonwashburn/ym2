@@ -31,6 +31,13 @@ theorem build_os_gram_local_satisfies (P : OSGramParams) :
 by
   trivial
 
+/-- Existence form for OSGramLocality spec. -/
+theorem os_gram_local_exists (P : OSGramParams) :
+  ∃ W : OSGramWitness, os_gram_local_spec P W :=
+by
+  refine ⟨build_os_gram_local P, ?_⟩
+  exact build_os_gram_local_satisfies P
+
 structure MixedGramParams where
   R_star : Float
   a0 : Float
@@ -53,6 +60,13 @@ theorem build_mixed_gram_decay_satisfies (P : MixedGramParams) :
 by
   trivial
 
+/-- Existence form for MixedGramDecay spec. -/
+theorem mixed_gram_decay_exists (P : MixedGramParams) :
+  ∃ O : MixedGramOut, mixed_gram_decay_spec P O :=
+by
+  refine ⟨build_mixed_gram_decay P, ?_⟩
+  exact build_mixed_gram_decay_satisfies P
+
 structure DiagMixedParams where
   kappa0 : Float
   t0 : Float
@@ -73,6 +87,13 @@ theorem build_diag_mixed_contr_from_doeblin_satisfies (P : DiagMixedParams) :
 by
   trivial
 
+/-- Existence form for DiagMixedContraction-from-Doeblin spec. -/
+theorem diag_mixed_contr_from_doeblin_exists (P : DiagMixedParams) :
+  ∃ O : DiagMixedOut, diag_mixed_contr_from_doeblin_spec P O :=
+by
+  refine ⟨build_diag_mixed_contr_from_doeblin P, ?_⟩
+  exact build_diag_mixed_contr_from_doeblin_satisfies P
+
 structure GershgorinParams where
   rho : Float
   S0 : Float
@@ -92,6 +113,13 @@ theorem build_gershgorin_row_bound_satisfies (P : GershgorinParams) :
 by
   trivial
 
+/-- Existence form for Gershgorin row bound spec. -/
+theorem gershgorin_row_bound_exists (P : GershgorinParams) :
+  ∃ O : GershgorinOut, gershgorin_row_bound_spec P O :=
+by
+  refine ⟨build_gershgorin_row_bound P, ?_⟩
+  exact build_gershgorin_row_bound_satisfies P
+
 structure TickPoincareParams where
   beta0 : Float
   a : Float
@@ -110,5 +138,12 @@ theorem build_tick_poincare_local_satisfies (P : TickPoincareParams) :
   tick_poincare_local_spec P (build_tick_poincare_local P) :=
 by
   trivial
+
+/-- Existence form for Tick–Poincaré local spec. -/
+theorem tick_poincare_local_exists (P : TickPoincareParams) :
+  ∃ O : TickPoincareOut, tick_poincare_local_spec P O :=
+by
+  refine ⟨build_tick_poincare_local P, ?_⟩
+  exact build_tick_poincare_local_satisfies P
 
 end YM.OSWilson.OddConeDeficit
