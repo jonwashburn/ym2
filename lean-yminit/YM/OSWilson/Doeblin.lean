@@ -409,7 +409,13 @@ by
     simpa [build_doeblin_setup]
   ·
     -- Odd-cone contraction spec holds for the built parameters by construction.
-    trivial
+    simpa [build_doeblin_setup, odd_cone_contraction_spec] using
+      (build_odd_cone_contraction_satisfies
+        { kappa0 := (build_product_lower_bound { refresh := (build_refresh_witness P.refresh),
+                                                conv := (build_convolution_hk P.group_N (build_refresh_witness P.refresh).r_star),
+                                                factor := (build_interface_factorization P.slab_R P.slab_a0) }).kappa0,
+          t0 := (build_convolution_hk P.group_N (build_refresh_witness P.refresh).r_star).t0,
+          lambda1 := 1.0 })
 
 /-- Convenience wrapper: build components and certify T9_accept (spec-level). -/
 structure T9AcceptParams where
