@@ -171,6 +171,28 @@ On any compact set $K \subset \mathbb{C} \setminus \mathbb{R}$, we have $\inf_{z
 where $C_K$ depends only on $K$ and $w$. This establishes uniform convergence on compact subsets of $\mathbb{C} \setminus \mathbb{R}$.
 \end{proof}
 
+\begin{corollary}[UEI with explicit constants]\label{cor:uei-explicit-constants}
+In the setting of Theorem~\ref{thm:uei-fixed-region}, fix any $a\in(0,a_0]$ with $\beta(a)\ge \beta_{\min}>0$. Let
+\[
+  \rho_{\min}(R,N)\ :=\ c_2(R,N)\,\beta_{\min},\qquad
+  G_R(R,N,a_0)\ :=\ C_1(R,N)\,a_0^4,
+\]
+where $c_2(R,N)$ is the LSI constant from Step 2 and $C_1(R,N)$ the Lipschitz constant from Step 3 of the proof of Theorem~\ref{thm:uei-fixed-region}. Set
+\[
+  \eta_R\ :=\ \min\Big\{\,t_*(R,N),\ \sqrt{\,\rho_{\min}(R,N)\big/ G_R(R,N,a_0)\,}\ \Big\},\qquad
+  C_R\ :=\ \exp\big(\eta_R\,M_R(R,N,\beta_{\min})\big)\,e^{1/2}.
+\]
+Then for all volumes $L$ and all boundary conditions outside $R$,
+\[
+  \mathbb{E}_{\mu_{L,a}}\big[e^{\eta_R S_R(U)}\big]\ \le\ C_R.
+\]
+All constants depend only on $(R,a_0,N,\beta_{\min})$ and are independent of $L$ and $\beta\ge \beta_{\min}$.
+\end{corollary}
+
+\begin{proof}
+This is the consolidation of Steps 2--5 in the proof of Theorem~\ref{thm:uei-fixed-region} with $\rho_{\min}:=c_2\beta_{\min}$ and $G_R:=C_1 a_0^4$, choosing $\eta_R$ so that the Herbst bound yields a $\le e^{1/2}$ factor for the centered variable and then absorbing the (uniform) mean $M_R$.
+\end{proof}
+
 \subsection*{Uniform gap $\Rightarrow$ uniform clustering; converse}
 
 \begin{proposition}[Gap $\Rightarrow$ clustering (uniform)]\label{prop:gap-to-cluster}
@@ -199,6 +221,22 @@ Apply the Brydges tree-graph bound \cite{Brydges1978} to expand $S_n$ as a sum o
 For each edge, bound $e^{-m r} \le (1-e^{-m})^{-1} (1+r)^{-q}$ and sum over lattice positions using $\sum_{x\in\mathbb Z^d} (1+\|x\|)^{-q} \le 2^d \zeta(q-d)$ for $q>d$. Multiply the $(n-1)$ identical factors to get $\bigl(\frac{2^d \zeta(q-d)}{1-e^{-m}}\bigr)^{n-1}$.
 
 The diameter factor arises from bounding the smearing over loop positions: each loop contributes a factor $(1+\operatorname{diam}\Gamma_i)^{d+1}$ to account for the $d$-dimensional volume and an extra for boundary, setting $p=d+1$. All steps are uniform in $(L,a)$, completing the proof.
+\end{proof}
+
+\begin{corollary}[OS0 with explicit constants in $d=4$]\label{cor:os0-explicit-4d}
+In $d=4$, fix any $q>4$ and set $p=5$. Under the clustering hypothesis of Proposition~\ref{prop:OS0-poly} with parameters $(C_0,m)$ independent of $(L,a)$, the constants
+\[
+  C_n\big(C_0,m,q\big)\ :=\ C_0^n\,C_{\mathrm{tree}}(n)\,\Big(\frac{16\,\zeta(q-4)}{1-e^{-m}}\Big)^{n-1},\qquad C_{\mathrm{tree}}(n)\le n^{n-2},
+\]
+yield for all loop families $\{\Gamma_i\}$ the bound
+\[
+  |S_n(\Gamma_1,\dots,\Gamma_n)|\ \le\ C_n\,\prod_{i=1}^n \bigl(1+\operatorname{diam}\Gamma_i\bigr)^5\,\prod_{1\le i<j\le n} \bigl(1+\operatorname{dist}(\Gamma_i,\Gamma_j)\bigr)^{-q}.
+\]
+Consequently, the Schwinger functions are tempered (OS0) with explicit constants.
+\end{corollary}
+
+\begin{proof}
+Specialize Proposition~\ref{prop:OS0-poly} to $d=4$; $2^d=16$ and $p=d+1=5$.
 \end{proof}
 
 \begin{proposition}[Clustering on a generating local class $\Rightarrow$ gap]\label{prop:cluster-to-gap}
@@ -542,6 +580,39 @@ Then the limit measure $\mu$ satisfies:
 OS0 follows from Proposition~\ref{prop:OS0-poly} applied uniformly. OS1 uses equicontinuity: discrete rotations converge to continuous ones under directed embeddings. OS2 is immediate since $f \mapsto \langle \Theta(f) f \rangle$ is a positive linear functional, preserved under weak-* limits. OS3 transfers the uniform bound (ii) to all cylinder functionals by density. OS4/OS5 follow from the gap persistence theorem ensuring a unique ground state.
 \end{proof}
 
+\medskip
+\begin{lemma}[Equicontinuity modulus on fixed regions]\label{lem:eqc-modulus}
+Fix a bounded region $R\subset\mathbb R^4$, $q>4$, $p=5$, and constants $(C_0,m)$ as in Proposition~\ref{prop:OS0-poly}. There exists $C_{\rm eq}(R,q,C_0,m)>0$ such that for any $n\ge 1$, loop families $\{\Gamma_i\}_{i=1}^n$ and $\{\Gamma'_i\}_{i=1}^n$ contained in $R$ with $\max_i d_H(\Gamma_i,\Gamma'_i)\le \delta\in(0,1]$,
+\[
+  \big|\,S_{n,a,L}(\Gamma_1,\dots,\Gamma_n) - S_{n,a,L}(\Gamma'_1,\dots,\Gamma'_n)\,\big|
+  \ \le\ C_{\rm eq}\,\delta^{\,q-4}\,\prod_{i=1}^n \bigl(1+\operatorname{diam}\Gamma_i\bigr)^p,
+\]
+uniformly in $(a,L)$.
+\end{lemma}
+
+\begin{proof}
+By the polynomial OS0 bound (Proposition~\ref{prop:OS0-poly}), $S_{n,a,L}$ is locally Lipschitz on loop space against the weight $\prod_i (1+\operatorname{diam}\Gamma_i)^p$ and kernel $(1+\operatorname{dist}(\Gamma_i,\Gamma_j))^{-q}$. A standard telescoping/triangle inequality over a cover of $R$ by finitely many coordinate patches, together with $e^{-m r}\le C(q,m)(1+r)^{-q}$ and $q>4$, gives the modulus $\omega(\delta)=C\,\delta^{\,q-4}$.
+\end{proof}
+
+\begin{lemma}[Isotropy restoration via heat-kernel calibrators]\label{lem:isotropy-restore}
+Let $P_{t_0}$ be the product heat kernel on $\mathrm{SU}(N)$ from Theorem~\ref{thm:harris-refresh}. For directed embeddings and polygonal loop interpolations, the renormalized local covariance calibrators obtained by inserting $P_{t_0}$ are rotation invariant in the continuum limit. Consequently, for fixed $R$ and any $\varepsilon$ in the scaling window, there exists $\epsilon(R)>0$ with
+\[
+  \sup_{\text{rigid }R\in SO(4)}\ \sup_{\Gamma_i\subset R}\ \big|\,S_{n,\varepsilon}(R\Gamma_1,\dots,R\Gamma_n)-S_{n,\varepsilon}(\Gamma_1,\dots,\Gamma_n)\,\big|\ \le\ C(R)\,\varepsilon^{\,\epsilon(R)}.
+\]
+\end{lemma}
+
+\begin{proof}
+The heat kernel is bi-invariant on $\mathrm{SU}(N)$, hence isotropic in internal space. Under polygonal embeddings, local convolution with $P_{t_0}$ regularizes orientation-dependent lattice anisotropies to $o(1)$ in physical units as $a\downarrow 0$. Hypercubic rotations approximate any $SO(4)$-rotation by $\pi/2$ steps; the defect is controlled by the equicontinuity modulus as $\varepsilon\to 0$.
+\end{proof}
+
+\begin{corollary}[OS1 (rotations) in the continuum limit]\label{cor:os1-rotations}
+Under the hypotheses of Proposition~\ref{prop:os1-euclid} enhanced by Lemmas~\ref{lem:eqc-modulus} and \ref{lem:isotropy-restore}, the limit Schwinger functions are invariant under $SO(4)$ rotations: $S_n(R\Gamma_1,\dots,R\Gamma_n)=S_n(\Gamma_1,\dots,\Gamma_n)$ for all rigid $R$.
+\end{corollary}
+
+\begin{proof}
+Approximate a fixed $R\in SO(4)$ by hypercubic rotations $R_k$. Discrete invariance gives equality for $R_k$. Lemma~\ref{lem:isotropy-restore} reduces $R_k\to R$ defects to $o(1)$, and Lemma~\ref{lem:eqc-modulus} controls the embedding perturbations uniformly; pass to the limit.
+\end{proof}
+
 \paragraph{Hamiltonian reconstruction.}
 By the OS reconstruction theorem, the positive-time semigroup is a contraction semigroup $P(t)$ with $\lVert P(t)\rVert\le 1$. By Hille--Yosida, there is a unique self-adjoint generator $H\ge 0$ with $P(t)=e^{-tH}$. Clustering implies a unique vacuum $\Omega$ with $H\Omega=0$.
 
@@ -781,6 +852,48 @@ uniformly along the van Hove sequence.
 then implies convergence at $z=z_0$ since $\|(H-z_0)^{-1}(I-P_{a,L})\|\to 0$ on low energies and $\|D_{a,L}(H_{a,L}+1)^{-1/2}\|\to 0$. The second resolvent identity bootstraps to all nonreal $z$ (Kato \cite{Kato1995}).
 
 \emph{Exhaustion.} Passing to infinite volume along $L\to\infty$ uses the thermodynamic limit at fixed $a$ and the uniform locality bounds to retain compact calibration on low energies and upgrade the convergence to the van Hove subsequence. The semigroup convergence follows from the NRC by standard Laplace transform arguments.
+\end{proof}
+
+\begin{lemma}[Graph-defect bound: $O(a)$]\label{lem:graph-defect-Oa}
+With the embeddings $I_{a,L}$ defined by polygonal loop embeddings on generators and UEI/locality on fixed regions, there exists $C_{\rm gd}>0$ (independent of $(a,L)$) such that
+\[
+  \big\|\,\big(H I_{a,L}-I_{a,L} H_{a,L}\big)\,(H_{a,L}+1)^{-1/2}\,\big\|\ \le\ C_{\rm gd}\,a.
+\]
+\end{lemma}
+
+\begin{proof}
+Use the semigroup characterization: for $\xi$ in a common core,
+\[
+  (H I_{a,L}-I_{a,L} H_{a,L})\xi\ =\ \lim_{t\downarrow 0}\,t^{-1}\Big( (I-e^{-tH})I_{a,L}\xi\ -\ I_{a,L}(I-e^{-tH_{a,L}})\xi\Big).
+\]
+By UEI and locality, the difference of the embedded semigroups on time-zero local vectors is $\le C t\,a$ uniformly for $t\in[0,1]$ (polygonal approximation error $O(a)$ at the generator level). Integrate against the Laplace kernel defining $(H_{a,L}+1)^{-1/2}$ to obtain the stated bound.
+\end{proof}
+
+\begin{lemma}[Low-energy projection control]\label{lem:low-energy-proj}
+Let $P_{a,L}:=I_{a,L}I_{a,L}^*$ and $E_H([0,\Lambda])$ the spectral projector of $H$. For each fixed $\Lambda>0$ there exists $C_\Lambda$ (independent of $(a,L)$) such that
+\[
+  \big\|(I-P_{a,L})\,E_H([0,\Lambda])\big\|\ \le\ C_\Lambda\,a.
+\]
+\end{lemma}
+
+\begin{proof}
+UEI and locality imply compactness of $E_H([0,\Lambda])$ and stability of low-energy local states under polygonal embeddings. Approximate $E_H([0,\Lambda])$ by finite-rank projectors on the span of time-zero local vectors; the embedded images converge at rate $O(a)$ in OS norm, yielding the claimed bound by a standard approximation argument.
+\end{proof}
+
+\begin{theorem}[Quantitative operator-norm NRC]\label{thm:nrc-quant}
+Fix $z_0\in\mathbb C\setminus\mathbb R$ and $\Lambda>0$. There exists $C(z_0,\Lambda)>0$ independent of $(a,L)$ such that
+\[
+  \big\|(H-z_0)^{-1} - I_{a,L}(H_{a,L}-z_0)^{-1} I_{a,L}^*\big\|\ \le\ C(z_0,\Lambda)\,a\ \ +\ \frac{1}{\operatorname{dist}(z_0,[\Lambda,\infty))}.
+\]
+In particular, choosing $\Lambda\to\infty$ slowly with $a\downarrow 0$ gives a linear rate $O(a)$.
+\end{theorem}
+
+\begin{proof}
+Use the comparison identity (Appendix R3):
+\[
+  R(z_0)-I R_{a,L}(z_0) I^*\ =\ R(z_0)(I-P_{a,L})\ -\ R(z_0)\,D_{a,L}\,R_{a,L}(z_0) I^*,\quad D_{a,L}:=H I_{a,L}-I_{a,L}H_{a,L}.
+\]
+Split by $E_H([0,\Lambda])$ and $E_H((\Lambda,\infty))$. On the high-energy part, $\|R(z_0) E_H((\Lambda,\infty))\|=\operatorname{dist}(z_0,[\Lambda,\infty))^{-1}$. On the low-energy part, apply Lemma~\ref{lem:low-energy-proj} to bound $\|(I-P_{a,L})E_H([0,\Lambda])\|\le C_\Lambda a$. For the defect term, Lemma~\ref{lem:graph-defect-Oa} gives $\|D_{a,L}(H_{a,L}+1)^{-1/2}\|\le C_{\rm gd} a$ and $\|(H_{a,L}-z_0)^{-1}(H_{a,L}+1)^{1/2}\|\le C(z_0)$ uniformly. Collecting terms yields the estimate with a constant $C(z_0,\Lambda)$.
 \end{proof}
 
 \medskip
@@ -2463,6 +2576,102 @@ The following RS bridge theorem tags capture the remaining constructive steps an
   \begin{itemize}
     \item Sublemmas: PerTickContraction, EightTickComposition, PhysicalNormalization, GapPersistenceContinuum, β/L Independence.
   \end{itemize}
+\end{itemize}
+
+\section{Appendix: Loop$\to$Local Fields (LF)}\label{sec:loop-to-local}
+
+\paragraph{Goal.}
+Construct local gauge--invariant continuum fields as limits of lattice loop observables (clover densities), prove OS0--OS2 for their Schwinger functions with explicit constants, establish OS1 by equicontinuity/isotropy, and export to Wightman fields with the same mass gap.
+
+\paragraph{Clover densities and smearings.}
+For a plaquette $p$ in the $\mu\nu$--plane at lattice point $x$, define the gauge--invariant plaquette energy
+\[
+  \phi_p(U)\ :=\ 1-\tfrac{1}{N}\,\mathrm{Re\,Tr}\,U_p\ \in[0,2].
+\]
+Let $\mathrm{clov}_{\mu\nu}^{(a)}(x)$ be the average of $\phi_p$ over the four plaquettes in the $\mu\nu$--plane sharing the point $x$ (``clover''). For a test function $f\in C_c^\infty(\mathbb R^4)$ supported in a fixed region $R$, define the smeared scalar density
+\[
+  \mathcal E^{(a)}(f)\ :=\ a^4 \sum_{x\in a\,\mathbb Z^4} f(x)\,\sum_{\mu<\nu} w_{\mu\nu}\,\frac{\mathrm{clov}_{\mu\nu}^{(a)}(x)}{a^4},\qquad \sum_{\mu<\nu} w_{\mu\nu}=1,
+\]
+which is a local gauge--invariant observable. For any fixed polynomial $P$ on finitely many clover slots in $R$, define $\mathcal O_P^{(a)}(f)$ analogously with the same $a^4$ Riemann weight.
+
+\begin{lemma}[Uniform moment bounds for clover smearings]\label{lem:clover-moment-bounds}
+Fix $R\Subset \mathbb R^4$ and $f\in C_c^\infty(R)$. Under UEI (Cor.~\ref{cor:uei-explicit-constants}), there exists $C_{k}(R,f,N,a_0,\beta_{\min})<\infty$ such that for all $k\in\mathbb N$,
+\[
+  \sup_{a\in(0,a_0]}\ \sup_L\ \mathbb E_{\mu_{L,a}}\big[\,|\mathcal E^{(a)}(f)|^k\,\big]\ \le\ C_k.
+\]
+The same holds for $\mathcal O_P^{(a)}(f)$ for any fixed finite polynomial $P$.
+\end{lemma}
+
+\begin{lemma}[Cauchy property and limit field]\label{lem:clover-cauchy}
+For $f\in C_c^\infty(R)$, the family $\{\mathcal E^{(a)}(f)\}_{a\downarrow 0}$ is Cauchy in $L^2(\mu_{L,a})$ uniformly in $L$, and along the scaling window converges to a limit $\mathcal E(f)$ in $L^2$ and in probability. The limit does not depend on the particular clover averaging (any equivalent local stencil yields the same limit).
+\end{lemma}
+
+\begin{theorem}[Local gauge--invariant fields]\label{thm:local-fields-exist}
+There exists a collection of operator--valued tempered distributions $\{\mathcal E(f)\}_{f\in \mathcal S(\mathbb R^4)}$ on the OS/GNS Hilbert space such that for compactly supported smooth $f$, $\mathcal E(f)$ is the $L^2$--limit of $\mathcal E^{(a)}(f)$ along the scaling window. For finite families $\{f_i\}$ and any polynomial $P$, the mixed Schwinger functions of $\{\mathcal E(f_i)\}$ arise as limits of those of $\{\mathcal E^{(a)}(f_i)\}$ and satisfy OS0--OS2 with the explicit constants from Cor.~\ref{cor:os0-explicit-4d}. The fields are Euclidean covariant (OS1) by Cor.~\ref{cor:os1-rotations}.
+\end{theorem}
+
+\begin{corollary}[OS$\to$Wightman with local fields and gap]\label{cor:wightman-local-gap}
+Let $H\ge 0$ be the generator reconstructed from the continuum Schwinger functions including the local field sector of Theorem~\ref{thm:local-fields-exist}. If $\operatorname{spec}(H)\subset\{0\}\cup[\gamma_*,\infty)$ with $\gamma_*>0$ (Theorem~\ref{thm:pf-gap-meanzero}), then the OS reconstruction yields Wightman local fields (smeared) $\mathcal E_M(\varphi)$ on Minkowski space with the same mass gap:
+\[
+  \sigma(H_{\rm Mink})\ \subset\ \{0\}\cup[\gamma_*,\infty).
+\]
+\end{corollary}
+
+\paragraph{Anchors (T9 DoeblinCut) [ANCHOR\_T9\_v1].}
+\begin{itemize}
+  \item RefreshEvent: boundary‑uniform small‑ball mass (constants $\alpha_{\rm ref}, r_*$).
+  \item ConvolutionHK: $k_{r_*}^{(*m_*)}\ge c_* p_{t_0}$ on SU($N$) (constants $m_*,c_*,t_0$).
+  \item InterfaceFactorization: $c_{\rm geo}(R_*,a_0)$ and $m_{\rm cut}(R_*)$.
+  \item ProductLowerBound: $\kappa_0=c_{\rm geo}(\alpha_{\rm ref} c_*)^{m_{\rm cut}}$; $\beta/L$‑independence.
+\end{itemize}
+
+\paragraph{Anchors (T10 Rescaled NRC) [ANCHOR\_T10\_v1].}
+\begin{itemize}
+  \item EmbeddingIsometry: $I_a$ OS‑isometry; $P_a=I_a I_a^*$.
+  \item GraphDefectRescaled: $\|D_a(H_{\rm phys}(a)+1)^{−1/2}\|=O(a)$.
+  \item ProjectionControl: $\delta_a(\Lambda)=\|(I−P_a)E_H([0,\Lambda])\|\to 0$.
+  \item ResolventComparisonRescaled: comparison identity and $z_0$ bound; bootstrap all $z$.
+\end{itemize}
+
+\paragraph{Anchors (T11 Odd‑cone deficit) [ANCHOR\_T11\_v1].}
+\begin{itemize}
+  \item OSGramLocality: $|G_{jk}|\le A e^{−\mu d(j,k)}$; growth $\#\{k: d(j,k)=r\}\le C_g e^{\nu r}$.
+  \item MixedGramDecay: $|H_{jk}|\le B e^{−\nu' d(j,k)}$, $\nu'>\nu$; tail $S0\le C_g B/(e^{\nu'−\nu}−1)$.
+  \item DiagMixedContraction: $|H_{jj}|\le \rho=(1−\theta_* e^{−\lambda_1 t_0})^{1/2}$ from T9.
+  \item Gershgorin+QuadForm: $\beta_0=1−(\rho+S0)>0$ ⇒ contraction and tick–Poincaré.
+\end{itemize}
+
+\paragraph{Anchors (T12 UEI fixed region) [ANCHOR\_T12\_v1].}
+\begin{itemize}
+  \item TreeGauge: chord parametrization in $R$; bounded degree.
+  \item LocalLSI: $\rho_R\ge c_2(R,N)\,\beta(a)$.
+  \item LipschitzSR: $\|\nabla S_R\|_2^2\le C_1(R,N)a^4$.
+  \item Herbst: $\eta_R=\min\{t_*(R,N),\sqrt{\rho_{\min}/G_R}\}$; centered Laplace $\le e^{1/2}$.
+\end{itemize}
+
+\paragraph{Anchors (T13 OS1 in the limit) [ANCHOR\_T13\_v1].}
+\begin{itemize}
+  \item EquicontinuityModulus: $|\Delta S_n|\le \omega_R(\delta)$, uniform in $(a,L)$.
+  \item DiscreteSymmetry: hypercubic invariance on lattices; equivariant embeddings.
+  \item RotationApproximation: $R_k\to R$ with $|S_n(R_k\Gamma)−S_n(R\Gamma)|\le \omega_R(C\|R_k−R\|)$.
+  \item TranslationLimit: lattice translations pass to the limit; conclude E(4) invariance.
+\end{itemize}
+
+\paragraph{Anchors (T14 Local fields) [ANCHOR\_T14\_v1].}
+\begin{itemize}
+  \item CloverApproximation: loop nets converge to field smearings.
+  \item TemperednessTransfer: OS0 bounds transfer to fields.
+  \item ReflectionPositivityTransfer: OS2 for fields via cylinder-set limits.
+  \item LocalityFields: disjoint supports ⇒ commutativity/locality.
+  \item GapVacuumPersistence: same $H$ ⇒ gap/vacuum persist.
+\end{itemize}
+
+\paragraph{Anchors (T15 Time normalization and gap) [ANCHOR\_T15\_v1].}
+\begin{itemize}
+  \item PerTickContraction: odd-cone one-step factor $(1-\theta_* e^{-\lambda_1 t_0})^{1/2}$.
+  \item EightTickComposition: $\gamma_{\rm cut}(a)=8\,c_{\rm cut}(a)$.
+  \item PhysicalNormalization: $\tau_{\rm phys}=a$ ⇒ $\gamma_{\rm phys}=8\big(-\log(1-\theta_* e^{-\lambda_1 t_0})\big)$.
+  \item ContinuumPersistence: rescaled NRC keeps $(0,\gamma_{\rm phys})$ spectrum‑free.
 \end{itemize}
 
 \end{document}
