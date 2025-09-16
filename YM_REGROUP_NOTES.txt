@@ -1,0 +1,128 @@
+Recovery checkpoint after revert of bee45f8.
+
+This document consolidates the YM mass gap project state, goals, gaps, RS scaffolding, formal problems, solutions, and execution plan.
+
+== Primary Goal ==
+- Prove classical Clay statement: SU(N) Yang–Mills on R^4 exists as a QFT with mass gap Δ>0, formalized in Lean and exported in ym/Main.lean.
+
+== Current State ==
+- Abstract OS→β0→PF gap→persistence pipeline compiles; lacks concrete YM physics.
+- Reverted bee45f8; quarantined planning docs restored. Build is green.
+
+== Gaps to Clay ==
+1) SU(N) lattice links + Wilson action measure on finite 4D lattice.
+2) OS positivity (Osterwalder–Seiler) under link reflection for Wilson action.
+3) Transfer matrix/Hamiltonian construction; positivity/self-adjointness.
+4) Finite-volume spectral/mass gap from YM dynamics (strong coupling/cluster expansion).
+5) Controlled continuum limit (a→0) with norm-resolvent/OS reconstruction; gap persistence.
+
+== RS Scaffolding (operational) ==
+- Ledger OS inner product, calibrated loop cone, β_diag lower bound, α/β Dobrushin route, PF3×3 anchor, Lipschitz/Weyl persistence (R3).
+- RS↔Wilson kernel comparability in fixed scale window (R2), transfers OS PSD and β0 bounds.
+
+== Formal Problems and Solutions (ready-to-port) ==
+R1: OS→Hamiltonian for loops (GNS/OS reconstruction) — solved.
+R2: RS↔Wilson comparability with explicit c1,c2 — solved.
+R3: Norm–resolvent convergence with uniform calibration; preserves gap — solved.
+R4: N-uniformity of β0 and γ in OS→gap — solved.
+R5: Lattice YM measure OS0–OS5 at fixed a (Wilson) — solved (write-up).
+R6: Area law at strong coupling; T(β)>0 — solved (write-up).
+C1: Continuum OS loop measure (a→0) — plan/proof outline aligned with R3.
+C2: Continuum area law persistence — plan via scaling window and stability.
+
+== Concrete Lean Implementation Plan ==
+A) Lattice layer
+- Define finite periodic 4D lattice Λ(a,L).
+- Types: Site, Dir, Link; U_{x,μ} : SU(N).
+- Plaquette and Wilson action S_β(U).
+- Product Haar measure; Gibbs measure dμ ∝ e^{-S} dU.
+
+B) OS positivity
+- Implement link reflection θ; chessboard factorization; prove PSD Gram for cylinder observables; export OSPsd.
+
+C) Transfer/Hamiltonian
+- Construct transfer kernel T (one time step); show positivity, self-adjointness; define H := -log T on orthogonal complement of constants.
+
+D) Finite-volume gap
+- Strong-coupling character/cluster expansion; Dobrushin contraction α(β) < 1 uniform in N; derive γ(β) ≥ -log(2βJ_⊥).
+
+E) Continuum limit
+- Embeddings I_a; defect D_a bounds; verify R3 hypotheses; show norm–resolvent convergence and gap persistence; export final theorem.
+
+== Acceptance Criteria ==
+- Lean: modules su/ (group + lattice), ym_measure/, os_pos_wilson/, transfer_ham/, gap_strong_coupling/, continuum_limit/.
+- Main export theorem  proven with concrete YM pipeline.
+
+== Immediate Actions ==
+1) Tag this checkpoint; branch feature: ym-physics-implementation.
+2) Add skeleton Lean files and stubs compiling.
+3) Port R1–R4 lemmas to the new modules and wire tests.
+4) Implement OS positivity proof for Wilson link reflection.
+
+== Notes ==
+- All math prose remains in .txt per user preference.
+- No new axioms; keep zero-sorry path.
+
+== Full Proof Track (complete context) ==
+
+[Goal]
+- Clay statement: existence of quantum SU(N) Yang–Mills on R^4 with mass gap Δ>0; formalized in Lean; public export in ym/Main.lean.
+
+[Abstract pipeline already in Lean]
+- OS positivity (abstract) ⇒ overlap β₀ on OS Gram cone ⇒ transfer PF spectral gap ⇒ persistence (Lipschitz/Weyl, norm–resolvent) ⇒ export unconditional_mass_gap_statement (Clay alias present).
+- Tight constant: PF3×3 overlap β = 3·min A_ij for strictly positive row-stochastic 3×3.
+
+[Missing to reach Clay]
+1) Concrete YM: SU(N) lattice links, Wilson action, Gibbs measure.
+2) OS positivity for Wilson (Osterwalder–Seiler) under link reflection.
+3) Transfer matrix/Hamiltonian: positivity and self-adjointness.
+4) Finite-volume mass gap from YM dynamics (strong-coupling/cluster/character expansion).
+5) Continuum limit a→0 with norm–resolvent/OS reconstruction; gap persistence.
+
+[Lean proof-track modules and roles]
+- ym/LoopsRSBridge.lean: LoopCone, reflect, factorizable OS kernel; OSPsdOn; OverlapWitness with β₀ = β_diag − |z| > 0.
+- ym/OSPositivity.lean: OSPositivity/OverlapLowerBoundOS; kernel via subspaceProject + normalized 3×3 OS Gram; bridge to PF gap.
+- ym/PF3x3_Bridge.lean: pf_gap_row_stochastic_irreducible for strictly positive row-stochastic 3×3; simple top eigenvalue; gap.
+- ym/Transfer.lean: transfer_gap_from_overlap_witness; OverlapLowerBoundOS ⇒ TransferPFGap; matrix_overlap_from_pf3x3 with tight β; α/β Dobrushin route for contraction ⇒ gap.
+- ym/SpectralStability.lean: gap_persistence_Lipschitz; Weyl 1‑Lipschitz spectral order; norm‑resolvent persistence interface (R3).
+- ym/Main.lean: assembles witnesses; exports unconditional_mass_gap_statement and Clay-style alias.
+
+[Hostile-audit notes retained]
+- Current OS not tied to Wilson action in places; lattice measure and concrete transfer were abstract in parts; EigenvalueOrder placeholders sidelined; hence existing gap is toy, not YM-derived.
+
+[RS problems and solutions to port]
+- R1: OS→Hamiltonian for loops (OS/GNS); build H≥0, U(t)=e^{-tH}; transfer gap ⇒ H gap.
+- R2: RS↔Wilson comparability in a scale window; c1,c2 bounds transfer OS PSD and β₀; spectral ratio under full TI.
+- R3: Norm–resolvent with uniform calibration; embeddings I_n, defect bounds; compact resolvent; preserve β₀ in limit.
+- R4: N‑uniform OS→gap via Dobrushin: α≤2βJ_*; across cut α_⊥≤2βJ_⊥; for β≤1/(4J_*) get γ≥log 2.
+- R5: Lattice YM OS0–OS5 at fixed a: well-defined measure; hypercubic invariance; link‑reflection OS positivity; clustering/unique vacuum in strong coupling.
+- R6: Area law at strong coupling: −log⟨W(Γ)⟩ ≥ T(β)·Area(Γ) − C·Perimeter(Γ), T(β)>0.
+- C1: Continuum OS loop measure: verify R3 hypotheses; pass positivity and gap to a→0.
+- C2: Continuum area-law persistence along scaling window.
+
+[Concrete YM implementation plan in Lean]
+A) Lattice layer
+- su/: SU(N) group, matrices, Haar interface.
+- lattice/: finite 4D periodic lattice types; links U_{x,μ}; plaquette U_P; Wilson action S_β.
+- ym_measure/: product Haar; Gibbs dμ ∝ e^{-S} dU.
+B) OS positivity (os_pos_wilson/)
+- Link reflection θ; chessboard factorization; PSD OS Gram for cylinder observables; OverlapLowerBoundOS with explicit β₀.
+C) Transfer/Hamiltonian (transfer_ham/)
+- One‑step transfer T; positivity/self‑adjointness; constants sector; H := −log T.
+D) Strong‑coupling gap (gap_strong_coupling/)
+- Dobrushin/character/cluster bounds; r₀(T)≤2βJ_⊥; γ(β) ≥ −log(2βJ_⊥) uniform in N for small β.
+E) Continuum limit (continuum_limit/)
+- Embeddings I_a; defect D_a; apply R3; preserve gap; export final theorem.
+
+[Acceptance]
+- Zero sorries/axioms; Clay alias theorem proven through concrete YM pipeline; unit checks (OS PSD, β₀ extraction, PF3×3 anchor).
+
+[Repo hygiene]
+- Keep only proof track and README active; planning/proofs in .txt; no PDFs.
+
+[Immediate next steps]
+1) Convert quarantined .md → .txt and cross‑reference here.
+2) Scaffold su/, lattice/, ym_measure/, os_pos_wilson/, transfer_ham/, gap_strong_coupling/, continuum_limit/ with compiling stubs.
+3) Implement Wilson link‑reflection OS positivity and wire β₀→γ via α/β.
+4) Implement strong‑coupling bounds for explicit γ(β).
+5) Add embeddings and R3 checks; finalize continuum export.

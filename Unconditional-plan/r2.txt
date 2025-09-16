@@ -1,0 +1,156 @@
+﻿% ---------- R2 (RS↔Wilson comparability) ----------
+% Self-contained snippet: no external refs/cites/URLs; no extra packages required.
+
+
+\subsection*{R2 (RS$\leftrightarrow$Wilson comparability)}
+
+
+\paragraph{Setting.}
+Let $\Gamma$ be a countable loop index set built on a $(d{+}1)$-dimensional lattice with spatial mesh $a>0$ and discrete time step (or sampling scale) $\tau>0$. 
+For $\gamma,\gamma'\in\Gamma$, let $d(\gamma,\gamma')\in\mathbb{N}_0$ be a graph distance that is invariant under time translations and time reflection $\theta$ (i.e., $d(\theta\gamma,\theta\gamma')=d(\gamma,\gamma')$).
+For $X\in\{\mathrm{RS},\mathrm{W}\}$, let $K_X:\Gamma\times\Gamma\to\mathbb{C}$ be a Hermitian positive semidefinite (PSD) kernel with common symmetries
+(time-translation invariance and reflection symmetry $K_X(\theta\gamma,\theta\gamma')=K_X(\gamma,\gamma')$).
+
+
+Given a finite family $\Gamma_0=\{\gamma_1,\ldots,\gamma_n\}\subset\Gamma$, define
+\[
+\mathrm{Gram}_X(\Gamma_0)\;=\;\bigl[K_X(\gamma_i,\gamma_j)\bigr]_{1\le i,j\le n}\in\mathbb{C}^{n\times n}.
+\]
+All inequalities between Gram matrices below are as quadratic forms on $\mathbb{C}^n$.
+
+
+\paragraph{Locality and growth hypotheses (explicit).}
+Fix a \emph{scale window} specified by upper bounds on temporal extent $T$ (number of time steps), spatial diameter $R$ (in lattice units), lattice spacing $a\in[a_{\min},a_{\max}]$, and time step $\tau\in[\tau_{\min},\tau_{\max}]$.
+Assume the following uniform bounds hold within this window:
+
+
+\begin{itemize}
+\item[(L1)~(Exponential locality)] There exist parameters $A_X>0$ and $\mu_X>0$ such that, for all $\gamma\neq\gamma'$,
+\[
+|K_X(\gamma,\gamma')|\;\le\;A_X\,e^{-\mu_X\,d(\gamma,\gamma')}.
+\]
+\item[(L2)~(Uniform on-site bounds)] There exist $0<b_X\le B_X<\infty$ such that, for all $\gamma$,
+\[
+b_X\;\le\;K_X(\gamma,\gamma)\;\le\;B_X.
+\]
+\item[(G)~(Controlled loop growth)] There exist growth data $C_g<\infty$ and $\nu\ge0$, depending only on $(a,\tau,R,T)$ and the lattice dimension, such that for every $\gamma\in\Gamma$ and every $r\in\mathbb{N}$ the number of loops within distance $r$ obeys
+\[
+\#\bigl\{\gamma'\in\Gamma: d(\gamma,\gamma')=r\bigr\}\;\le\; C_g\,e^{\nu r}.
+\]
+\end{itemize}
+
+
+Define the explicit series
+\[
+S(\alpha)\;:=\;\sum_{r=1}^\infty C_g\,e^{-(\alpha-\nu)r}
+\;=\;\frac{C_g}{e^{\alpha-\nu}-1}\qquad\text{for } \alpha>\nu.
+\]
+For $X\in\{\mathrm{RS},\mathrm{W}\}$ write $S_X:=S(\mu_X)$ and assume the \emph{strict Gershgorin positivity} (a standard diagonally-dominant positivity condition)
+\[
+\beta_0(K_X)\;:=\;b_X-A_X\,S_X\;>\;0.
+\]
+(This $\beta_0(K_X)$ is the usual chessboard/OS diagonal dominance constant; see the OS discussion below.)
+
+
+\paragraph{Main theorem (R2).}
+Under (L1)–(L2)–(G) with $\mu_X>\nu$ and $\beta_0(K_X)>0$ for $X\in\{\mathrm{RS},\mathrm{W}\}$, one has for every finite $\Gamma_0\subset\Gamma$ the quadratic-form comparability
+\[
+c_1\,\mathrm{Gram}_{\mathrm{W}}(\Gamma_0)\;\le\;\mathrm{Gram}_{\mathrm{RS}}(\Gamma_0)\;\le\;c_2\,\mathrm{Gram}_{\mathrm{W}}(\Gamma_0),
+\]
+with the \emph{explicit} scale-window constants
+\[
+c_1\;=\;\frac{\,b_{\mathrm{RS}}-A_{\mathrm{RS}}\,S_{\mathrm{RS}}\,}{\,B_{\mathrm{W}}+A_{\mathrm{W}}\,S_{\mathrm{W}}\,}>0,
+\qquad
+c_2\;=\;\frac{\,B_{\mathrm{RS}}+A_{\mathrm{RS}}\,S_{\mathrm{RS}}\,}{\,b_{\mathrm{W}}-A_{\mathrm{W}}\,S_{\mathrm{W}}\,}<\infty.
+\]
+Both $c_1$ and $c_2$ may depend on $(a,\tau;R,T)$ only through the window-dependent parameters $(A_X,\mu_X,b_X,B_X)$ and the growth pair $(C_g,\nu)$ entering $S(\cdot)$.
+
+
+\emph{Proof.}
+Fix a finite $\Gamma_0$ and $v\in\mathbb{C}^{\Gamma_0}$.
+By Gershgorin/Schur-type bounds using (L1)–(L2)–(G), for $X\in\{\mathrm{RS},\mathrm{W}\}$ one has
+\[
+(b_X-A_X S_X)\,\|v\|_2^2
+\;\le\; v^*\,\mathrm{Gram}_X(\Gamma_0)\,v
+\;\le\; (B_X+A_X S_X)\,\|v\|_2^2.
+\]
+Hence
+\[
+v^*\,\mathrm{Gram}_{\mathrm{RS}}\,v
+\;\le\;(B_{\mathrm{RS}}+A_{\mathrm{RS}}S_{\mathrm{RS}})\,\|v\|_2^2
+\;\le\;\frac{B_{\mathrm{RS}}+A_{\mathrm{RS}}S_{\mathrm{RS}}}{\,b_{\mathrm{W}}-A_{\mathrm{W}}S_{\mathrm{W}}\,}\;
+v^*\,\mathrm{Gram}_{\mathrm{W}}\,v,
+\]
+which gives the upper inequality with $c_2$.
+Similarly,
+\[
+v^*\,\mathrm{Gram}_{\mathrm{RS}}\,v
+\;\ge\;(b_{\mathrm{RS}}-A_{\mathrm{RS}}S_{\mathrm{RS}})\,\|v\|_2^2
+\;\ge\;\frac{b_{\mathrm{RS}}-A_{\mathrm{RS}}S_{\mathrm{RS}}}{\,B_{\mathrm{W}}+A_{\mathrm{W}}S_{\mathrm{W}}\,}\;
+v^*\,\mathrm{Gram}_{\mathrm{W}}\,v,
+\]
+which gives the lower inequality with $c_1$.
+The assumptions $\beta_0(K_X)>0$ ensure $c_1>0$ and $c_2<\infty$.
+\hfill$\square$
+
+
+\paragraph{Sharper constants under full translation invariance (optional but common).}
+If, in addition, $K_X$ is invariant under \emph{space-time} translations so that its operator on $\ell^2(\Gamma)$ is a convolution and is diagonalized by the discrete Fourier transform, then there exist nonnegative Fourier multipliers $\widehat{K}_X(\omega,k)$ over the Brillouin zone
+$\omega\in[-\pi/\tau,\pi/\tau]$ and $k\in[-\pi/a,\pi/a]^d$ with
+\[
+m\;\le\;\frac{\widehat{K}_{\mathrm{RS}}(\omega,k)}{\widehat{K}_{\mathrm{W}}(\omega,k)}\;\le\;M
+\quad\text{a.e.}
+\]
+for some $0<m\le M<\infty$ (the \emph{spectral ratio}).
+Then, for all finite $\Gamma_0$,
+\[
+m\,\mathrm{Gram}_{\mathrm{W}}(\Gamma_0)\;\le\;\mathrm{Gram}_{\mathrm{RS}}(\Gamma_0)\;\le\;M\,\mathrm{Gram}_{\mathrm{W}}(\Gamma_0),
+\]
+so one can take $c_1=m$ and $c_2=M$.
+(Proof: the operator inequality $mK_{\mathrm{W}}\le K_{\mathrm{RS}}\le M K_{\mathrm{W}}$ holds by pointwise multiplier comparison; restricting to finitely supported vectors preserves the quadratic-form bounds.)
+
+
+\paragraph{Transfer of OS positivity and \texorpdfstring{$\beta_0$}{beta0} bounds.}
+Define the OS (reflection) Gram matrix on $\Gamma_0^+\subset\{\gamma:\text{time}(\gamma)\ge0\}$ by
+\[
+\mathrm{Gram}^{\mathrm{OS}}_X(\Gamma_0^+)\;:=\;\bigl[K_X(\theta\gamma_i,\gamma_j)\bigr]_{i,j}.
+\]
+Because $d(\theta\gamma,\theta\gamma')=d(\gamma,\gamma')$ and $K_X$ shares the same locality/growth constants before and after reflection, the constants $c_1,c_2$ from the Main Theorem apply verbatim to $\mathrm{Gram}^{\mathrm{OS}}_X$:
+\[
+c_1\,\mathrm{Gram}^{\mathrm{OS}}_{\mathrm{W}}(\Gamma_0^+)\;\le\;\mathrm{Gram}^{\mathrm{OS}}_{\mathrm{RS}}(\Gamma_0^+)\;\le\;c_2\,\mathrm{Gram}^{\mathrm{OS}}_{\mathrm{W}}(\Gamma_0^+).
+\]
+If $\mathrm{Gram}^{\mathrm{OS}}_{\mathrm{W}}(\Gamma_0^+)\succeq 0$ (OS positivity for Wilson), then the lower bound with $c_1>0$ yields $\mathrm{Gram}^{\mathrm{OS}}_{\mathrm{RS}}(\Gamma_0^+)\succeq 0$ (OS positivity for RS). Moreover, the OS seminorms are equivalent:
+\[
+c_1\,\langle f,f\rangle^{\mathrm{OS}}_{\mathrm{W}}\;\le\;\langle f,f\rangle^{\mathrm{OS}}_{\mathrm{RS}}\;\le\;c_2\,\langle f,f\rangle^{\mathrm{OS}}_{\mathrm{W}}
+\quad\text{for all finitely supported }f\text{ on }\Gamma^+.
+\]
+Finally, define the OS diagonal-dominance constant
+\[
+\beta_0^{\mathrm{OS}}(K_X)\;:=\;\inf_{\gamma\in\Gamma^+}\Bigl(K_X(\theta\gamma,\gamma)\;-\!\!\sum_{\gamma'\in\Gamma^+\setminus\{\gamma\}}\!\!|K_X(\theta\gamma,\gamma')|\Bigr).
+\]
+Then
+\[
+\lambda_{\min}\bigl(\mathrm{Gram}^{\mathrm{OS}}_{\mathrm{RS}}(\Gamma_0^+)\bigr)
+\;\ge\;c_1\,\lambda_{\min}\bigl(\mathrm{Gram}^{\mathrm{OS}}_{\mathrm{W}}(\Gamma_0^+)\bigr)
+\;\ge\;c_1\,\beta_0^{\mathrm{OS}}(K_{\mathrm{W}}),
+\]
+so $\beta_0^{\mathrm{OS}}(K_{\mathrm{RS}})\ge c_1\,\beta_0^{\mathrm{OS}}(K_{\mathrm{W}})$.
+Similarly, $\beta_0^{\mathrm{OS}}(K_{\mathrm{RS}})\le c_2\,\beta_0^{\mathrm{OS}}(K_{\mathrm{W}})$.
+
+
+\paragraph{Remarks on explicit constants and the scale window.}
+\begin{itemize}
+\item The quantities $A_X,\mu_X,b_X,B_X$ can be taken as worst-case values over all loops whose spatial diameter and time extent are bounded by $(R,T)$ in the window. Locality rates $\mu_X$ may degrade as $a$ decreases or $T,R$ increase; this is captured by $S_X=\frac{C_g}{e^{\mu_X-\nu}-1}$.
+\item The growth pair $(C_g,\nu)$ can be instantiated by any crude upper bound on the number of loop indices at combinatorial distance $r$; only $\mu_X>\nu$ is needed for convergence. Tighter $(C_g,\nu)$ sharpen $c_1,c_2$.
+\item Under full translation invariance, the spectral ratios $(m,M)$ give the sharpest constants without Gershgorin losses.
+\end{itemize}
+
+
+\paragraph{Conclusion.}
+Within any fixed $(a,\tau;R,T)$ window where $\mu_X>\nu$ and $\beta_0(K_X)>0$ hold, the RS and Wilson Gram matrices are equivalent as quadratic forms with \emph{explicit}
+\[
+c_1=\frac{b_{\mathrm{RS}}-A_{\mathrm{RS}}S_{\mathrm{RS}}}{B_{\mathrm{W}}+A_{\mathrm{W}}S_{\mathrm{W}}}\,,\qquad
+c_2=\frac{B_{\mathrm{RS}}+A_{\mathrm{RS}}S_{\mathrm{RS}}}{b_{\mathrm{W}}-A_{\mathrm{W}}S_{\mathrm{W}}}\,,
+\]
+sufficient to transfer OS positivity and $\beta_0$ bounds. Under full translation invariance one may instead take $(c_1,c_2)=(m,M)$ from the spectral density ratio.
+% ---------- end R2 snippet ----------

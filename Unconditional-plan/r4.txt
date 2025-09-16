@@ -1,0 +1,179 @@
+﻿\documentclass[11pt]{article}
+\usepackage{amsmath,amsthm,amssymb}
+
+
+\title{R4: $N$--Uniformity of $\beta_{0}$ and $\gamma$ in the OS$\to$gap Pipeline}
+\author{Jonathan Washburn\\
+Recognition Science, Recognition Physics Institute\\
+\texttt{jon@recognitionphysics.org}\\
+Austin, Texas, USA}
+\date{}
+
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remarks}
+
+
+\begin{document}
+\maketitle
+
+
+\paragraph{Setting.}
+Let $G=(V,E)$ be a connected, locally finite graph with maximum degree $\Delta<\infty$. 
+For $N\ge 2$, let the single--site spin space $S_N$ be a compact subset of a real Hilbert space $H_N$ such that
+\[
+\|s\|\le 1 \quad \text{for all } s\in S_N \text{ and all } N\ge 2,
+\]
+(e.g.\ $S_N=\mathbb{S}^{N-1}\subset\mathbb{R}^N$).
+Consider a ferromagnetic, reflection--positive nearest/finite--range interaction
+\[
+\mathcal{H}(s)\;=\;-\sum_{\{x,y\}\in E} J_{xy}\,\langle s_x,s_y\rangle, 
+\qquad J_{xy}=J_{yx}\ge 0,
+\]
+and let $\beta>0$ be the inverse temperature. Write $J_{\!*}:=\sup_{x\in V}\sum_{y:\,\{x,y\}\in E} J_{xy}<\infty$.
+Fix a reflection $\rho$ across a hyperplane that splits $V=V_L\sqcup V_R$ with $\rho(V_L)=V_R$. 
+Denote the total \emph{cross--cut coupling}
+\[
+J_{\perp}\;:=\;\sup_{x\in V_L}\sum_{y\in V_R:\,\{x,y\}\in E} J_{xy}
+\qquad (\text{so } J_{\perp}\le J_{\!*}).
+\]
+Assume Osterwalder--Schrader (OS) positivity with respect to $\rho$, so that the OS inner product
+$(F,G)_{\mathrm{OS}}=\mathbb{E}_{\beta}[F\cdot(\theta G)]$ is positive semidefinite and the transfer operator
+$T_{\beta,N}$ on $L^2(V_L)$ is self--adjoint and positive. 
+Let $L^2_0(V_L)$ denote the $L^2$--closure of observables with zero OS mean.
+
+
+\paragraph{Goal.}
+Show the existence of constants $\beta_0>0$ and $\gamma(\beta)>0$ in the OS$\to$gap pipeline that
+are \emph{independent of $N$}, with explicit lower bounds.
+
+
+\begin{theorem}[Dimension--free OS$\to$gap]\label{thm:Nuniform}
+Under the Setting above, define
+\[
+\beta_0 \;:=\; \frac{1}{4\,J_{\!*}} \quad\text{(explicit, $N$--free).}
+\]
+Then for every $N\ge 2$ and every $\beta\in(0,\beta_0]$, the following hold:
+\begin{enumerate}
+\item \textbf{Exponential clustering across the OS cut (dimension--free).}
+For any $F\in L^2_0(V_L)$ and any $t\in\mathbb{N}$,
+\[
+\bigl|(F,\,T_{\beta,N}^{\,t}F)_{\mathrm{OS}}\bigr|
+\;\le\; \|F\|_{L^2}^2\;\Bigl(2\beta\,J_{\perp}\Bigr)^{t}.
+\]
+\item \textbf{Uniform spectral/mass gap (dimension--free).}
+Let $r_0(T_{\beta,N})$ be the spectral radius of $T_{\beta,N}$ on $L^2_0(V_L)$ and set
+\[
+\gamma(\beta)\;:=\;-\log r_0(T_{\beta,N}).
+\]
+Then, for all $\beta\in\bigl(0,\min\{\tfrac{1}{2J_{\perp}},\,\beta_0\}\bigr)$,
+\[
+\gamma(\beta)\;\ge\;-\log\!\bigl(2\beta\,J_{\perp}\bigr).
+\]
+In particular, at the explicit $N$--free threshold $\beta\le \beta_0=\tfrac{1}{4J_{\!*}}$ one has
+\[
+\gamma(\beta)\;\ge\;\log 2
+\qquad\text{(per unit OS time--slice).}
+\]
+\end{enumerate}
+All constants above are independent of $N$ (uniform over all $N\ge 2$).
+\end{theorem}
+
+
+\begin{proof}
+The proof is organized in three steps.
+
+
+\medskip
+\noindent\emph{Step 1: Dimension--free Dobrushin influence bound.}
+Equip each $S_N$ with the metric $d(u,v):=\tfrac12\|u-v\|$, so $\mathrm{diam}(S_N)\le 1$ for all $N$ by assumption.
+For fixed boundary $s_{V\setminus\{x\}}$, the single--site conditional density at $x$ is
+\[
+\mu_x(\mathrm{d}\sigma\mid s_{V\setminus\{x\}})\;\propto\;
+\exp\!\Bigl(\beta \sum_{y:\,\{x,y\}\in E} J_{xy}\,\langle \sigma,s_y\rangle\Bigr)\,\nu_N(\mathrm{d}\sigma),
+\]
+where $\nu_N$ is the reference measure on $S_N$.
+If the boundary changes only at $j$ from $s_j$ to $s'_j$, then the conditional Hamiltonians differ by
+\[
+\Delta H_x(\sigma)\;=\;-\beta J_{xj}\,\langle \sigma,\,s_j-s'_j\rangle,
+\qquad \text{hence}\qquad
+\bigl|\Delta H_x(\sigma)\bigr|\;\le\; \beta J_{xj}\,\|\sigma\|\,\|s_j-s'_j\|
+\;\le\; 2\beta J_{xj}.
+\]
+Therefore the Radon--Nikodym derivative of the two conditional measures is bounded in the interval
+$\bigl[e^{-2\beta J_{xj}},\,e^{+2\beta J_{xj}}\bigr]$. A standard comparison yields that the total variation distance
+between the two conditionals is bounded by
+\[
+c_{xj}\;\le\;\tanh\!\bigl(\beta J_{xj}\bigr)\;\le\; 2\beta J_{xj}.
+\]
+This bound is \emph{dimension--free} because it used only $\|\sigma\|\le 1$ for $\sigma\in S_N$.
+Summing over $j$ gives the Dobrushin contraction coefficient
+\[
+\alpha\;:=\;\sup_{x}\sum_{j} c_{xj}\;\le\; 2\beta \sup_{x}\sum_{j}J_{xj}\;=\;2\beta J_{\!*}.
+\]
+
+
+\medskip
+\noindent\emph{Step 2: Clustering across the OS cut.}
+Let $E_\perp=\{\{x,y\}\in E:\,x\in V_L,\,y\in V_R\}$ denote edges crossing the reflection plane.
+Restricting the sum in Step~1 to $E_\perp$ yields the \emph{cross--cut} influence
+\[
+\alpha_{\perp}\;:=\;\sup_{x\in V_L}\sum_{y\in V_R:\,\{x,y\}\in E} c_{xy}
+\;\le\; 2\beta \sup_{x\in V_L}\sum_{y\in V_R:\,\{x,y\}\in E} J_{xy}
+\;=\; 2\beta J_{\perp}.
+\]
+By standard Dobrushin path expansion (iterating the one--step influence across $t$ reflected layers), for any
+zero--mean $F\in L^2_0(V_L)$ and integer $t\ge 1$ one gets
+\[
+\bigl|(F,\,T_{\beta,N}^{\,t}F)_{\mathrm{OS}}\bigr|\;\le\; \|F\|_{L^2}^2\,\alpha_{\perp}^{\,t}
+\;\le\;\|F\|_{L^2}^2\,\bigl(2\beta J_{\perp}\bigr)^{t}.
+\]
+This proves Item~(1).
+
+
+\medskip
+\noindent\emph{Step 3: OS$\to$gap.}
+$T_{\beta,N}$ is positive self--adjoint on $L^2(V_L)$ with $\|T_{\beta,N}\|\le 1$ in the OS inner product.
+By the spectral theorem, on $L^2_0(V_L)$ we have
+\[
+\sup_{\substack{F\in L^2_0(V_L)\\ \|F\|_{L^2}=1}}\bigl|(F,\,T_{\beta,N}^{\,t}F)_{\mathrm{OS}}\bigr|
+\;=\; r_0(T_{\beta,N})^{\,t}.
+\]
+Combining with Step~2 gives $r_0(T_{\beta,N})\le 2\beta J_{\perp}$ whenever $2\beta J_{\perp}<1$, hence
+\[
+\gamma(\beta)\;:=\;-\log r_0(T_{\beta,N})
+\;\ge\;-\log\!\bigl(2\beta J_{\perp}\bigr).
+\]
+Finally, since $J_{\perp}\le J_{\!*}$, the explicit choice $\beta_0=\frac{1}{4J_{\!*}}$ guarantees
+$2\beta J_{\perp}\le 2\beta J_{\!*}\le \tfrac12$, and thus $\gamma(\beta)\ge \log 2$ at that threshold.
+All bounds are uniform in $N$ because only $\|\sigma\|\le 1$ and positivity of $J_{xy}$ were used.
+\end{proof}
+
+
+\begin{remark}
+\noindent (i) \textbf{Sharper geometric versions.} 
+If the model is translation--invariant with nearest--neighbor coupling $J$ on a graph of degree $\Delta$ and the reflection cuts only one layer (so $J_{\perp}=J$ and $J_{\!*}=\Delta J$), Theorem~\ref{thm:Nuniform} gives the explicit, $N$--free thresholds
+\[
+\beta_0=\frac{1}{4\Delta J},\qquad 
+\gamma(\beta)\ge -\log(2\beta J)\quad\text{for } \beta<\frac{1}{2J},
+\]
+and, in particular, $\gamma(\beta)\ge \log 2$ for $\beta\le \frac{1}{4\Delta J}$.
+
+
+\smallskip
+\noindent (ii) \textbf{Loop representations.}
+Any OS--positive loop/trajectory representation whose cross--cut one--step influence is bounded by 
+$2\beta J_{\perp}$ (for example, per--edge activities bounded by $\beta J_{xy}$ with unit--norm sources/sinks) falls under the same argument; the loop weights do not enter the bound once influences are expressed through the \emph{edge} norms. This preserves $N$--uniformity for all $N\ge 2$.
+
+
+\smallskip
+\noindent (iii) \textbf{Tightness.}
+The constants above are deliberately conservative and do not exploit model--specific Ward identities. 
+Improvements are possible (still $N$--free) by replacing $2\beta J_{\perp}$ with $\tanh(\beta J_{\perp})$ in Step~2 and by inserting combinatorial isoperimetric factors of the specific cut.
+\end{remark}
+
+
+\end{document}

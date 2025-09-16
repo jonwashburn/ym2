@@ -1,0 +1,58 @@
+﻿This is a rigorous proof that the Dobrushin contraction coefficient bounds the subdominant eigenvalues of a Markov operator in finite dimensions.
+Theorem: Let P be an N×N stochastic matrix (a finite-dimensional Markov operator). Let α(P) be its total-variation Dobrushin coefficient, defined as:
+$$ \alpha(P) = \max_{i, j} d_{TV}(P_{i, \cdot}, P_{j, \cdot}) = \frac{1}{2} \max_{i, j} \sum_{k=1}^N |P_{ik} - P_{jk}|. $$
+Then the spectrum of P, denoted by spec(P), satisfies
+$$ \text{spec}(P) \subseteq {1} \cup { \lambda \in \mathbb{C} : |\lambda| \leq \alpha(P) }. $$
+Proof:
+We consider the action of P on the space of complex-valued functions represented by column vectors f∈CN.
+1. The Oscillation Semi-norm
+We introduce the oscillation semi-norm (or diameter) for a vector f∈CN:
+$$ \text{osc}(f) = \max_{i, j} |f_i - f_j|. $$
+This measures the maximum distance between any two components of f. Key properties include:
+* osc(f)≥0.
+* osc(f)=0 if and only if f is a constant vector (i.e., f=c1 for some c∈C).
+* osc(λf)=∣λ∣osc(f) for any λ∈C.
+2. Contraction Property (Dobrushin's Lemma)
+The core of the proof is showing that the operator P contracts the oscillation semi-norm by a factor of α(P).
+Lemma: For any f∈CN, osc(Pf)≤α(P)osc(f).
+Proof of Lemma:
+We analyze osc(Pf)=maxi,j​∣(Pf)i​−(Pf)j​∣.
+Consider the difference for any pair of indices (i,j):
+$$ (Pf)i - (Pf)j = \sum_k P{ik} f_k - \sum_k P{jk} f_k = \sum_k (P_{ik} - P_{jk}) f_k. $$
+Let ck​=Pik​−Pjk​. Since P is stochastic, ∑k​Pik​=1 and ∑k​Pjk​=1, so ∑k​ck​=0.
+We decompose ck​ into its positive and negative parts: ck​=ck+​−ck−​, where ck+​=max(ck​,0) and ck−​=max(−ck​,0).
+Since ∑k​ck​=0, we have ∑k​ck+​=∑k​ck−​. Let Hij​ denote this common sum.
+By definition of the total variation distance:
+$$ H_{ij} = \sum_k c_k^+ = \frac{1}{2} \sum_k (c_k^+ + c_k^-) = \frac{1}{2} \sum_k |c_k| = d_{TV}(P_{i, \cdot}, P_{j, \cdot}). $$
+By definition of the Dobrushin coefficient, Hij​≤α(P).
+If Hij​=0, then Pi,⋅​=Pj,⋅​, so (Pf)i​=(Pf)j​, and the difference is 0.
+If Hij​>0, we can rewrite the difference:
+$$ (Pf)i - (Pf)j = \sum_k c_k^+ f_k - \sum_k c_k^- f_k $$
+$$ = H{ij} \left( \sum_k \frac{c_k^+}{H{ij}} f_k - \sum_k \frac{c_k^-}{H_{ij}} f_k \right). $$
+Let z1​=∑k​Hij​ck+​​fk​ and z2​=∑k​Hij​ck−​​fk​.
+The coefficients Hij​ck+​​ are non-negative and sum to 1 (and similarly for Hij​ck−​​). Thus, z1​ and z2​ are convex combinations of the components of f. They lie in the convex hull of the set {f1​,…,fN​}.
+The diameter of the convex hull of a set is equal to the diameter of the set itself, which is osc(f). Therefore, the distance between z1​ and z2​ is bounded by osc(f):
+$$ |z_1 - z_2| \leq \text{osc}(f). $$
+We can now bound the difference:
+$$ |(Pf)i - (Pf)j| = H{ij} |z_1 - z_2| \leq H{ij} \text{osc}(f). $$
+Since Hij​≤α(P), we have:
+$$ |(Pf)_i - (Pf)_j| \leq \alpha(P) \text{osc}(f). $$
+This holds for all i,j. Taking the maximum over all pairs (i,j), we obtain:
+$$ \text{osc}(Pf) \leq \alpha(P) \text{osc}(f). $$
+3. Bounding the Spectrum
+Let λ be an eigenvalue of P, and let f be a corresponding eigenvector (f=0), so Pf=λf.
+We examine the oscillation of both sides of the eigenvalue equation:
+$$ \text{osc}(Pf) = \text{osc}(\lambda f) = |\lambda| \text{osc}(f). $$
+Applying the Contraction Lemma (Step 2):
+$$ \text{osc}(Pf) \leq \alpha(P) \text{osc}(f). $$
+Combining these results:
+$$ |\lambda| \text{osc}(f) \leq \alpha(P) \text{osc}(f). $$
+We consider two cases for the eigenvector f.
+Case 1: osc(f)=0.
+In this case, f is a constant vector, f=c1 (with c=0). Since P is stochastic, P1=1.
+Pf=P(c1)=cP1=c1=f.
+Since Pf=λf, we have λf=f. As f=0, we must have λ=1.
+Case 2: osc(f)>0.
+We can divide the inequality by osc(f):
+$$ |\lambda| \leq \alpha(P). $$
+In conclusion, any eigenvalue λ of P satisfies either λ=1 or ∣λ∣≤α(P). Thus, the spectrum of P is contained in {1}∪{λ∈C:∣λ∣≤α(P)}. If α(P)<1, this implies a spectral gap.

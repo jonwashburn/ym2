@@ -1,0 +1,24 @@
+﻿Claim. On the 3‑cube Q3Q_3 (8 vertices, edges between bitstrings at Hamming distance 1), any atomic closed walk (one edge per tick) that visits every vertex exactly once in a period has minimal period T=8T=8.
+Proof (one line of attack—degree counting).
+“Exactly once per period” means within a single period every vertex appears exactly once (the start also reappears at the close). In that period each vertex is entered once and exited once, so it contributes degree 22 to the multiset of edges used in the period. Summing over the 8 vertices gives total incidence 2⋅8=162\cdot 8=16. Each edge contributes incidence 22, hence the number of edges used in the period is 16/2=816/2=8. Atomicity says one edge is traversed per tick, so T=8T=8. This already proves minimality.
+________________
+
+
+Excluding T∈{4,5,6,7}T\in\{4,5,6,7\} under atomicity
+* Odd TT (5 or 7): parity impossibility.
+Q3Q_3 is bipartite: vertices split by parity of Hamming weight. Each atomic tick flips parity. After an odd number of ticks you are in the opposite part, so you cannot return to your start in an odd number of steps. Thus no closed walk with T=5T=5 or T=7T=7.
+
+* T=4T=4: too few distinct vertices.
+With one edge per tick you can visit at most one new vertex per tick. A 44-tick closed walk is a square face (length‑4 cycle), touching only 4 vertices. That cannot realize “all 8 vertices exactly once.”
+
+* T=6T=6: still too few.
+Even though Q3Q_3 does have 6‑cycles, any length‑6 simple cycle visits exactly 6 distinct vertices. With atomicity and the “no repetitions within the period” requirement, you cannot cover all 8 vertices in 6 ticks.
+
+Combining these: the only possible period for an atomic closed walk that hits all vertices exactly once is T=8T=8.
+________________
+
+
+Exhibit (achieving T=8T=8).
+A standard 3‑bit Gray cycle does it:
+000→001→011→010→110→111→101→100→000,000\to 001\to 011\to 010\to 110\to 111\to 101\to 100\to 000,
+which is atomic, closed, and visits all 8 vertices exactly once.

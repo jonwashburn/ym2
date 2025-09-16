@@ -1,0 +1,67 @@
+﻿\documentclass[12pt]{article}
+
+
+\newcommand{\R}{\mathbf{R}}
+\newcommand{\Lk}{\mathrm{Lk}}
+\newcommand{\ph}{\varphi}
+
+
+\title{Challenge 2: Dimension Three via Link Penalty}
+\author{Jonathan Washburn\\
+Recognition Science, Recognition Physics Institute\\
+\texttt{jon@recognitionphysics.org}\\
+Austin, Texas, USA}
+\date{}
+
+
+\begin{document}
+\maketitle
+
+
+\noindent\textbf{Set--up (Recognition Geometry).}
+Let $K_1,K_2\subset \R^d$ be disjoint smooth embeddings of $S^1$ (simple closed curves). The \emph{link cost} $\Delta J(K_1,K_2;d)$ is assumed to satisfy
+\[
+\Delta J \;\ge\; (\ln \ph)\,|\Lk(K_1,K_2)|,\qquad
+\Delta J=0\ \text{ if }(K_1,K_2)\ \text{is ambient--isotopic to the unlink},
+\]
+with $\ph=\tfrac{1+\sqrt{5}}{2}$ the Recognition ratio.
+
+
+\medskip
+\noindent\textbf{(a) Dimension test.} 
+In $d=3$ there exist disjoint embeddings with $\Lk=\pm 1$, while for $d\ge 4$ any such pair is ambient--isotopic to the unlink.
+
+
+\emph{Proof.} 
+\emph{Existence in $d=3$.} Take a standard solid torus $V\subset\R^3$. Let $K_1$ be its core curve and let $K_2$ be the boundary of a meridian disk $D\subset V$. Then $K_1$ and $K_2$ are disjoint simple closed curves. The meridian disk $D$ meets $K_1$ transversely in exactly one point, so by the Seifert surface interpretation of linking number the algebraic intersection number is $\pm 1$, hence $\Lk(K_1,K_2)=\pm 1$. (This is the classical Hopf link.) 
+
+
+\emph{Unlinking in $d\ge 4$.} 
+Let $d\ge 4$. For each $i=1,2$, an embedding $K_i\cong S^1\hookrightarrow \R^d$ has codimension $\ge 3$, hence $K_i$ is unknotted and bounds an embedded smooth $2$--disk $D_i$.\footnote{In codimension $\ge 3$ every $S^1$ is unknotted; moreover, general position ensures $D_1\cap K_2=\varnothing$ since $2+1<d$.} 
+Using a small ambient isotopy supported in a tubular neighborhood of $D_1$, push $K_1$ across $D_1$ into a tiny round circle contained in a ball disjoint from $K_2$. Do the same for $K_2$. The result is two round unlinked circles in disjoint balls, i.e. the unlink. \hfill$\square$
+
+
+\medskip
+\noindent\textbf{(b) Minimal nonzero cost occurs only in $d=3$.}
+
+
+\emph{Claim.} Under the link--cost rule above, the least strictly positive value of $\Delta J$ that \emph{must} be paid by topology occurs only in $d=3$, and it is at least $\ln\ph$, attained when $|\Lk|=1$ (e.g., a Hopf link).
+
+
+\emph{Proof.} 
+From part (a), for $d\ge 4$ any two disjoint embedded circles are ambient--isotopic to the unlink, so by the zero--cost rule one always has $\Delta J=0$. Thus no nonzero cost is topologically forced in $d\ge 4$.
+
+
+In $d=3$, linking number is an ambient--isotopy invariant. Hence any embedding with $|\Lk|\ge 1$ cannot be unlinked by ambient isotopy; the cost rule yields
+\[
+\Delta J \;\ge\; (\ln\ph)\,|\Lk|\;\ge\; \ln\ph.
+\]
+Therefore the \emph{minimal} topologically forced nonzero cost in $d=3$ is bounded below by $\ln\ph$, and it occurs already for $|\Lk|=1$ (the Hopf link constructed above). \hfill$\square$
+
+
+\medskip
+\noindent\textbf{Conclusion (Dimension singled out by link penalty).}
+Only in ambient dimension $d=3$ does topology enforce $\Delta J>0$; in all $d\ge 4$ the penalty can be driven to zero by ambient isotopy. Thus the least nonzero ledger increment is the single--link tax $\ln\ph$, and it is a purely $3$--dimensional effect.
+
+
+\end{document}

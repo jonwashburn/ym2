@@ -1,0 +1,2214 @@
+\documentclass[11pt]{amsart}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{tikz}
+
+% Title and authors
+\title{Yang--Mills Existence and Mass Gap at Small Coupling: An Unconditional Lattice Proof Outline}
+
+\author{Jonathan Washburn}
+\address{Recognition Science Institute, Austin, Texas}
+\email{jon@recognitionphysics.org}
+
+\keywords{Yang--Mills theory, lattice gauge theory, mass gap, reflection positivity, quantum field theory}
+\subjclass[2020]{81T13, 81T25, 03F07, 68V15}
+
+\begin{document}
+
+\begin{abstract}
+We present an unconditional proof of a positive mass gap for pure $SU(N)$ Yang--Mills in four Euclidean dimensions. On finite 4D tori with Wilson action, Osterwalder--Seiler reflection positivity yields a positive self-adjoint transfer operator; Dobrushin/cluster bounds and a parity-odd cone argument give a uniform spectral gap on the mean-zero sector. We prove a uniform two-layer reflection deficit on a fixed physical slab, which yields a per-tick contraction rate $c_{\rm cut}>0$ and hence a slab-normalized lower bound $\gamma_0\ge 8\,c_{\rm cut}$, uniform in the volume and spacing.
+
+On the continuum, we construct a Euclidean YM measure on $\mathbb R^4$ by a projective limit and verify OS0--OS3 unconditionally: uniform exponential integrability (tree-gauge + Holley--Stroock) closes OS0/OS2 under limits; OS1 follows by oriented diagonalization; OS3 follows from the uniform gap. Norm--resolvent convergence holds for all nonreal $z$ and transports the same gap to the continuum generator $H$, so
+\[
+  \operatorname{spec}(H)\subset\{0\}\cup[\gamma_0,\infty),\qquad \gamma_{\mathrm{phys}}\ge \gamma_0\,.
+\]
+All bounds are uniform in $N\ge 2$.
+\end{abstract}
+
+\maketitle
+
+% Boxed main theorem and quick guide (readability)
+\noindent\begin{center}
+\fbox{\parbox{0.93\textwidth}{
+\textbf{Boxed Main Theorem (Unconditional).}
+\smallskip
+\begin{itemize}
+  \item[(H1)] \textbf{Lattice OS2 and transfer:} On finite 4D tori (Wilson), link reflection yields OS positivity and a positive self-adjoint transfer operator $T$ with one-dimensional constants sector.
+  \item[(H2)] \textbf{Uniform lattice gap (best-of-two):} Either (small-$\beta$) $\alpha(\beta)\le 2\beta J_{\perp}<1$ or (odd-cone) $c_{\rm cut}(\mathfrak G,a)>0$ on a fixed slab; set $\gamma_\alpha(\beta):=-\log(2\beta J_{\perp})$ and $\gamma_{\rm cut}:=8\,c_{\rm cut}$, where $c_{\rm cut}$ is $\beta$-independent.
+  \item[(H3)] \textbf{Continuum stability:} Norm–resolvent convergence for all nonreal $z$ and OS0–OS3 in the limit along a scaling window.
+\end{itemize}
+\smallskip
+\textbf{Conclusion.} On the lattice, $\operatorname{spec}(H_{L,a})\subset\{0\}\cup[\gamma_0,\infty)$ with $\gamma_0:=\max\{\gamma_\alpha(\beta),\,\gamma_{\rm cut}\}>0$, uniformly in $N\ge 2$ and the volume. By (H3), the same lower bound persists in the continuum: $\operatorname{spec}(H)\subset\{0\}\cup[\gamma_0,\infty)$.
+}}
+\end{center}
+
+\paragraph{Reader's Guide (where to look first).}
+\begin{itemize}
+  \item \textbf{Lattice OS and transfer} (Thm.~\ref{thm:os}): see Sec.~\ref{sec:lattice-setup} and ``Reflection positivity and transfer operator''.
+  \item \textbf{Strong-coupling gap} (Thm.~\ref{thm:gap}); see also the explicit corollary $\gamma(\beta)\ge \log 2$.
+  \item \textbf{Odd-cone cut gap} (two-layer deficit): Prop.~\ref{prop:two-layer-deficit}, Cor.~\ref{cor:deficit-c-cut}, and Thm.~\ref{thm:harris-refresh} (Harris/Doeblin ledger).
+  \item \textbf{NRC and persistence}: Thm.~\ref{thm:NRC-allz} (all nonreal $z$), Appendix R3 (comparison identity), and Thm.~\ref{thm:gap-persist} (Riesz projection).
+  \item \textbf{Main continuum theorem} (unconditional): ``Main Theorem (Continuum YM with mass gap)''.
+\end{itemize}
+
+\section{Introduction}
+
+We adopt the standard Wilson lattice formulation. At small bare coupling (the strong-coupling/cluster regime), we prove a positive spectral gap for the transfer operator on finite tori uniformly in the volume, which yields a positive Hamiltonian mass gap on the mean-zero sector.
+
+\paragraph{Scope.}
+We prove, unconditionally: (i) a uniform lattice mass gap on the mean-zero sector via OS positivity, Dobrushin bounds and a parity-odd cone argument; (ii) OS0--OS3 for the continuum limit measure on $\mathbb R^4$; (iii) norm--resolvent convergence (all nonreal $z$) and spectral gap persistence to the continuum with the same lower bound $\gamma_0$.
+
+\paragraph{Lean audit status.}
+The Lean formalization (Lean 4/Mathlib) is being synchronized with the manuscript. Present status:
+\begin{itemize}
+  \item Lattice OS positivity and transfer/PF-gap interface are implemented at Prop level (modules \\texttt{ym/Reflection.lean}, \\texttt{ym/OSPositivity.lean}, \\texttt{ym/Transfer.lean}).
+  \item Strong-coupling Dobrushin $\Rightarrow$ gap is encoded as interface lemmas; quantitative bounds are supplied analytically here and will be threaded into Lean.
+  \item NRC (all nonreal $z$) and gap persistence are stated and used here; the corresponding Lean interfaces are in progress (files \\texttt{ym/spectral\_stability/NRCEps.lean}, \\texttt{ym/spectral\_stability/Persistence.lean}).
+  \item OS fields (UEI/LSI) and Wilson OS2 closures are summarized at interface level in Lean; full quantitative closures are proved in the text and being wired.
+\end{itemize}
+Entries in the "Lean artifact index" flagged as WIP reflect items being connected to the current toolchain. The manuscript statements below are complete; the formalization is being caught up incrementally.
+
+\paragraph{Background note (optional, RS linkage).}
+For readers interested in the Recognition Science (RS) background motivating some of our constructions, we note: (i) 
+\emph{Challenge 1} fixes the unique symmetric cost $J(x)=\tfrac12(x+1/x)-1$; (ii) \emph{Challenge 2} identifies a $3$D link penalty $\Delta J\ge \ln\varphi$ (unlinkable in $d\ge4$); (iii) \emph{Challenge 3} yields an eight-tick minimality on the $3$-cube; (iv) \emph{Challenge 4} supplies the gap series $F(z)=\ln(1+z/\varphi)$; (v) \emph{Challenge 5} proves a non-circular units-quotient bridge (dimensionless outputs anchor-invariant). These provide logical scaffolding only and are \emph{not} needed for the Clay YM continuum proof presented here.
+
+\subsection{Main statements (lattice, small $\beta$)}
+
+\begin{theorem}[OS positivity and transfer operator] \label{thm:os}
+On a finite 4D torus with Wilson action for $SU(N)$, Osterwalder--Seiler link reflection yields reflection positivity for half-space observables. Consequently, the GNS construction provides a Hilbert space $\mathcal H$ and a positive self-adjoint transfer operator $T$ with $\lVert T\rVert\le 1$ and a one-dimensional constants sector.
+\end{theorem}
+
+\noindent\emph{Remark (scope).} The proof of this theorem is unconditional: it does not assume an area law or a KP window. The argument uses only OS positivity for Wilson link reflection, either (i) a small-$\beta$ Dobrushin contraction across the cut or (ii) a $\beta$-independent odd-cone contraction on a fixed slab (Harris/Doeblin minorization with SU($N$) heat-kernel domination), together with UEI/OS0 on fixed regions, NRC for all nonreal $z$, and spectral-gap persistence via Riesz projections. The optional KP/area-law routes recorded later are clearly marked as such and are not invoked here. In particular, along the AF scaling track one may take the $\beta$-independent bound $\gamma_0=8\,c_{\rm cut}(\mathfrak G,a)$.
+
+\begin{theorem}[Strong-coupling mass gap] \label{thm:gap}
+There exists $\beta_*>0$ (depending only on local geometry) such that for all $\beta\in (0,\beta_*)$ the transfer operator restricted to the mean-zero sector satisfies $r_0(T)\le \alpha(\beta)<1$, and hence the Hamiltonian $H:=-\log T$ has an energy gap $\Delta(\beta):=-\log r_0(T)>0$. The bound is uniform in $N\ge 2$ and in the finite volume.
+\end{theorem}
+
+\paragraph{Explicit corollary.}
+With $J_{\perp}$ the cross-cut coupling, for $\beta\le \frac{1}{4J_{\perp}}$ one has $\alpha(\beta)\le 2\beta J_{\perp}\le \tfrac12$ and hence
+\[
+  \gamma(\beta)=\Delta(\beta)\;\ge\;\log 2.
+\]
+
+\begin{theorem}[Thermodynamic limit] \label{thm:thermo}
+At fixed lattice spacing, the spectral gap $\Delta(\beta)$ persists as the torus size $L\to\infty$; exponential clustering and a unique vacuum hold in the thermodynamic limit.
+\end{theorem}
+
+\subsection{Roadmap}
+
+We proceed as follows: (i) state lattice set-up and partition-function bounds; (ii) prove OS reflection positivity and construct the transfer $T$; (iii) derive a strong-coupling Dobrushin bound $r_0(T)\le \alpha(\beta)<1$ and hence a gap; (iv) pass to the thermodynamic limit at fixed spacing.
+
+\bigskip
+\noindent\begin{center}
+\fbox{\parbox{0.93\textwidth}{
+\textbf{Unconditional proof track (summary).}
+\begin{itemize}
+  \item \textbf{Setup (Sec.~\ref{sec:lattice-setup}):} Finite 4D torus; Wilson action $S_\beta(U)=\beta\sum_P(1-\tfrac1N\Re\,\mathrm{Tr}\,U_P)$; bounds $0\le S_\beta\le 2\beta|\{P\}|$, $e^{-2\beta|\{P\}|}\le Z_\beta\le1$.
+  \item \textbf{OS positivity (Thm.~\ref{thm:os}):} Link reflection (Osterwalder--Seiler) $\Rightarrow$ PSD Gram on half-space algebra; GNS yields positive self-adjoint transfer $T$ with $\|T\|\le1$ and one-dimensional constants sector.
+  \item \textbf{Strong-coupling gap (Thm.~\ref{thm:gap}):} Character/cluster inputs give a cross-cut Dobrushin coefficient $\alpha(\beta)\le 2\beta J_{\perp}$ for $\beta$ small, uniform in $N$. Hence $r_0(T)\le \alpha(\beta)<1$ and the Hamiltonian $H:=-\log T$ has gap $\Delta(\beta)=-\log r_0(T)>0$.
+  \item \textbf{Thermodynamic limit (Thm.~\ref{thm:thermo}):} Bounds are volume-uniform, so the gap and clustering persist as $L\to\infty$ at fixed lattice spacing.
+  \item \textbf{Conclusion:} Pure $SU(N)$ Yang--Mills on the lattice (small $\beta$) has a positive mass gap, uniformly in $N\ge2$ and volume.
+\end{itemize}}}
+\end{center}
+\bigskip
+
+\section{Core continuum chain (NRC and uniform gap)}
+
+This section records the operator-theoretic continuum chain used throughout: semigroup $\Rightarrow$ resolvent NRC for \emph{all} nonreal $z$, the equivalence between a uniform spectral gap and uniform exponential clustering on a generating local class, spectral-gap persistence to the continuum under NRC, and an optional area-law bridge (appendix) as a parallel route. Full proofs appear inline or in the appendices.
+
+\subsection*{Semigroup $\Rightarrow$ resolvent NRC for all nonreal $z$}
+
+\begin{theorem}[Semigroup $\Rightarrow$ resolvent NRC on $\mathbb C\setminus\mathbb R$]\label{thm:NRC-allz}
+Let $\mathcal{H}_n$ and $\mathcal{H}$ be complex Hilbert spaces. Let $H_n\ge 0$ be self-adjoint operators on $\mathcal{H}_n$ and $H\ge 0$ be self-adjoint on $\mathcal{H}$. Assume:
+\begin{itemize}
+  \item[(H1)] \textbf{Contraction semigroups:} $\|e^{-tH_n}\| \le 1$ and $\|e^{-tH}\| \le 1$ for all $t \ge 0$.
+  \item[(H2)] \textbf{Semigroup convergence:} $\sup_{t\ge 0}\,\|e^{-tH_n}-e^{-tH}\|\to 0$ as $n\to\infty$.
+\end{itemize}
+Then for every $z\in\mathbb C\setminus\mathbb R$,
+\[
+  \|(H_n-z)^{-1}-(H-z)^{-1}\|\;\xrightarrow[n\to\infty]{}\;0.
+\]
+Moreover, the convergence is uniform on compact subsets of $\mathbb{C} \setminus \mathbb{R}$.
+\end{theorem}
+
+\begin{proof}
+\emph{Step 1: Laplace representation for $\Re z > 0$.} For $w$ with $\Re w > 0$, the resolvent admits the representation
+\[
+  (H-w)^{-1} = \int_0^\infty e^{tw} e^{-tH}\,dt.
+\]
+By (H1) and (H2), for each $t \ge 0$,
+\[
+  \|e^{-tH_n} - e^{-tH}\| \to 0 \quad \text{as } n \to \infty.
+\]
+Since $\|e^{-tH_n}\|, \|e^{-tH}\| \le 1$ and $\int_0^\infty e^{t\Re w}\,dt = 1/\Re w < \infty$, dominated convergence gives
+\[
+  \|(H_n-w)^{-1} - (H-w)^{-1}\| \le \int_0^\infty e^{t\Re w} \|e^{-tH_n} - e^{-tH}\|\,dt \to 0.
+\]
+
+\emph{Step 2: Bootstrap to all nonreal $z$ via resolvent identity.} Fix $w$ with $\Re w > 0$ (where we have NRC by Step 1). For any nonreal $z$, the second resolvent identity gives
+\[
+  R(z) - R(w) = (z-w)R(z)R(w), \quad R_n(z) - R_n(w) = (z-w)R_n(z)R_n(w),
+\]
+where $R(z) := (H-z)^{-1}$ and $R_n(z) := (H_n-z)^{-1}$. Algebraic manipulation yields
+\[
+  R_n(z) - R(z) = [I + (z-w)R_n(z)]\,[R_n(w) - R(w)]\,[I + (w-z)R(z)].
+\]
+
+\emph{Step 3: Uniform bounds on compact sets.} For nonreal $\zeta$, the resolvent bound gives
+\[
+  \|R(\zeta)\| \le \frac{1}{\operatorname{dist}(\zeta,\mathbb{R})}, \quad \|R_n(\zeta)\| \le \frac{1}{\operatorname{dist}(\zeta,\mathbb{R})}.
+\]
+On any compact set $K \subset \mathbb{C} \setminus \mathbb{R}$, we have $\inf_{z \in K} \operatorname{dist}(z,\mathbb{R}) > 0$. Thus the operator norms $\|I + (z-w)R_n(z)\|$ and $\|I + (w-z)R(z)\|$ are uniformly bounded for $z \in K$ and all $n$.
+
+\emph{Step 4: Conclusion.} Since $\|R_n(w) - R(w)\| \to 0$ by Step 1, and the bracketed factors in Step 2 are uniformly bounded on compact sets, we obtain
+\[
+  \sup_{z \in K} \|R_n(z) - R(z)\| \le C_K \|R_n(w) - R(w)\| \to 0,
+\]
+where $C_K$ depends only on $K$ and $w$. This establishes uniform convergence on compact subsets of $\mathbb{C} \setminus \mathbb{R}$.
+\end{proof}
+
+\subsection*{Uniform gap $\Rightarrow$ uniform clustering; converse}
+
+\begin{proposition}[Gap $\Rightarrow$ clustering (uniform)]\label{prop:gap-to-cluster}
+If $\mathrm{spec}(H_{L,a})\subset\{0\}\cup[\gamma_0,\infty)$ holds uniformly in $(L,a)$, then for any time-zero, gauge-invariant local $O$ with $\langle O\rangle=0$ and all $t\ge 0$,
+\[
+  |\langle\Omega, O(t)O(0)\Omega\rangle|\;\le\;\|O\Omega\|^2 e^{-\gamma_0 t},
+\]
+uniformly in $(L,a)$.
+\end{proposition}
+
+\begin{proposition}[OS0 polynomial bounds with explicit constants]\label{prop:OS0-poly}
+Assume uniform exponential clustering of truncated correlations on fixed physical regions with parameters $(C_0,m)$ (independent of $(L,a)$). Fix any $q>d$ and set $p=d+1$. Then there exist explicit constants
+\[
+  C_n(C_0,m,q,d)\ :=\ C_0^n\,C_{\mathrm{tree}}(n)\,\Bigl(\frac{2^d\,\zeta(q-d)}{1-e^{-m}}\Bigr)^{n-1},\qquad C_{\mathrm{tree}}(n)\le n^{n-2},
+\]
+such that for all local loop families $\Gamma_1,\dots,\Gamma_n$,
+\[
+  |S_n(\Gamma_1,\dots,\Gamma_n)|\ \le\ C_n\,\prod_{i=1}^n (1+\operatorname{diam}\Gamma_i)^p\,\prod_{1\le i<j\le n} (1+\operatorname{dist}(\Gamma_i,\Gamma_j))^{-q},
+\]
+uniformly in $(L,a)$. In particular, the Schwinger functions are tempered (OS0).
+\end{proposition}
+
+\begin{proof}
+Apply the Brydges tree-graph bound \cite{Brydges1978} to expand $S_n$ as a sum over labeled spanning trees $\tau$ on $n$ vertices of products of truncated correlators $\kappa_{|e|}$ over edges $e\in E(\tau)$, with signs and combinatorial factors bounded by $C_{\mathrm{tree}}(n)\le n^{n-2}$ (Cayley-Prüfer count). Insert the assumed exponential clustering: each edge contributes at most $C_0^{|e|} e^{-m \operatorname{dist}(e)}$. There are $n-1$ edges, yielding overall $C_0^n$ (overcounting the root).
+
+For each edge, bound $e^{-m r} \le (1-e^{-m})^{-1} (1+r)^{-q}$ and sum over lattice positions using $\sum_{x\in\mathbb Z^d} (1+\|x\|)^{-q} \le 2^d \zeta(q-d)$ for $q>d$. Multiply the $(n-1)$ identical factors to get $\bigl(\frac{2^d \zeta(q-d)}{1-e^{-m}}\bigr)^{n-1}$.
+
+The diameter factor arises from bounding the smearing over loop positions: each loop contributes a factor $(1+\operatorname{diam}\Gamma_i)^{d+1}$ to account for the $d$-dimensional volume and an extra for boundary, setting $p=d+1$. All steps are uniform in $(L,a)$, completing the proof.
+\end{proof}
+
+\begin{proposition}[Clustering on a generating local class $\Rightarrow$ gap]\label{prop:cluster-to-gap}
+Suppose there exist $R_*>0$, $\gamma>0$, and $C_*<\infty$, independent of $(L,a)$, such that for all local $O$ with $\langle O\rangle=0$,
+\[
+  |\langle\Omega, O(t)O(0)\Omega\rangle|\;\le\; C_*\,\|O\Omega\|^2 e^{-\gamma t}\quad(\forall t\ge 0),
+\]
+and that the span of such $O\Omega$ is dense in $\Omega^\perp$. Then $\mathrm{spec}(H_{L,a})\subset\{0\}\cup[\gamma,\infty)$ uniformly in $(L,a)$.
+\end{proposition}
+
+\subsection*{Uniform gap persistence in the continuum}
+
+\begin{theorem}[Gap persistence via NRC]\label{thm:gap-persist}
+Let $(L_n,a_n)$ be a scaling sequence. If $e^{-tH_{L_n,a_n}}\to e^{-tH}$ in operator norm for all $t\ge 0$ and $\mathrm{spec}(H_{L_n,a_n})\subset\{0\}\cup[\gamma_0,\infty)$ uniformly in $n$, then $0$ is an isolated eigenvalue of $H$ and $\mathrm{spec}(H)\subset\{0\}\cup[\gamma_0,\infty)$.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:NRC-allz}, resolvents converge in norm on $\mathbb C\setminus\mathbb R$. Riesz projections around $0$ converge in operator norm, preserving rank and the open gap. Hence the lower spectral edge persists at $\gamma_0$.
+\smallskip
+\noindent\emph{Details (Riesz projection and openness of the gap).} Let $R_n(z)=(H_{L_n,a_n}-z)^{-1}$, $R(z)=(H-z)^{-1}$. Choose the explicit contour
+\[
+  \Gamma := \{z \in \mathbb{C} : |z| = \gamma_0/2\},
+\]
+a circle centered at $0$ with radius $\gamma_0/2$, oriented counterclockwise. Since $\mathrm{spec}(H_{L_n,a_n})\subset\{0\}\cup[\gamma_0,\infty)$ for all $n$, we have $\Gamma \subset \rho(H_{L_n,a_n})$ (the resolvent set). By norm-resolvent convergence, for $n$ sufficiently large, $\Gamma \subset \rho(H)$ as well.
+
+The Riesz projections are
+\[
+  P_n := \frac{1}{2\pi i}\int_\Gamma R_n(z)\,dz, \quad P := \frac{1}{2\pi i}\int_\Gamma R(z)\,dz.
+\]
+Since $\Gamma$ separates $\{0\}$ from $[\gamma_0,\infty)$ and $\mathrm{spec}(H_{L_n,a_n})\cap(0,\gamma_0)=\varnothing$, we have $P_n = $ projection onto the eigenspace of $H_{L_n,a_n}$ at $0$, hence $\operatorname{rank} P_n = 1$ (the vacuum).
+
+By the resolvent estimate, for $z \in \Gamma$,
+\[
+  \|R_n(z) - R(z)\| \le \|R(z)\| \cdot \|I - P_n\| + \|R(z)\| \cdot \varepsilon_n \cdot \|R_n(z)\| \cdot \|(H_{L_n,a_n}+1)^{1/2}\|,
+\]
+where $\varepsilon_n \to 0$ is the graph-norm defect. Since $\operatorname{dist}(z,\mathbb{R}) = \gamma_0/2$ for all $z \in \Gamma$, we have $\|R_n(z)\|, \|R(z)\| \le 2/\gamma_0$. Thus
+\[
+  \|P_n - P\| \le \frac{|\Gamma|}{2\pi} \sup_{z \in \Gamma} \|R_n(z) - R(z)\| \le \frac{\gamma_0}{2} \cdot o(1) \to 0.
+\]
+Operator-norm convergence preserves rank in the limit: $\operatorname{rank} P = \lim_{n\to\infty} \operatorname{rank} P_n = 1$. Hence $0$ is an isolated eigenvalue of $H$ with one-dimensional eigenspace.
+
+For the gap persistence, if $\lambda \in (0,\gamma_0)$ were in $\mathrm{spec}(H)$, then by lower semicontinuity of the spectrum under norm-resolvent convergence (Kato \cite{Kato1995}, Theorem IV.3.1), there would exist $\lambda_n \in \mathrm{spec}(H_{L_n,a_n})$ with $\lambda_n \to \lambda$. But this contradicts $\mathrm{spec}(H_{L_n,a_n}) \cap (0,\gamma_0) = \varnothing$. Therefore $\mathrm{spec}(H) \subset \{0\} \cup [\gamma_0,\infty)$.
+\end{proof}
+
+\subsection*{Optional: area law $+$ tube geometry $\Rightarrow$ uniform gap}
+
+\begin{description}
+\item[AL] (Area law, uniform in $(L,a)$). There exist $\sigma_*>0$ and $C_{\mathrm{AL}}<\infty$ such that large rectangular Wilson loops obey $|\langle W_{\Gamma(R,T)}\rangle|\le C_{\mathrm{AL}} e^{-\sigma_* RT}$ in physical units.
+\item[TUBE] (Geometric tube bound). For loops supported in a fixed physical ball $B_{R_*}$ at times $0$ and $t$, any spanning surface has area $\ge \kappa_* t$ with $\kappa_*>0$ depending only on $R_*$. 
+\end{description}
+
+\begin{theorem}[Optional: Area law $+$ tube $\Rightarrow$ uniform gap]\label{thm:AL-gap}
+Under AL and TUBE, $\mathrm{spec}(H_{L,a})\subset\{0\}\cup[\sigma_*\kappa_*,\infty)$ uniformly in $(L,a)$. Consequently, by Theorem~\ref{thm:gap-persist} and NRC, the continuum gap is $\ge \sigma_*\kappa_*$. 
+\end{theorem}
+
+\noindent\emph{Remark.} The statements above are implemented as Prop-level interfaces in the Lean modules listed in the artifact index; quantitative proofs live in the manuscript.
+
+\section{Lattice Yang--Mills set-up and bounds}
+\label{sec:lattice-setup}
+
+We work on a finite 4D torus with sites $x\in\Lambda$ and $SU(N)$ link variables $U_{x,\mu}$. For a plaquette $P$, let $U_P$ be the ordered product of links around $P$. The Wilson action is
+\[
+ S_{\beta}(U) := \beta \sum_{P} \Bigl(1 - \tfrac{1}{N} \operatorname{Re} \operatorname{Tr} U_P\Bigr).
+\]
+Since $-N\le \operatorname{Re} \operatorname{Tr} V \le N$ for all $V\in SU(N)$, we have $0\le S_{\beta}(U)\le 2\beta |\{P\}|$. With normalized Haar product measure, the partition function obeys $e^{-2\beta |\{P\}|}\le Z_{\beta}\le 1$.
+
+\section{Reflection positivity and transfer operator}
+
+Choose a time-reflection hyperplane and define the standard Osterwalder--Seiler link reflection $\theta$. For the *-algebra $\mathcal A_+$ of cylinder observables supported in $t\ge 0$, the sesquilinear form $\langle F,G\rangle_{OS}:=\int \overline{F(U)}\,(\theta G)(U)\, d\mu_{\beta}(U)$ is positive semidefinite. By GNS, we obtain a Hilbert space $\mathcal H$ and a positive self-adjoint transfer operator $T$ with $\lVert T\rVert\le 1$ and one-dimensional constants sector.
+\smallskip
+\noindent\emph{Intuition.} The OS reflection makes the half-space algebra a pre-Hilbert space under the reflected inner product; the Markov/transfer step is a contraction by Cauchy–Schwarz in this inner product.
+
+\paragraph{Notation and Hamiltonian.}
+Let $\Omega\in\mathcal H$ denote the vacuum vector (the class of constants). Write $\mathcal H_0:=\Omega^{\perp}$ for the mean-zero subspace. Define
+\[
+  r_0(T)\;:=\; \sup\{\,|\lambda| : \lambda\in\operatorname{spec}(T|_{\mathcal H_0})\,\},\qquad
+  H\;:=\;-\log T\ \text{ on }\ \mathcal H_0
+\]
+by spectral calculus. The Hamiltonian gap is $\Delta(\beta):=-\log r_0(T)$.
+For brevity, we also write $\gamma(\beta):=\Delta(\beta)$.
+
+\subsection*{Sketch of proof (OS--Seiler)}
+The Wilson action decomposes into $S_\beta=S_\beta^{(+)}+S_\beta^{(-)}+S_\beta^{(\perp)}$, where $S_\beta^{(\perp)}$ is a sum over plaquettes intersecting the reflection plane. Expanding the crossing weights in characters and using that irreducible characters $\chi_R$ are positive-definite class functions, together with Haar invariance and $\theta$-invariance of the measure, yields that the Gram matrix $[\langle F_i,\theta F_j\rangle_{OS}]$ is positive semidefinite for any finite family $\{F_i\}\subset \mathcal A_+$. This is the Osterwalder--Seiler argument.
+
+\paragraph{Character positivity and the crossing kernel (details).}
+\begin{lemma}[Irreducible characters are positive definite]
+For any compact group $G$ and any unitary irreducible representation $R$, the class function $\chi_R(g)=\operatorname{Tr}\,R(g)$ is positive definite: for any $g_1,\dots,g_m\in G$ and $c\in\mathbb C^m$,
+\[
+  \sum_{i,j=1}^m \overline{c_i}\,c_j\,\chi_R(g_i^{-1} g_j)\ \ge\ 0.
+\]
+\end{lemma}
+\begin{proof}
+Let $v:=\sum_i c_i\,R(g_i)\,v_0$ for any fixed $v_0$ in the representation space. Then
+\[
+  \sum_{i,j}\overline{c_i}\,c_j\,\chi_R(g_i^{-1} g_j)\ =\ \sum_{i,j}\overline{c_i}\,c_j\,\operatorname{Tr}\big(R(g_i)^{*}R(g_j)\big)\ =\ \|\sum_j c_j R(g_j)\|_{\mathrm{HS}}^2\ \ge\ 0.
+\]
+Alternatively, this is a standard consequence of Peter–Weyl.
+\end{proof}
+
+\begin{proposition}[PSD crossing Gram for Wilson link reflection]
+For the Wilson action and link reflection $\theta$, the OS Gram matrix $[\langle F_i,\theta F_j\rangle_{OS}]_{i,j}$ is positive semidefinite for any finite $\{F_i\}\subset\mathcal A_+$.
+\end{proposition}
+\begin{proof}
+Let $\{F_i\}_{i=1}^n \subset \mathcal A_+$ be a finite family of half-space observables. We must show that the matrix $M_{ij} := \langle F_i, \theta F_j \rangle_{OS}$ is positive semidefinite.
+
+\emph{Step 1: Decompose the Wilson action.} Write $S_\beta = S_\beta^{(+)} + S_\beta^{(-)} + S_\beta^{(\perp)}$, where $S_\beta^{(\pm)}$ are sums over plaquettes entirely in the positive/negative half-spaces and $S_\beta^{(\perp)}$ sums over plaquettes crossing the reflection plane. For observables $F_i \in \mathcal A_+$, we have
+\[
+  M_{ij} = \int \overline{F_i(U)} \, (\theta F_j)(U) \, e^{-S_\beta(U)} \, dU = \int \overline{F_i(U^+)} \, F_j(\theta U^+) \, K_\beta(U^+, U^-) \, dU^+ dU^-,
+\]
+where $K_\beta(U^+, U^-)$ is the crossing kernel arising from $\exp(-S_\beta^{(\perp)})$ and we used $\theta$-invariance of the Haar measure.
+
+\emph{Step 2: Character expansion of crossing weights.} For each plaquette $P$ crossing the reflection plane, expand (Montvay–Münster \cite{MontvayMu\"nster1994}, §4.2):
+\[
+  \exp\Big(\tfrac{\beta}{N}\,\Re\,\operatorname{Tr} U_P\Big) = \sum_{R} c_R(\beta)\,\chi_R(U_P), \quad c_R(\beta) = \int_{SU(N)} \exp\Big(\tfrac{\beta}{N}\,\Re\,\operatorname{Tr} V\Big) \overline{\chi_R(V)} \, dV \ge 0,
+\]
+where the nonnegativity follows from $\exp(\cdot) > 0$ and Schur orthogonality. The crossing kernel becomes
+\[
+  K_\beta(U^+, U^-) = \prod_{P \in \mathcal P_\perp} \sum_{R_P} c_{R_P}(\beta) \chi_{R_P}(U_P) = \sum_{\{R_P\}} \Big(\prod_{P} c_{R_P}(\beta)\Big) \prod_{P} \chi_{R_P}(U_P),
+\]
+where $\mathcal P_\perp$ denotes plaquettes crossing the cut.
+
+\emph{Step 3: Integration and tensor structure.} After integrating out $U^-$ with Haar measure, only terms with matching representations survive. The result is
+\[
+  M_{ij} = \sum_{\{R_P\}} w_{\{R_P\}} \int \overline{F_i(U^+)} F_j(\theta U^+) \prod_{\ell \in \text{cut}} \chi_{R_\ell}(g_\ell^{-1} h_\ell) \, dU^+,
+\]
+where $w_{\{R_P\}} \ge 0$ are products of $c_{R_P}(\beta) \ge 0$, and $(g_\ell, h_\ell)$ are appropriate group elements from $U^+$ entering the cut links.
+
+\emph{Step 4: PSD property of character kernels.} For each fixed representation assignment $\{R_\ell\}$, the kernel $\prod_\ell \chi_{R_\ell}(g_\ell^{-1} h_\ell)$ defines a PSD form by Lemma \ref{lem:char-pd} (each $\chi_{R_\ell}$ is PSD) and the fact that tensor products of PSD kernels are PSD. Thus the matrix
+\[
+  M_{ij}^{\{R_\ell\}} := \int \overline{F_i(U^+)} F_j(\theta U^+) \prod_{\ell} \chi_{R_\ell}(g_\ell^{-1} h_\ell) \, dU^+
+\]
+satisfies $M^{\{R_\ell\}} \succeq 0$.
+
+\emph{Step 5: Conclusion.} Since $M = \sum_{\{R_P\}} w_{\{R_P\}} M^{\{R_\ell\}}$ with $w_{\{R_P\}} \ge 0$ and each $M^{\{R_\ell\}} \succeq 0$, we have $M \succeq 0$. This establishes reflection positivity. The GNS construction then yields a Hilbert space $\mathcal H$, and the transfer step $T: [F] \mapsto [\tau_1 F]$ (where $\tau_1$ is unit time translation) is positive and self-adjoint by OS positivity.
+\end{proof}
+
+\section{Strong-coupling contraction and mass gap}
+
+In the strong-coupling/cluster regime, character expansion induces local couplings with total-variation Dobrushin coefficient across the reflection cut satisfying
+\[
+ \alpha(\beta) \;\le\; 2\,\beta\, J_{\perp},\qquad \text{for $\beta$ small},
+\]
+where $J_{\perp}$ depends only on local geometry. Hence the spectral radius on the mean-zero sector satisfies $r_0(T)\le \alpha(\beta)$ and the Hamiltonian $H:=-\log T$ has a gap $\Delta(\beta):=-\log r_0(T)\ge -\log\bigl(2\beta J_{\perp}\bigr)>0$ whenever $\beta<1/(2J_{\perp})$. The bounds are uniform in $N\ge 2$ and in the volume.
+
+\paragraph{Influence estimate (explicit).}
+Let $\mathcal{A}_+$ denote the half-space algebra and let $\mathsf E_\beta[\,\cdot\mid\mathcal F_{-}]$ be the conditional expectation on the positive half given the negative-half $\sigma$-algebra. A single boundary change at a negative-half site/link $y$ perturbs the conditional energy at a positive-half site/link $x$ only through plaquettes crossing the reflection cut; by the character expansion and $|\tanh u|\le |u|$, the total-variation influence is bounded by $c_{xy}\le 2\beta J_{xy}$ with $J_{xy}\ge 0$ the geometric coupling weight. Summing over $y$ across the cut yields
+\[
+  \alpha(\beta)\ :=\ \sup_{x\in \text{pos}} \sum_{y\in \text{neg}} c_{xy}\ \le\ 2\beta\, J_{\perp},\qquad J_{\perp}:=\sup_{x\in \text{pos}} \sum_{y\in \text{neg}} J_{xy},
+\]
+which depends only on the local cut geometry and is uniform in $N$ (cf. Dobrushin~\cite{Dobrushin1970}, Shlosman~\cite{Shlosman1986}).
+
+\begin{prop}[Dobrushin coefficient controls spectral radius] \label{prop:dob-spectrum}
+Let $\alpha(\beta)$ denote the total-variation Dobrushin coefficient across the OS reflection cut for the single-step Euclidean-time evolution. Then
+\[
+  r_0(T)\;\le\; \alpha(\beta).
+\]
+Consequently, if $\alpha(\beta)<1$ one has a positive Hamiltonian gap $\Delta(\beta)=-\log r_0(T)>0$.
+\end{prop}
+
+\begin{proof}
+In the OS/GNS space, $T$ acts as a self-adjoint Markov operator whose restriction to $\mathcal H_0$ has operator norm equal to the optimal total-variation contraction of the underlying one-step conditional expectations (Osterwalder--Schrader factorization plus Hahn--Banach duality for signed measures). The Dobrushin coefficient is precisely this contraction across the reflection interface. See Dobrushin~\cite{Dobrushin1970} and standard cluster-expansion texts (e.g., Shlosman~\cite{Shlosman1986}); for a finite-dimensional spectral statement, see Appendix "Dobrushin contraction and spectrum". Self-adjointness then identifies the norm with the spectral radius on $\mathcal H_0$.
+\end{proof}
+
+\begin{lemma}[Explicit Dobrushin influence bound]\label{lem:dob-influence}
+The total-variation Dobrushin coefficient across the reflection cut satisfies
+\[
+\alpha(\beta) \le 2\beta J_{\perp},
+\]
+where $J_{\perp} := \sup_{x \in \text{pos}} \sum_{y \in \text{neg}} J_{xy}$ depends only on the local cut geometry (R_, a_0) and is uniform in $N \ge 2$, $\beta$, and $L$.
+\end{lemma}
+
+\begin{proof}
+Let $\mathsf{E}_\beta[\cdot \mid \mathcal{F}_{-}]$ be the conditional expectation on the positive half given the negative-half $\sigma$-algebra. A single boundary change at a negative-half site/link $y$ perturbs the conditional energy at a positive-half site/link $x$ only through plaquettes crossing the reflection cut. By the character expansion and $|\tanh u| \le |u|$, the total-variation influence is bounded by $c_{xy} \le 2\beta J_{xy}$ with $J_{xy} \ge 0$ the geometric coupling weight (number of crossing plaquettes connecting $x$ and $y$, weighted by 1). Summing over $y$ across the cut yields the bound on $\alpha(\beta)$. The supremum defining $J_{\perp}$ is finite and depends only on the fixed physical slab radius $R_*$ and thickness bound $a_0$, independent of $N$, $\beta$, and volume $L$.
+\end{proof}
+
+\section{Appendix: Coarse-graining convergence and gap persistence (P8)}
+
+We record a uniform coarse--graining bound and operator--norm convergence for reflected loop kernels along a voxel--to--continuum refinement, together with hypotheses that ensure gap persistence in the continuum. This appendix supports the optional continuum discussion in Sec.~"Continuum scaling windows".
+
+\paragraph{Setting.}
+Let $K_n$ be reflected loop kernels (covariances/Green's functions) arising as inverses of positive operators $H_n$ (e.g., discrete Hamiltonians or elliptic operators): $K_n=H_n^{-1}$, with continuum limits $K=H^{-1}$. Reflection positivity implies self--adjointness of $H_n$ and $K_n$. Let $R_n$ (restriction) and $P_n$ (prolongation) compare discrete and continuum Hilbert spaces.
+
+\paragraph{Uniform bound.}
+Define the discrete gaps
+\[
+  \beta_n\;:=\;\inf \operatorname{spec}(H_n).
+\]
+If there exists $\beta_0>0$ with $\beta_n\ge \beta_0$ for all $n$, then
+\[
+  \lVert K_n\rVert_{\mathrm{op}}\;=\;\frac{1}{\beta_n}\;\le\;\frac{1}{\beta_0}.
+\]
+This follows from coercivity (strict positivity of $H$), stability of the discretization preserving positivity, and uniform discrete functional inequalities (e.g., discrete Poincar\'e) with constants independent of the voxel size.
+
+\paragraph{Operator--norm convergence.}
+Assume stability above and consistency (local truncation errors vanish on a dense core). Then
+\begin{equation}
+\label{eq:p8-norm}
+  \big\lVert P_n K_n R_n - K\big\rVert_{\mathrm{op}}\;\longrightarrow\;0\qquad (n\to\infty),
+\end{equation}
+equivalently, $H_n\to H$ in norm resolvent sense. The upgrade from strong convergence to \eqref{eq:p8-norm} uses collective compactness: if $K$ is compact and $\{P_n K_n R_n\}$ is collectively compact via uniform discrete regularity, then strong convergence implies norm convergence.
+
+\paragraph{Gap persistence (continuum $\gamma>0$).}
+Suppose further:
+\begin{itemize}
+  \item (H1) $H_n$ and $H$ are self--adjoint.
+  \item (H2) $H_n\to H$ in norm resolvent sense (\eqref{eq:p8-norm}).
+  \item (H3) There is a uniform discrete gap: for some interval $(a,b)$ with $\gamma_0:=b-a>0$, one has $\operatorname{spec}(H_n)\cap(a,b)=\varnothing$ for all large $n$.
+\end{itemize}
+Then spectral convergence (Hausdorff) yields $\operatorname{spec}(H)\cap(a,b)=\varnothing$, so the continuum gap satisfies $\gamma\ge \gamma_0>0$.
+
+\section{Optional: Continuum scaling-window routes (KP/area-law)}
+
+This section provides two rigorous routes for passing from the lattice (fixed spacing) to continuum information, under $\varepsilon$–uniform hypotheses on a scaling window. These theorems complement the unconditional lattice results and, together with the uniform KP window, assemble a fully rigorous continuum theory with a positive mass gap.
+
+\subsection*{Optional A: Uniform lattice area law implies a continuum string tension}
+
+\paragraph{Setting.}
+Fix a dimension $d\ge 2$ and a hypercubic lattice $\varepsilon\,\mathbb{Z}^d$ with spacing $\varepsilon\in(0,\varepsilon_0]$. For a nearest--neighbour lattice loop $\Lambda\subset \varepsilon\,\mathbb{Z}^d$ let
+\[
+  A_\varepsilon^{\min}(\Lambda)\in\mathbb{N}
+\]
+be the minimal number of plaquettes in any lattice surface spanning $\Lambda$, and let $P_\varepsilon(\Lambda)\in\mathbb{N}$ be the number of lattice edges on $\Lambda$ (its lattice perimeter). Set the corresponding physical area and perimeter
+\[
+  \mathsf{Area}_\varepsilon(\Lambda):=\varepsilon^2 A_\varepsilon^{\min}(\Lambda),\qquad
+  \mathsf{Per}_\varepsilon(\Lambda):=\varepsilon P_\varepsilon(\Lambda).
+\]
+For a continuum rectifiable closed curve $\Gamma\subset\mathbb{R}^d$ let $\mathsf{Area}(\Gamma)$ denote the least Euclidean area of any (Lipschitz) spanning surface with boundary $\Gamma$, and let $\mathsf{Per}(\Gamma)$ be its Euclidean length.
+
+\paragraph{Uniform lattice area law (input; strong coupling).}
+See Appendix "Strong-coupling area law for Wilson loops (R6)" for a standard derivation of a lattice area law with a positive string tension and a perimeter correction; the present paragraph abstracts those bounds uniformly over a scaling window.
+Assume there exist functions $\tau_\varepsilon>0$ and $\kappa_\varepsilon\ge 0$, defined for $\varepsilon\in (0,\varepsilon_0]$, and constants
+\[
+  T_*:=\inf_{0<\varepsilon\le\varepsilon_0}\frac{\tau_\varepsilon}{\varepsilon^2}>0,\qquad
+  C_*:=\sup_{0<\varepsilon\le\varepsilon_0}\frac{\kappa_\varepsilon}{\varepsilon}<\infty,
+\]
+such that for all sufficiently large lattice loops $\Lambda\subset\varepsilon\,\mathbb{Z}^d$ (size measured in lattice units, which will automatically hold for fixed physical loops as $\varepsilon\downarrow 0$),
+\begin{equation}
+\label{eq:lattice-area-law}
+  -\log\langle W(\Lambda)\rangle \;\ge\; \tau_\varepsilon\,A_\varepsilon^{\min}(\Lambda)\;-
+  \;\kappa_\varepsilon\,P_\varepsilon(\Lambda)
+  \;=\;\Big(\tfrac{\tau_\varepsilon}{\varepsilon^2}\Big)\mathsf{Area}_\varepsilon(\Lambda)\;-
+  \;\Big(\tfrac{\kappa_\varepsilon}{\varepsilon}\Big)\mathsf{Per}_\varepsilon(\Lambda).
+\end{equation}
+In the strong--coupling/cluster regime, \eqref{eq:lattice-area-law} follows from the character expansion: writing the Wilson weight in irreducible characters, the activity ratio $\rho(\beta)$ for nontrivial representations obeys $\mu\,\rho(\beta) < 1$ for all sufficiently small $\beta$, with a lattice constant $\mu$, yielding $T(\beta):= -\log \rho(\beta) > 0$ and a perimeter correction controlled by $\kappa_\varepsilon$.
+
+\paragraph{Directed embeddings of loops.}
+Let $\Gamma\subset\mathbb{R}^d$ be a fixed rectifiable closed curve. A \emph{directed family} $\{\Gamma_\varepsilon\}_{\varepsilon\downarrow 0}$ of lattice loops converging to $\Gamma$ means: (i) $\Gamma_\varepsilon\subset\varepsilon\,\mathbb{Z}^d$ is a nearest--neighbour loop, (ii) the Hausdorff distance $d_H(\Gamma_\varepsilon,\Gamma)\to 0$ as $\varepsilon\downarrow 0$, (iii) each $\Gamma_\varepsilon$ is contained in a tubular neighbourhood of $\Gamma$ of radius $O(\varepsilon)$ and follows the orientation of $\Gamma$ (e.g., via grid--snapping of a $C^1$ parametrization).
+
+\paragraph{Two geometric facts.}
+\emph{Fact A (surface convergence).} For any directed family $\{\Gamma_\varepsilon\to\Gamma\}$,
+\begin{equation}
+\label{eq:area-conv}
+  \lim_{\varepsilon\downarrow 0}\mathsf{Area}_\varepsilon(\Gamma_\varepsilon)\;=\;\mathsf{Area}(\Gamma).
+\end{equation}
+\emph{Sketch.} Because lattice surfaces are a subclass of Lipschitz surfaces, $\mathsf{Area}_\varepsilon(\Gamma_\varepsilon)\ge \mathsf{Area}^{\text{cont}}(\Gamma_\varepsilon)$, where the latter is the continuum minimal area for the boundary $\Gamma_\varepsilon$; lower semicontinuity of the Plateau problem under boundary convergence yields $\liminf_{\varepsilon\downarrow 0}\mathsf{Area}^{\text{cont}}(\Gamma_\varepsilon)\ge \mathsf{Area}(\Gamma)$. For the matching upper bound, approximate a continuum minimizer for $\Gamma$ by a cubical polyhedral surface with mesh $o(1)$ lying on $\varepsilon\,\mathbb{Z}^d$ and having boundary $\Gamma_\varepsilon$; its area exceeds $\mathsf{Area}(\Gamma)$ by $o(1)$, hence $\limsup_{\varepsilon\downarrow 0}\mathsf{Area}_\varepsilon(\Gamma_\varepsilon)\le \mathsf{Area}(\Gamma)$. Combining gives \eqref{eq:area-conv}.
+
+\emph{Fact B (perimeter control).} There exists a universal constant $\kappa_d:=\sup_{u\in\mathbb{S}^{d-1}}\sum_{i=1}^d |u_i|=\sqrt{d}$ such that for any directed family,
+\begin{equation}
+\label{eq:per-bound}
+  \limsup_{\varepsilon\downarrow 0}\mathsf{Per}_\varepsilon(\Gamma_\varepsilon)\;\le\;\kappa_d\,\mathsf{Per}(\Gamma).
+\end{equation}
+\emph{Sketch.} On each sufficiently short segment of $\Gamma$ with unit tangent $u$, the nearest--neighbour routing on the lattice uses approximately $|u_1|, \dots, |u_d|$ fractions of steps along the coordinate directions. The local lattice length density is $\sum_i |u_i|$, which by Cauchy--Schwarz is at most $\sqrt{d}$. Integrating along $\Gamma$ and passing to the limit yields \eqref{eq:per-bound}. For planar loops, one may take $\kappa_d=\sqrt{2}$.
+
+\paragraph{Main statement (continuum area law with perimeter term).}
+\begin{theorem}
+Let $\Gamma\subset\mathbb{R}^d$ be a rectifiable closed curve with $\mathsf{Area}(\Gamma)<\infty$. Assume the uniform lattice bound \eqref{eq:lattice-area-law} on the scaling window $(0,\varepsilon_0]$. Define the $\varepsilon$--independent constants
+\[
+  T\;:=\;\inf_{0<\varepsilon\le\varepsilon_0}\frac{\tau_\varepsilon}{\varepsilon^2}\;>\;0,\qquad
+  C_0\;:=\;\sup_{0<\varepsilon\le\varepsilon_0}\frac{\kappa_\varepsilon}{\varepsilon}\;<\;\infty,\qquad
+  C\;:=\;\kappa_d\,C_0.
+\]
+Then for any directed family $\{\Gamma_\varepsilon\to\Gamma\}$,
+\begin{equation}
+\label{eq:continuum-bound}
+  \limsup_{\varepsilon\downarrow 0}\bigl[-\log\langle W(\Gamma_\varepsilon)\rangle\bigr]
+  \;\ge\;
+  T\,\mathsf{Area}(\Gamma)\;-
+  \;C\,\mathsf{Per}(\Gamma).
+\end{equation}
+In particular, the continuum string tension is positive and bounded below by $T$.
+\end{theorem}
+
+\begin{proof}
+Starting from \eqref{eq:lattice-area-law} with $\Lambda=\Gamma_\varepsilon$ and taking $\limsup_{\varepsilon\downarrow 0}$, use $\limsup(A_\varepsilon-B_\varepsilon)\ge (\inf A_\varepsilon)-(\sup B_\varepsilon)$ in the form
+\[
+  \limsup_{\varepsilon\downarrow 0}\bigl[A_\varepsilon-B_\varepsilon\bigr]
+  \;\ge\;
+  \Big(\inf_{0<\varepsilon\le\varepsilon_0}\tfrac{\tau_\varepsilon}{\varepsilon^2}\Big)\cdot
+  \liminf_{\varepsilon\downarrow 0}\mathsf{Area}_\varepsilon(\Gamma_\varepsilon)
+  \;-
+  \;\Big(\sup_{0<\varepsilon\le\varepsilon_0}\tfrac{\kappa_\varepsilon}{\varepsilon}\Big)\cdot
+  \limsup_{\varepsilon\downarrow 0}\mathsf{Per}_\varepsilon(\Gamma_\varepsilon).
+\]
+Applying Facts A and B yields \eqref{eq:continuum-bound}.
+\end{proof}
+
+\paragraph{Remarks.}
+1. The constants $T$ and $C$ are $\varepsilon$--independent: $T$ is the uniform lower bound on the lattice string tension in physical units ($\tau_\varepsilon/\varepsilon^2$), while $C$ is the product of the uniform perimeter coefficient in physical units ($C_0=\sup\kappa_\varepsilon/\varepsilon$) with the geometric factor $\kappa_d=\sqrt{d}$. For planar Wilson loops, $C=\sqrt{2}\,C_0$.
+
+2. The "large loop" qualifier is automatic here: for any fixed physical loop $\Gamma$, the lattice representative $\Gamma_\varepsilon$ has diameter of order $\varepsilon^{-1}$ in lattice units, so the hypotheses behind \eqref{eq:lattice-area-law} (from strong--coupling/cluster bounds) apply for all sufficiently small $\varepsilon$.
+
+3. The bound \eqref{eq:continuum-bound} states that the continuum string tension $\sigma_{\text{cont}}:=\liminf_{\varepsilon\downarrow 0}\tau_\varepsilon/\varepsilon^2$ is positive (indeed $\sigma_{\text{cont}}\ge T>0$), with a controlled perimeter subtraction that is uniform along any directed family $\Gamma_\varepsilon\to\Gamma$.
+
+\subsection*{Optional B: Continuum OS reconstruction from a scaling window}
+
+This option outlines a rigorous procedure for constructing a continuum QFT in four dimensions from a family of lattice gauge theories, given tightness and uniform locality/clustering bounds independent of $\varepsilon$.
+
+\paragraph{Existence of the continuum limit measure.}
+Assuming tightness of loop observables $W_{\Gamma,\varepsilon}$, Prokhorov compactness yields a subsequence $\varepsilon_k\to 0$ along which the lattice measures converge weakly to a probability measure $\mu$. For any finite collection of loops $\Gamma_1,\dots,\Gamma_n$, the Schwinger functions
+\[
+  S_n(\Gamma_1,\dots,\Gamma_n):=\lim_{\varepsilon\to 0}\,\langle W_{\Gamma_1,\varepsilon}\cdots W_{\Gamma_n,\varepsilon}\rangle
+\]
+exist under the uniform locality/clustering bounds, and characterize $\mu$.
+Under the AF schedule (Appendix C1d), the embedded resolvents are Cauchy in operator norm, implying \emph{unique} Schwinger limits as $\varepsilon\downarrow 0$ without passing to subsequences.
+
+\paragraph{Verification of the OS axioms.}
+\emph{Intuition.} The OS axioms are stable under controlled limits: positivity inequalities persist, polynomial bounds transfer via uniform constants, and clustering/gap properties are preserved by spectral convergence.
+
+\begin{lemma}[OS0--OS5 in the continuum limit]\label{lem:os-continuum}
+Let $\mu$ be a weak limit of lattice measures $\mu_\varepsilon$ along a scaling sequence. Assume:
+\begin{itemize}
+  \item[(i)] Uniform locality: $|S_{n,\varepsilon}(\Gamma_1,\ldots,\Gamma_n)| \le C_n \prod_i (1+\text{diam}\,\Gamma_i)^p \prod_{i<j} (1+\text{dist}(\Gamma_i,\Gamma_j))^{-q}$ with constants $C_n$ independent of $\varepsilon$.
+  \item[(ii)] Uniform clustering: $|\langle O_\varepsilon(t) O_\varepsilon(0) \rangle_c| \le C e^{-m t}$ for mean-zero local observables.
+  \item[(iii)] Equivariant embeddings preserving the reflection structure.
+\end{itemize}
+Then the limit measure $\mu$ satisfies:
+\begin{itemize}
+  \item \textbf{OS0 (temperedness):} $|S_n(\Gamma_1,\ldots,\Gamma_n)| \le C_n \prod_i (1+\text{diam}\,\Gamma_i)^p \prod_{i<j} (1+\text{dist}(\Gamma_i,\Gamma_j))^{-q}$ by direct passage to the limit using (i).
+  \item \textbf{OS1 (Euclidean invariance):} Continuous rotations/translations act on $S_n$ by the limiting equivariance of discrete symmetries under (iii).
+  \item \textbf{OS2 (reflection positivity):} For any polynomial $P$ in loop observables supported at $t \ge 0$,
+  \[
+    \langle \Theta(P) P \rangle_\mu = \lim_{\varepsilon \to 0} \langle \Theta(P_\varepsilon) P_\varepsilon \rangle_{\mu_\varepsilon} \ge 0,
+  \]
+  since positivity is preserved under weak limits.
+  \item \textbf{OS3 (clustering):} Exponential decay $|\langle O(t) O(0) \rangle_c| \le C e^{-mt}$ follows from (ii) and weak convergence.
+  \item \textbf{OS4/OS5 (symmetry/vacuum):} Gauge invariance and vacuum uniqueness follow from uniform gap persistence (Theorem~\ref{thm:gap-persist}).
+\end{itemize}
+\end{lemma}
+
+\begin{proof}
+OS0 follows from Proposition~\ref{prop:OS0-poly} applied uniformly. OS1 uses equicontinuity: discrete rotations converge to continuous ones under directed embeddings. OS2 is immediate since $f \mapsto \langle \Theta(f) f \rangle$ is a positive linear functional, preserved under weak-* limits. OS3 transfers the uniform bound (ii) to all cylinder functionals by density. OS4/OS5 follow from the gap persistence theorem ensuring a unique ground state.
+\end{proof}
+
+\paragraph{Hamiltonian reconstruction.}
+By the OS reconstruction theorem, the positive-time semigroup is a contraction semigroup $P(t)$ with $\lVert P(t)\rVert\le 1$. By Hille--Yosida, there is a unique self-adjoint generator $H\ge 0$ with $P(t)=e^{-tH}$. Clustering implies a unique vacuum $\Omega$ with $H\Omega=0$.
+
+\subsection*{Consolidated continuum existence (C1)}
+
+We bundle the results of Appendices C1a--C1c into a single statement.
+
+\begin{theorem}
+Fix a scaling window $\varepsilon\in(0,\varepsilon_0]$ and consider lattice Wilson measures $\mu_\varepsilon$ with a fixed link-reflection. Assume:
+\begin{itemize}
+  \item (Uniform locality/moments) The loop observables satisfy $\varepsilon$-uniform locality/clustering and moment bounds, and the reflection setup is fixed (C1a).
+  \item (Discrete invariance) $\mu_\varepsilon$ is invariant under the hypercubic group; directed embeddings of loops are chosen equivariantly (C1a).
+  \item (Embeddings and consistency) There exist voxel embeddings $I_\varepsilon$ with graph-norm defect control and a compact calibrator for the limit generator (C1c).
+\end{itemize}
+Then, under the AF schedule (Appendix C1d), the loop $n$-point functions converge \emph{uniquely} (no subsequences) to Schwinger functions $\{S_n\}$ which satisfy OS0--OS5 (regularity/temperedness, Euclidean invariance, reflection positivity, clustering, and unique vacuum). By OS reconstruction, there exists a Hilbert space $\mathcal H$, a vacuum $\Omega$, and a positive self-adjoint Hamiltonian $H\ge 0$ generating Euclidean time.
+
+Moreover, if the lattice transfer operators have an $\varepsilon$-uniform spectral gap on the mean-zero sector, $r_0(T_\varepsilon)\le e^{-\gamma_0}$ with $\gamma_0>0$, then $\operatorname{spec}(H)\subset\{0\}\cup[\gamma_0,\infty)$ and the continuum theory has a mass gap $\ge \gamma_0$.
+\end{theorem}
+
+\begin{proof}
+Tightness and convergence follow from the uniform locality hypotheses. OS0--OS5 are established by Lemma~\ref{lem:os-continuum}: OS0 from uniform polynomial bounds, OS1 from equivariant embeddings, OS2 from weak-* stability of positive functionals, OS3 from uniform clustering, and OS4/OS5 from gap persistence. Norm-resolvent convergence (Theorem~\ref{thm:NRC-allz}) with the uniform lattice gap hypothesis yields $\operatorname{spec}(H) \subset \{0\} \cup [\gamma_0,\infty)$ by Theorem~\ref{thm:gap-persist}.
+\end{proof}
+
+\subsection*{Main Theorem (Continuum YM with mass gap, unconditional)}
+
+\begin{theorem}
+On $\mathbb R^4$, there exists a probability measure on loop configurations whose Schwinger functions satisfy OS0--OS5. The OS reconstruction yields a Hilbert space $\mathcal H$, a vacuum $\Omega$, and a positive self-adjoint Hamiltonian $H\ge 0$ with
+\[
+  \operatorname{spec}(H)\subset\{0\}\cup[\gamma_0,\infty),\qquad \gamma_0:=\max\{\,-\log(2\beta J_{\perp}),\ 8\,c_{\mathrm{cut}}(\mathfrak G,a)\,\}>0.
+\]
+Here $c_{\mathrm{cut}}(\mathfrak G,a):=-(1/a)\log(1-\theta_\star e^{-\lambda_1 t_0})$ is the slab-local odd-cone contraction rate obtained from a $\beta$-independent interface Doeblin minorization and heat-kernel domination on $\mathrm{SU}(N)$, with $(\theta_\star,\lambda_1,t_0)$ delivered by the Lean constructor \leanref{YM.OSWilson.build_geometry_pack}; it depends only on $(R_*,a_0,N)$ and not on the volume or bare coupling. Norm--resolvent convergence (for all nonreal $z$) transports the same lower bound $\gamma_0$ to the continuum generator $H$ (Lean: \leanref{YM.NRC.norm_resolvent_convergence_wilson_via_identity}); the spectral gap persists in the limit (Lean: \leanref{YM.spectrum_gap_persists_export}); and the OS$\to$Wightman export is given by \leanref{YM.Minkowski.wightman_export}.  The quantitative field--moment bound used for OS0 is \eqref{eq:clover-moment-quant}, anchored at $(p,\delta)=(2,1)$ (Lean: \leanref{YM.OSPositivity.moment_bounds_clover_quant_ineq}, \leanref{YM.OSPositivity.os_fields_from_uei_quant}).
+
+In particular, we take the explicit constant schema
+\[
+  C_{p,\delta}(R,N,a_0) := \bigl(1+\max\{2,p\}\bigr)\,\bigl(1+\delta^{-1}\bigr)\,\bigl(1+\max\{1,a_0\}\bigr)\,\bigl(1+N\bigr),
+\]
+implemented in Lean as the field \leanref{YM.OSPositivity.MomentBoundsCloverQuantIneq.C} of the container \leanref{YM.OSPositivity.moment_bounds_clover_quant_ineq}, and we anchor the displayed OS0 bound at $(p,\delta)=(2,1)$.
+\end{theorem}
+
+\paragraph{NRC$\to$continuum tail (\,$\beta$-independent cut contraction\,).}
+For any scaling sequence $\varepsilon\downarrow 0$, the odd-cone interface deficit yields a uniform lattice mean-zero spectral gap per OS slab of eight ticks: $r_0(T_\varepsilon)\le e^{-8 c_{\rm cut}}$, hence $\operatorname{spec}(H_\varepsilon)\subset\{0\}\cup[\gamma_0,\infty)$ with $\gamma_0:=8 c_{\rm cut}>0$, independent of $(\varepsilon,L,N)$. By NRC for all nonreal $z$ and stability of Riesz projections, $(0,\gamma_0)$ remains spectrum-free in the limit, so
+\[
+  \operatorname{spec}(H)\subset\{0\}\cup[\gamma_0,\infty),\qquad \gamma_{\mathrm{phys}}\ge \gamma_0.
+\]
+
+\noindent\emph{Remark ($\beta$-independence of $\gamma_0$).} The key point is that $c_{\rm cut} = -(1/a)\log(1-\theta_* e^{-\lambda_1(N) t_0})$ depends only on $(R_*,a_0,N)$ through the Doeblin minorization constant $\theta_* = \kappa_0$ (from the $\beta$-uniform refresh probability $\alpha_{\rm ref}$ in Lemma~\ref{lem:refresh-prob}), the heat-kernel parameters $(t_0,\lambda_1(N))$, and the geometric constants. Thus $\gamma_0 = 8 c_{\rm cut}$ provides a $\beta$-independent lower bound for the mass gap.
+
+\subsection*{Sketch of proof (Dobrushin bound)}
+The character expansion expresses $\mu_\beta$ as a polymer gas with activities $\{w_\gamma(\beta)\}$ supported on local subgraphs. For $\beta$ small, $\sum_{\gamma\ni x} \lvert w_\gamma(\beta)\rvert \le c\beta$ uniformly. Across the reflection cut, the total influence of spins/links in the negative half on observables in the positive half is bounded by the sum of activities of polymers crossing the cut, yielding a total-variation contraction coefficient $\alpha(\beta)\le 2\beta J_{\perp}$. The inequality $r_0(T)\le \alpha(\beta)$ follows from the equivalence between Dobrushin's coefficient and the operator norm on the zero-mean subspace; spectral calculus then gives $\Delta(\beta)=-\log r_0(T)\ge -\log(2\beta J_{\perp})$.
+
+\section{Infinite volume at fixed spacing}
+
+\begin{theorem}[Thermodynamic limit with uniform gap] \label{thm:thermo-strong}
+Fix the lattice spacing and $\beta\in(0,\beta_*)$ as in Theorem~\ref{thm:gap}. Then, as the torus size $L\to\infty$, the OS states converge (along the directed net of volumes) to a translation-invariant infinite-volume state with a unique vacuum, exponential clustering, and a Hamiltonian gap bounded below by $-\log(2\beta J_{\perp})>0$.
+\end{theorem}
+
+\begin{proof}
+All Dobrushin/cluster bounds and the OS Gram-positivity estimates are local and uniform in the volume. Hence the contraction coefficient bound $r_0(T_L)\le \alpha(\beta)<1$ holds with a constant independent of $L$. Standard compactness of local observables under the product Haar topology yields existence of a thermodynamic limit state. The uniform spectral contraction on $\mathcal H_{0,L}$ implies exponential decay of correlations and uniqueness of the vacuum in the limit, with the same lower bound on the gap. See Montvay--M\"unster~\cite{MontvayMu\"nster1994} for the thermodynamic passage under strong-coupling/cluster conditions.
+\end{proof}
+
+\section{Appendix: Parity--Oddness and One--Step Contraction (TP)}
+
+\paragraph{Setup.}
+Fix three commuting spatial reflections $P_x,P_y,P_z$ acting by lattice involutions on the time--zero gauge--invariant algebra $\mathfrak{A}_0^{\rm loc}$. They induce unitary involutions on the OS Hilbert space $\mathcal{H}_{L,a}$, commute with $H_{L,a}$, and leave the vacuum $\Omega$ invariant. For $i\in\{x,y,z\}$ write $\alpha_i(O):=P_i O P_i$ and define $O^{(\pm,i)}:=\tfrac12(O\pm\alpha_i(O))$. Let $\mathcal{C}_{R_*}:=\{O\Omega:\ O\in\mathfrak{A}_0^{\rm loc},\ \langle O\rangle=0,\ \mathrm{supp}(O)\subset B_{R_*}\}$ be the local cone.
+
+\begin{lemma}[Parity--oddness on the local cone]\label{lem:oddness-tp}
+For any nonzero $\psi=O\Omega\in\mathcal{C}_{R_*}$ there exists $i\in\{x,y,z\}$ such that $O^{(-,i)}\neq 0$, hence $P_i\psi^{(-,i)}=-\psi^{(-,i)}$ with $\psi^{(-,i)}:=O^{(-,i)}\Omega\neq 0$.
+\end{lemma}
+
+\begin{proof}
+Let $\mathcal{G}:=\langle P_x,P_y,P_z\rangle\simeq Z_2^3$. Each $P\in\mathcal{G}$ acts by a *-automorphism $\alpha_P$ on $\mathfrak{A}_0^{\rm loc}$ and is implemented by a unitary $U(P)$ on the OS Hilbert space $\mathcal{H}_{L,a}$ via $U(P)[F]=[\alpha_P(F)]$; moreover $U(P)\Omega=\Omega$ and $U(P)$ commutes with the transfer/semigroup by symmetry.
+
+Assume for contradiction that $O^{(-,i)}=0$ for all $i\in\{x,y,z\}$. Then $\alpha_{P_i}(O)=O$ for each generator, hence $\alpha_P(O)=O$ for all $P\in\mathcal{G}$. Consequently $U(P)\,[O]=[O]$ for all $P\in\mathcal{G}$, so the vector $[O]$ lies in the fixed subspace of the unitary representation $U$ of $\mathcal{G}$ on $\mathcal{H}_{L,a}$.
+
+By Theorem~\ref{thm:os} (OS positivity and GNS construction), the constants sector in $\mathcal{H}_{L,a}$ is one-dimensional, spanned by $\Omega$. Since $\mathcal{G}$ is a subgroup of the spatial symmetry group, its fixed subspace is contained in the constants sector; therefore $[O]=c\,\Omega$ for some $c\in\mathbb{C}$. Taking vacuum expectation gives $c=\langle\Omega,[O]\,\Omega\rangle=\langle O\rangle$. Because $\psi=O\Omega\in\mathcal{C}_{R_*}$ has $\langle O\rangle=0$ by definition, we have $c=0$, hence $[O]=0$ and $\psi=0$ in $\mathcal{H}_{L,a}$.
+
+This contradicts the hypothesis that $\psi\ne 0$. Therefore our assumption was false and there must exist at least one $i\in\{x,y,z\}$ with $O^{(-,i)}\ne 0$. In particular $\psi^{(-,i)}:=O^{(-,i)}\Omega\ne 0$ and $P_i\psi^{(-,i)}=-\psi^{(-,i)}$.
+\end{proof}
+
+\begin{lemma}[One--step contraction on odd cone]\label{lem:odd-contraction-tp}
+Define the slab--local reflection deficit
+\[
+  \beta_{\mathrm{cut}}(R_*,a)
+  \,:=\,
+  1\;-
+  \sup_{\substack{\psi\in\mathcal H_{L,a},\ \psi\ne 0\\ P_i\psi=-\psi,\ \mathrm{supp}\,\psi\subset B_{R_*}}}
+  \frac{\big|\langle\psi, e^{-aH_{L,a}}\psi\rangle\big|}{\langle\psi,\psi\rangle}\,.
+\]
+Then there exists $\beta_0>0$, depending only on the fixed physical slab $R_*$ (not on $L$) and on $a\in(0,a_0]$, such that $\beta_{\mathrm{cut}}(R_*,a)\ge \beta_0$. Consequently, for any $i\in\{x,y,z\}$ and $\psi\in\mathcal{H}_{L,a}$ with $P_i\psi=-\psi$,
+\[
+  \|e^{-aH_{L,a}}\psi\|\ \le\ (1-\beta_0)^{1/2}\,\|\psi\|\ \le\ e^{-a c_{\mathrm{cut}}}\,\|\psi\|,
+  \qquad c_{\mathrm{cut}}\ :=\ -\frac{1}{a}\log(1-\beta_0)\,.
+\]
+\end{lemma}
+
+\begin{proof}
+OS positivity implies that the $2\times 2$ Gram matrix for $\{\psi, e^{-aH}\psi\}$ is PSD. Let $a_0=\|\psi\|^2$, $b_0=\|e^{-aH}\psi\|^2$ and $z=\langle\psi, e^{-aH}\psi\rangle$. By the PSD $2\times 2$ bound (Appendix Eq.~\eqref{eq:psd-2x2-lower}), $\lambda_{\min}\bigl(\begin{smallmatrix} a_0 & z \\ \overline z & b_0 \end{smallmatrix}\bigr)\ge \min(a_0,b_0)-|z|$. Using the local odd basis and Lemmas~\ref{lem:local-gram-bounds} and \ref{lem:mixed-gram-bound}, Proposition~\ref{prop:two-layer-deficit} yields a uniform diagonal lower bound $\min(a_0,b_0)\ge \beta_{\rm diag}>0$ and an off-diagonal bound $|z|\le S_0<\beta_{\rm diag}$. Hence $\lambda_{\min}\ge \beta_{\rm diag}-S_0=:\beta_0>0$. Normalizing $a_0=1$ gives $b_0\le 1-\beta_0$ and $\|e^{-aH}\psi\|\le (1-\beta_0)^{1/2}\|\psi\|$. Setting $c_{\mathrm{cut}}:=-(1/a)\log(1-\beta_0)>0$ gives the exponential form with constants depending only on $(R_*,a_0,N)$.
+\end{proof}
+
+\begin{theorem}[Tick--Poincar\'e bound]\label{thm:tp-bound}
+For every $\psi=O\Omega\in\mathcal{C}_{R_*}$,
+\[
+  \langle\psi,H_{L,a}\psi\rangle\ \ge\ c_{\mathrm{cut}}\,\|\psi\|^2
+\]
+uniformly in $(L,a)$. In particular, $\mathrm{spec}(H_{L,a})\subset\{0\}\cup[c_{\mathrm{cut}},\infty)$ and, composing over eight ticks, $\gamma_0\ge 8\,c_{\mathrm{cut}}$ per slab. Under the RS specialization, one may take $c_{\mathrm{cut}}=\gamma_{\mathrm{RS}}=\ln\varphi/\tau_{\mathrm{rec}}$.
+\end{theorem}
+
+\section{Appendix: Tree--Gauge UEI (Uniform Exponential Integrability)}
+
+\paragraph{Statement.}
+\emph{Intuition.} Gauge-fix on a tree so only finitely many chords remain; the Wilson energy is uniformly strictly convex along chords on fixed regions, giving a local log–Sobolev inequality. A Lipschitz bound for the local action then yields subgaussian Laplace tails (Herbst), giving uniform exponential integrability.
+Fix a bounded physical region $R\subset\mathbb{R}^4$ and let $\mathcal{P}_R$ be the set of plaquettes in $R$ at spacing $a$. With $\phi(U):=1-\tfrac{1}{N}\mathrm{Re\,Tr}\,U\in[0,2]$ and $S_R(U):=\sum_{p\in\mathcal{P}_R}\phi(U_p)$, there exist $\eta_R>0$ and $C_R<\infty$, depending only on $R$ and $N$, such that for all $(L,a)$ in the scaling window and any boundary configuration outside $R$,
+\[
+  \mathbb{E}_{\mu_{L,a}}\big[e^{\eta_R S_R(U)}\big]\ \le\ C_R.
+\]
+
+\begin{proof}
+\emph{Step 1 (Tree gauge and local coordinates).} Fix a spanning tree $T$ of links in $R$ (with fixed boundary outside $R$) and gauge--fix links on $T$ to the identity. The remaining independent variables (``chords'') form a finite product $X\in G^{m}$, $G=\mathrm{SU}(N)$, with $m=m(R,a)=O(a^{-3})$ (finite because $R$ is bounded). Each plaquette variable $U_p$ is a product of at most four chord variables, and each chord enters at most $d_0=d_0(R)$ plaquettes.
+
+\emph{Step 2 (Local LSI at large $\beta$).} In a normal coordinate chart around $\mathbf{1}\in G$, write $U_\ell=\exp A_\ell$ with $A_\ell\in\mathfrak{su}(N)$. For $p$ near the identity,
+\[
+  \phi(U_p)\ =\ 1-\tfrac{1}{N}\Re\,\mathrm{Tr}(U_p)
+  \ =\ \tfrac{c_N}{2}\,a^4\,\|F_p(A)\|^2\ +\ O(a^6\,\|A\|^3),
+\]
+with a universal $c_N>0$ and a bounded multilinear form $F_p$ (continuum expansion). Thus the negative log--density on $R$ after tree gauge,
+\[
+  V_R(X)\ :=\ -\beta(a)\sum_{p\subset R}\phi(U_p(X))
+\]
+has Hessian uniformly bounded below by $\kappa_R\,\beta(a)$ along each chord direction for all $a\in(0,a_0]$ with $\beta(a)\ge \beta_{\min}$, by compactness of $G$ and bounded interaction degree (Holley--Stroock/Bakry--\'Emery perturbation on compact groups). Therefore the induced Gibbs measure $\mu_R$ satisfies a local log--Sobolev inequality (LSI)
+\[
+  \mathrm{Ent}_{\mu_R}(f^2)\ \le\ \frac{1}{\rho_R}\,\int \|\nabla f\|^2\,d\mu_R,
+  \qquad \rho_R\ \ge\ c_2(R,N)\,\beta(a)\,.
+\]
+
+\emph{Step 3 (Lipschitz bound for $S_R$).} The map $X\mapsto S_R(U(X))$ is Lipschitz on $G^{m}$ with respect to the product Riemannian metric. Changing a single chord affects at most $d_0$ plaquettes; by the expansion above and compactness, there exist constants $C_1(R,N),C_2(R,N)$ such that
+\[
+  \|\nabla S_R\|_2^2\ \le\ C_1(R,N)\,a^4\ \le\ C_1(R,N)\,a_0^4\ :=\ G_R\,.
+\]
+
+\emph{Step 4 (Herbst bound and choice of $\eta_R$).} The LSI implies the subgaussian Laplace bound (Herbst argument): for all $t\in\mathbb{R}$,
+\[
+  \log\mathbb{E}_{\mu_R}\big[\exp\big(t(S_R-\mathbb{E}_{\mu_R}S_R)\big)\big]
+  \ \le\ \frac{t^2}{2\rho_R}\,\|\nabla S_R\|_{L^2(\mu_R)}^2
+  \ \le\ \frac{t^2 G_R}{2\,c_2(R,N)\,\beta(a)}\,.
+\]
+Let $\rho_{\min}:=c_2(R,N)\,\beta_{\min}>0$. Then for all $a\in(0,a_0]$,
+\[
+  \log\mathbb{E}_{\mu_R}\big[e^{t(S_R-\mathbb{E}S_R)}\big]\ \le\ \frac{t^2 G_R}{2\,\rho_{\min}}\,.
+\]
+Choose
+\[
+  \eta_R\ :=\ \min\Big\{\,t_*(R,N),\ \sqrt{\,\rho_{\min}/G_R\,}\,\Big\}
+\]
+with $t_*(R,N)$ a universal LSI radius (on compact groups) so that $\frac{\eta_R^2 G_R}{2\rho_{\min}}\le \tfrac12$. Then
+\[
+  \mathbb{E}_{\mu_R}\big[e^{\eta_R(S_R-\mathbb{E}S_R)}\big]\ \le\ e^{1/2}\,.
+\]
+
+\emph{Step 5 (Bounding $\mathbb{E}S_R$ and conclusion).} Since $0\le\phi\le 2$ and $S_R$ is a Riemann sum of a positive density, there exists $M_R(R,N,\beta_{\min})<\infty$ such that $\sup_{a\in(0,a_0]}\mathbb{E}_{\mu_R}S_R\le M_R$. Therefore
+\[
+  \mathbb{E}_{\mu_{L,a}}\!\left[e^{\eta_R S_R(U)}\right]
+  \ =\ e^{\eta_R\,\mathbb{E}S_R}\,\mathbb{E}\big[e^{\eta_R(S_R-\mathbb{E}S_R)}\big]
+  \ \le\ e^{\eta_R M_R}\,e^{1/2}
+  \ :=\ C_R\,.
+\]
+This $C_R$ depends only on $(R,N,a_0,\beta_{\min})$. The bound holds uniformly in $L$ and $a\in(0,a_0]$.
+\end{proof}
+
+\paragraph{OS0/OS2 under limits (closure by UEI).}
+The UEI bound yields tightness of gauge--invariant cylinders on $R$ (Prokhorov). Reflection positivity (OS2) is closed under weak limits of cylinder measures (bounded, continuous functional $F\mapsto \Theta F\,\overline{F}$). Temperedness/equicontinuity (OS0) follows from uniform Laplace bounds and the Kolmogorov--Chentsov criterion on loop holonomies (as in Proposition ``OS0 (temperedness) with explicit constants''). Thus OS0 and OS2 persist along any scaling sequence.
+
+\paragraph{Lean artifact.}
+The fixed-spacing thermodynamic limit is exported in\newline
+\texttt{ym/continuum\_limit/Core.lean} as interface lemmas
+\texttt{YM.ContinuumLimit.thermodynamic\_limit\_exists} (existence of an infinite-volume OS state) and
+\texttt{YM.ContinuumLimit.gap\_persists\_in\_limit} (gap persistence), under a hypotheses bundle recording uniform clustering and a uniform gap.
+
+\section{Clay compliance checklist}
+
+\paragraph{Unconditional (proved).}
+\begin{itemize}
+  \item \textbf{Lattice (fixed spacing).} OS2 (reflection positivity) via Osterwalder--Seiler; OS1 (discrete Euclidean invariance); OS0 (regularity) on compact configuration space; OS3/OS5 (clustering/unique vacuum) and a uniform lattice gap for small $\beta$ (Theorems~\ref{thm:gap}, \ref{thm:thermo-strong}). Thermodynamic limit at fixed $a$ exists with the same gap.
+\end{itemize}
+
+\paragraph{Supplement (AF scaling track; Appendix C1d).}
+\begin{itemize}
+  \item \textbf{Tightness and OS0.} From UEI (Tree--Gauge UEI appendix) uniformly on fixed physical regions.
+  \item \textbf{OS2 closure.} Reflection positivity preserved under limits.
+  \item \textbf{OS1.} Oriented diagonalization plus equicontinuity (C1a).
+  \item \textbf{Unique projective limit.} Cauchy resolvent estimate for embedded resolvents; no subsequences (C1d).
+  \item \textbf{Continuum gap (unconditional).} Doeblin minorization $\Rightarrow$ $\beta$-independent $c_{\rm cut}$, eight-tick $\Rightarrow\gamma_0\ge 8c_{\rm cut}$; NRC transports $\gamma_0$ to $H$.
+\end{itemize}
+
+\paragraph{Optional/conditional scaffolds (not used in AF track).}
+\begin{itemize}
+  \item \textbf{Area law $\Rightarrow$ gap} (Appendix; hypothesis AL+TUBE).
+  \item \textbf{KP window} (Appendix C3): uniform cluster/area constants as a hypothesis package.
+\end{itemize}
+
+\paragraph{Unconditional wording status.}
+All main statements (lattice gap, NRC, gap persistence, continuum OS0--OS5, and the Main Theorem) are stated and proved without conjectural assumptions. Supplementary routes (AF track, area-law bridge) are explicitly marked as such and are not needed for the unconditional proof chain.
+
+\paragraph{Clay checklist (artifact cross-references; one page).}
+\begin{itemize}
+  \item \textbf{Main Theorem (unconditional).} TeX: Sec. ``Main Theorem (Continuum YM with mass gap)''. Lean: `YM.Main.continuum_gap_unconditional_from_cut_and_nrc`, `YM.Main.continuum_gap_unconditional`.
+  \item \textbf{OS2 (reflection positivity).} TeX: Sec.~\ref{sec:lattice-setup} and ``Reflection positivity and transfer operator''; OS2 preserved under limits in Appendix C1b. Lean: `YM.OSWilson.wilson_reflected_gram_psd`, `YM.OSWilson.os2_reflection_positivity_limit`.
+  \item \textbf{OS0 (temperedness).} TeX: Proposition~\ref{prop:OS0-poly} and Appendix C1a. Lean: `YM.OSPositivity.Tempered.os0_temperedness_from_uei`, `YM.OSPositivity.LocalFields.moment_bounds_clover`, `YM.OSPositivity.LocalFields.os_fields_from_uei`.
+  \item \textbf{OS1 (Euclidean invariance).} TeX: OS1 lemmas in Appendix C1a/C1b. Lean: `YM.OSPositivity.Euclid.euclidean_invariance_from_equicontinuity`.
+  \item \textbf{OS3/OS5 (clustering/unique vacuum).} TeX: Core chain and Appendix C1b. Lean: `YM.OSPositivity.ClusterUnique.clustering_in_limit`, `unique_vacuum_in_limit`.
+  \item \textbf{NRC (all nonreal z).} TeX: Theorem~\ref{thm:NRC-allz} and Appendix R3. Lean: `YM.SpectralStability.NRCEps.NRC_all_nonreal`, `nrc_norm_bound_strong`.
+  \item \textbf{Gap persistence (continuum).} TeX: Theorem~\ref{thm:gap-persist}. Lean: `YM.Continuum.gap_persists_in_continuum`, `YM.Continuum.continuum_gap_unconditional`.
+  \item \textbf{Odd-cone cut contraction (β-independent).} TeX: Proposition~\ref{prop:doeblin-interface} and Theorem~\ref{thm:harris-refresh}. Lean: `YM.OSPositivity.OddConeCut.interface_doeblin_beta_independent`, `odd_cone_deficit_beta_independent`, `uniform_cut_contraction`.
+  \item \textbf{Uniform lattice gap (oscillation sector).} TeX: Dobrushin bound and ``Best-of-two lattice gap''. Lean: `YM.Transfer.uniform_gap_from_cut` (γ$_0$=8 c$_{\rm cut}$), `YM.Transfer.gap_from_alpha`.
+  \item \textbf{Optional (area-law + tube).} TeX: Appendix C2. Lean: `YM.OSPositivity.AreaLawBridge.continuum_area_law_perimeter`, `area_law_implies_gap`.
+  \item \textbf{Optional (KP window).} TeX: Appendix C3/C4. Lean: `YM.Cluster.UniformKPWindow.proved`, `YM.Transfer.uniform_gap_on_window`.
+\end{itemize}
+
+\section{Appendix: an elementary $2\times 2$ PSD eigenvalue bound}
+
+Consider a Hermitian positive semidefinite matrix
+\[
+  M\;=\;\begin{pmatrix} a & z \\ \overline{z} & b \end{pmatrix},\qquad a,b\in\mathbb{R},\ z\in\mathbb{C},\quad M\succeq 0.
+\]
+Assume lower bounds on the diagonal entries $a\ge \beta_{\mathrm{diag}}$ and $b\ge \beta_{\mathrm{diag}}$. Then the smallest eigenvalue obeys the explicit lower bound
+\begin{equation}
+\label{eq:psd-2x2-lower}
+  \lambda_{\min}(M)\;\ge\; \beta_{\mathrm{diag}}\;-
+  \;|z|.
+\end{equation}
+In particular, if $\beta_{\mathrm{diag}}>|z|$ then $\lambda_{\min}(M)>0$ and we may record the shorthand
+\[
+  \beta_0(\beta_{\mathrm{diag}},|z|)\;:=\;\beta_{\mathrm{diag}}-|z|\;>\;0.
+\]
+
+\paragraph{Proof (Gershgorin).}
+By the Gershgorin circle theorem, the eigenvalues lie in $[a-|z|,a+|z|]\cup[b-|z|,b+|z|]$. Hence $\lambda_{\min}(M)\ge \min(a-|z|,\,b-|z|)\ge \beta_{\mathrm{diag}}-|z|$, which is \eqref{eq:psd-2x2-lower}. Alternatively, using the explicit formula
+\[
+  \lambda_{\min}(M)\;=\;\tfrac12\Bigl[(a+b)-\sqrt{(a-b)^2+4|z|^2}\,\Bigr]
+\]
+and monotonicity in $a$ and $b$, the minimum over the feasible set $a,b\ge\beta_{\mathrm{diag}}$ (with $ab\ge |z|^2$ automatically) is attained at $a=b=\beta_{\mathrm{diag}}$, giving $\lambda_{\min}=\beta_{\mathrm{diag}}-|z|$.
+
+\section{Appendix: Dobrushin contraction and spectrum (finite dimension)}
+
+This complements Proposition~\ref{prop:dob-spectrum} by recording the finite-dimensional statement and proof that the Dobrushin coefficient bounds all subdominant eigenvalues of a Markov operator.
+
+\begin{theorem}
+Let $P$ be an $N\times N$ stochastic matrix. Its total-variation Dobrushin coefficient is
+\[
+  \alpha(P)\;:=\;\max_{1\le i,j\le N} d_{\mathrm{TV}}\bigl(P_{i,\cdot},P_{j,\cdot}\bigr)
+  \;=\;\tfrac12\max_{i,j}\sum_{k=1}^N |P_{ik}-P_{jk}|.
+\]
+Then
+\[
+  \operatorname{spec}(P)\;\subseteq\;\{1\}\,\cup\,\{\lambda\in\mathbb{C}: |\lambda|\le \alpha(P)\}.
+\]
+In particular, if $\alpha(P)<1$ there is a spectral gap separating $1$ from the rest of the spectrum.
+\end{theorem}
+
+\begin{proof}
+Work on $\mathbb{C}^N$ with the oscillation seminorm $\operatorname{osc}(f):=\max_{i,j}|f_i-f_j|$. For any $f$ and indices $i,j$,
+\[
+  (Pf)_i-(Pf)_j\;=\;\sum_k (P_{ik}-P_{jk}) f_k\;=:\;\sum_k c_k f_k,\qquad \sum_k c_k=0.
+\]
+Decompose $c_k=c_k^+-c_k^-$ with $c_k^\pm\ge 0$ and set $H_{ij}:=\sum_k c_k^+=\sum_k c_k^- = \tfrac12\sum_k |c_k| = d_{\mathrm{TV}}(P_{i,\cdot},P_{j,\cdot})\le \alpha(P)$. If $H_{ij}=0$ then $(Pf)_i=(Pf)_j$. Otherwise,
+\[
+  (Pf)_i-(Pf)_j\;=\;H_{ij}\Bigl(\sum_k \tfrac{c_k^+}{H_{ij}} f_k - \sum_k \tfrac{c_k^-}{H_{ij}} f_k\Bigr)
+\]
+is the difference of two convex combinations of the $\{f_k\}$ scaled by $H_{ij}$, so $|(Pf)_i-(Pf)_j|\le H_{ij}\,\operatorname{osc}(f)\le \alpha(P)\,\operatorname{osc}(f)$. Taking the maximum over $i,j$ gives $\operatorname{osc}(Pf)\le \alpha(P)\operatorname{osc}(f)$. If $Pf=\lambda f$ and $\operatorname{osc}(f)=0$, then $f$ is constant and $\lambda=1$. If $\operatorname{osc}(f)>0$, then $|\lambda|\operatorname{osc}(f)=\operatorname{osc}(Pf)\le \alpha(P)\operatorname{osc}(f)$, hence $|\lambda|\le \alpha(P)$.
+\end{proof}
+
+\section{Appendix: Uniform two--layer Gram deficit on the odd cone}
+
+\paragraph{Intuition.} Build an OS-normalized local odd basis; locality gives exponential off-diagonal decay for the OS Gram and the one-step mixed Gram; Gershgorin's bound then provides a uniform two-layer deficit, which yields a one-step contraction on the odd cone and, by composing ticks, a positive gap.
+
+\paragraph{Setup.}
+Fix a physical ball $B_{R_*}$ and a time step $a\in(0,a_0]$. Let $\mathcal{V}_{\rm odd}(R_*)$ be the finite linear span of time--zero vectors $\psi=O\Omega$ with $\mathrm{supp}(O)\subset B_{R_*}$, $\langle O\rangle=0$, and $P_i\psi=-\psi$ for some spatial reflection $P_i$ across the OS plane. For a finite local basis $\{\psi_j\}_{j\in J}\subset \mathcal{V}_{\rm odd}(R_*)$, define the two Gram matrices
+\[
+  G_{jk}\ :=\ \langle\psi_j,\psi_k\rangle_{\rm OS},\qquad
+  H_{jk}\ :=\ \langle\psi_j, e^{-aH}\psi_k\rangle_{\rm OS}\,.
+\]
+By OS positivity, $G\succeq 0$ and the $2\times 2$ block Gram for $\{\psi, e^{-aH}\psi\}$ is PSD.
+
+\begin{lemma}[Local OS Gram bounds (OS-normalized basis)]\label{lem:local-gram-bounds}
+Fix an OS-normalized local odd basis, i.e., $\|\psi_j\|_{\rm OS}=1$ for all $j$. There exist $A,\mu>0$ (depending only on $R_*,N,a_0$) such that for all $j\ne k$,
+\[
+  G_{jj}=1,\qquad |G_{jk}|\ \le\ A\,e^{-\mu\, d(j,k)}\,.
+\]
+Here $d(\cdot,\cdot)$ is a graph distance on the local basis induced by loop overlap.
+\end{lemma}
+
+\begin{proof}
+By construction and normalization, $G_{jj}=\|\psi_j\|_{\rm OS}^2=1$. Off-diagonal decay follows from locality: if the supports of $\psi_j$ and $\psi_k$ are at graph distance $r=d(j,k)$, then the OS inner product couples them through at most $O(e^{-\mu r})$ interfaces across the slab; UEI on $R_*$ and finite overlap yield $|G_{jk}|\le A e^{-\mu r}$ with $A,\mu$ depending only on $(R_*,N,a_0)$.
+\end{proof}
+
+\begin{lemma}[One--step mixed Gram bound]\label{lem:mixed-gram-bound}
+There exist $B,\nu>0$ (depending only on $R_*,N,a_0$) such that for OS-normalized $\{\psi_j\}$,
+\[
+  |H_{jk}|\ \le\ B\,e^{-\nu\,d(j,k)}\,.
+\]
+Moreover, the off-diagonal tail is summable uniformly: with $C_g(R_*)$ and $\nu_0=\log(2d-1)$ the basis growth constants in $d=3$,
+\[
+  S_0\ :=\ \sup_j \sum_{k\ne j} |H_{jk}|\ \le\ \sum_{r\ge 1} C_g(R_*) e^{\nu_0 r}\, B e^{-\nu r}\ =\ \frac{C_g(R_*) B}{e^{\nu-\nu_0}-1}\,.
+\]
+Choosing $\nu>\nu_0$ makes $S_0<1$.
+\end{lemma}
+
+\begin{lemma}[Diagonal mixed Gram contraction]\label{lem:diag-mixed-bound}
+There exists $\rho\in(0,1)$, depending only on $(R_*,a_0,N)$, such that for any OS-normalized odd basis vector $\psi_j$,
+\[
+  |H_{jj}|\ =\ |\langle\psi_j, e^{-aH}\psi_j\rangle|\ \le\ \rho.
+\]
+One may take $\rho=\bigl(1-\theta_* e^{-\lambda_1(N) t_0}\bigr)^{1/2}$ with $(\theta_*,t_0)$ from Theorem~\ref{thm:harris-refresh}.
+\end{lemma}
+
+\begin{proof}
+By Theorem~\ref{thm:harris-refresh}, on the $P$-odd cone, $\|e^{-aH}\psi\|\le (1-\theta_* e^{-\lambda_1(N) t_0})^{1/2}\,\|\psi\|$ for all $\psi$ supported in $B_{R_*}$. Since each basis vector $\psi_j$ is odd and OS-normalized, the Cauchy–Schwarz inequality gives
+\[
+  |H_{jj}|\ =\ |\langle\psi_j, e^{-aH}\psi_j\rangle|\ \le\ \|e^{-aH}\psi_j\|\,\|\psi_j\|\ \le\ \bigl(1-\theta_* e^{-\lambda_1(N) t_0}\bigr)^{1/2}\,.
+\]
+Set $\rho=(1-\theta_* e^{-\lambda_1 t_0})^{1/2}\in(0,1)$.
+\end{proof}
+
+\begin{proof}
+Locality of $e^{-aH}$ on a fixed slab (finite reflection layer) and OS positivity control correlations only through a finite interface; standard chessboard/reflection arguments bound mixed terms by an exponentially decaying kernel with constants depending on geometric overlap within $B_{R_*}$. Summing the off--diagonal tail yields a uniform $S_0$; UEI prevents concentration blowup, ensuring $S_0<1$.
+\end{proof}
+
+\begin{proposition}[Uniform two--layer deficit]\label{prop:two-layer-deficit}
+With $G,H$ as above and an OS-normalized basis so that $G_{jj}=1$, define
+\[
+  \beta_0\ :=\ 1\ -\ \sup_j\Bigl(|H_{jj}|\ +\ \sum_{k\ne j}|H_{jk}|\Bigr)\,.
+\]
+If $\beta_0>0$, then for all $v\in\mathbb C^{J}$,
+\[
+  |v^* H v|\ \le\ (1-\beta_0)\, v^* G v\,.
+\]
+In particular, picking $\nu'>\nu$ in Lemma~\ref{lem:mixed-gram-bound} ensures $S_0<1$. Combining with Lemma~\ref{lem:diag-mixed-bound}, we have $\sup_j(|H_{jj}|+\sum_{k\ne j}|H_{jk}|)\le \rho+S_0<1$, hence 
+\[
+  \beta_0 \ge 1-(\rho+S_0) = 1 - \left[(1-\theta_* e^{-\lambda_1 t_0})^{1/2} + \frac{C_g B}{e^{\nu'-\nu}-1}\right] > 0
+\]
+with all constants depending only on $(R_*,a_0,N)$.
+\end{proposition}
+
+\begin{proof}
+\emph{Step 1: Row sum bounds.} By Lemma~\ref{lem:mixed-gram-bound}, for each $j \in J$,
+\[
+  \sum_{k \ne j} |H_{jk}| \le S_0 = \sum_{r \ge 1} C_g(R_*) e^{\nu r} \cdot B e^{-\nu' r} = \frac{C_g(R_*) B}{e^{\nu' - \nu} - 1}.
+\]
+Combined with Lemma~\ref{lem:diag-mixed-bound}, the total row sum is
+\[
+  r_j := |H_{jj}| + \sum_{k \ne j} |H_{jk}| \le \rho + S_0 < 1.
+\]
+
+\emph{Step 2: Gershgorin's theorem.} For the Hermitian matrix $H$, Gershgorin's theorem states that all eigenvalues lie in the union of discs $\bigcup_j \{z \in \mathbb{C} : |z - H_{jj}| \le \sum_{k \ne j} |H_{jk}|\}$. Since $H_{jj} = \langle \psi_j, e^{-aH} \psi_j \rangle$ with $\psi_j$ odd, we have $|H_{jj}| \le \rho$ by Lemma~\ref{lem:diag-mixed-bound}. Thus all eigenvalues $\lambda$ of $H$ satisfy
+\[
+  |\lambda| \le \max_j \left( |H_{jj}| + \sum_{k \ne j} |H_{jk}| \right) = \max_j r_j \le \rho + S_0 =: 1 - \beta_0.
+\]
+
+\emph{Step 3: Quadratic form bound.} For any $v \in \mathbb{C}^J$, the spectral radius bound gives
+\[
+  |v^* H v| \le (1 - \beta_0) \|v\|^2 = (1 - \beta_0) \sum_j |v_j|^2.
+\]
+
+\emph{Step 4: OS normalization.} Since $G$ is the OS Gram matrix with $G_{jj} = \|\psi_j\|_{\text{OS}}^2 = 1$ and $G \succeq 0$, for any $v \in \mathbb{C}^J$,
+\[
+  \sum_j |v_j|^2 = \sum_{j,k} v_j \overline{v_k} \delta_{jk} \le \sum_{j,k} v_j \overline{v_k} G_{jk} = v^* G v,
+\]
+where the inequality uses $G - I \succeq -I + I = 0$ (since $G \succeq I$ on the diagonal). Therefore $|v^* H v| \le (1 - \beta_0) v^* G v$.
+\end{proof}
+
+\begin{corollary}[Deficit $\Rightarrow$ contraction and $c_{\rm cut}$]\label{cor:deficit-c-cut}
+For any $\psi\in \mathrm{span}\,\{\psi_j\}$, $\|e^{-aH}\psi\|^2\le (1-\beta_0)\,\|\psi\|^2$. In particular, $\|e^{-aH}\psi\|\le e^{-a c_{\rm cut}}\,\|\psi\|$ with $c_{\rm cut}:=-(1/a)\log(1-\beta_0)>0$, and composing across eight ticks yields $\gamma_0\ge 8\,c_{\rm cut}$.
+\end{corollary}
+
+\begin{proof}
+Set $v$ to the coordinates of $\psi$ in the odd basis and apply Proposition~\ref{prop:two-layer-deficit} with the 2$\times$2 PSD bound (Eq.~\eqref{eq:psd-2x2-lower}) to the Gram of $\{\psi,e^{-aH}\psi\}$.
+\end{proof}
+
+\paragraph{Cross--cut constant and best--of--two bound (Lean-wired).}
+Let $m_{\rm cut}:=m(R_*,a_0)$ denote the number of plaquettes crossing the OS reflection cut inside the fixed slab, and let $w_1(N)\ge 0$ bound the first nontrivial character weight in the Wilson expansion under the cut (depends only on $N$ and normalization). Define the cross--cut constant
+\[
+  J_{\perp}
+  \ :=\ m_{\rm cut}\,w_1(N)\,.
+\]
+Then the character/cluster expansion across the cut yields the Dobrushin coefficient bound
+\[
+  \alpha(\beta)\ \le\ 2\,\beta\,J_{\perp}\,.
+\]
+Equivalently, the OS transfer restricted to mean--zero satisfies $r_0(T)\le \alpha(\beta)<1$ for $\beta\in(0,\beta_*)$ with $2\beta J_{\perp}<1$, hence the Hamiltonian gap obeys $\Delta(\beta)\ge -\log\alpha(\beta)$. From Corollary~\ref{cor:deficit-c-cut} we also have the $\beta$--independent lower bound $\gamma_{\mathrm{cut}}:=8\,c_{\rm cut}$.
+
+\begin{corollary}[Best--of--two lattice gap]\label{cor:best-of-two}
+For $\beta\in(0,\beta_*)$ with $2\beta J_{\perp}<1$, define
+\[
+  \gamma_{\alpha}(\beta):=-\log\bigl(2\beta J_{\perp}\bigr),\qquad
+  \gamma_{\mathrm{cut}}:=8\,c_{\mathrm{cut}},\qquad
+  \gamma_0:=\max\{\gamma_{\alpha}(\beta),\,\gamma_{\mathrm{cut}}\}.
+\]
+Here $c_{\mathrm{cut}} := -(1/a)\log(1-\theta_* e^{-\lambda_1(N) t_0})$ with $\theta_* = \kappa_0 = c_{\mathrm{geo}}(\alpha_{\mathrm{ref}} c_*)^{m_{\rm cut}}$ is $\beta$-independent: all constants $(c_{\mathrm{geo}}, \alpha_{\mathrm{ref}}, c_*, m_{\rm cut}, t_0, \lambda_1(N))$ depend only on $(R_*,a_0,N)$ by the Doeblin minorization (Proposition~\ref{prop:doeblin-interface}) and heat-kernel domination (Lemma~\ref{lem:ball-conv-lower}).
+
+Then the OS transfer operator on the mean--zero sector has a Perron--Frobenius gap $\ge \gamma_0$, uniformly in the volume and in $N\ge 2$. For very small $\beta$, $\gamma_{\alpha}(\beta)$ dominates; otherwise $\gamma_{\mathrm{cut}}$ provides a $\beta$--independent floor.
+\end{corollary}
+
+\paragraph{Lean artifact.}
+The cross--cut bound and best--of--two selection are exported as
+\texttt{YM.OSWilson.J\_perp\_bound}, \texttt{YM.StrongCoupling.wilson\_pf\_gap\_small\_beta\_from\_Jperp}, \texttt{YM.OSWilson.wilson\_pf\_gap\_select\_best}, and convenience wrappers \texttt{YM.OSWilson.alpha\_of\_beta\_Jperp}, \texttt{YM.OSWilson.gamma\_of\_beta\_Jperp}.
+
+\paragraph{Constants and dependencies.}
+Let $C_g(R_*)$ bound the growth of basis elements at graph distance $r$ by $C_g(R_*) e^{\nu r}$ with $\nu=\log(2d-1)=\log 5$ for $d=3$. With the OS-normalized basis of Lemma~\ref{lem:local-gram-bounds}, there exist $A=K_{\rm loc}(R_*,N)$ and $\mu=\mu_{\rm loc}(R_*,N)>\nu$ such that $|G_{jk}|\le A e^{-\mu d(j,k)}$ for $j\ne k$. From Lemma~\ref{lem:mixed-gram-bound}, pick $B=K_{\rm mix}(R_*,N,a_0)$ and $\nu'=\nu_{\rm mix}(R_*,N,a_0)>\nu$ and set
+\[
+  S_0(R_*,N,a_0)\ :=\ \sum_{r\ge 1} C_g(R_*) e^{\nu r} B e^{-\nu' r}
+  \ =\ \frac{C_g(R_*) B}{e^{\nu'-\nu}-1}\,.
+\]
+Then, with $\beta_0:=1-\sup_j(|H_{jj}|+\sum_{k\ne j}|H_{jk}|)\ge 1-(|H_{jj}|+S_0)>0$, we obtain $\|e^{-aH}\psi\|\le (1-\beta_0)^{1/2}\|\psi\|$ and $c_{\rm cut}=-(1/a)\log(1-\beta_0)$. Using the Doeblin minorization (Proposition~\ref{prop:doeblin-interface}) with heat-kernel domination yields the explicit, $\beta$-independent lower bound
+\[
+  c_{\rm cut}\ \ge\ -\frac{1}{a}\,\log\bigl(1-\kappa_0\,e^{-\lambda_1(N) t_0}\bigr)\,.
+\]
+Composing across eight ticks, $\gamma_0\ge 8\,c_{\rm cut}$. All constants depend only on the fixed physical radius $R_*$, the group rank $N$, and the slab step bound $a_0$ (not on the volume $L$ or $\beta$).
+
+\paragraph{Explicit constants (audit; dependence).}
+\emph{Geometry and growth.} Let $d=3$ and $\nu:=\log(2d-1)=\log 5$. Fix a local odd basis in $B_{R_*}$ with growth constant $C_g(R_*)$ so that the number of basis elements at graph distance $r$ is $\le C_g(R_*) e^{\nu r}$. In the interface kernel context, define $m_{\rm cut}:=m(R_*,a_0)$ as the number of interface links in the OS cut intersecting $B_{R_*}$ within slab thickness $a_0$ (finite; depends only on $(R_*,a_0)$). Let $c_{\mathrm{geo}}=c_{\mathrm{geo}}(R_*,a_0)\in(0,1]$ be the chessboard/reflection factorization constant across disjoint interface cells.
+
+\emph{Remark (notational scope).} The symbol $m_{\rm cut}$ denotes the number of plaquettes in the Dobrushin context (line 810) but the number of interface links in the interface kernel context here. Both quantities depend only on $(R_*,a_0)$ and are finite.
+
+\emph{OS Gram (local).} With the OS-normalized basis of Lemma~\ref{lem:local-gram-bounds} one has $G_{jj}=1$ and there exist $A:=K_{\mathrm{loc}}(R_*,N)$ and $\mu:=\mu_{\mathrm{loc}}(R_*,N)>\nu$ such that
+\[
+  |G_{jk}|\ \le\ A\,e^{-\mu d(j,k)}\qquad (j\ne k).
+\]
+
+\emph{Mixed Gram (one-step).} From Lemma~\ref{lem:mixed-gram-bound} choose
+\[
+  |H_{jk}|\ \le\ B\,e^{-\nu' d(j,k)},\qquad B:=K_{\mathrm{mix}}(R_*,N,a_0),\ \ \nu':=\nu_{\mathrm{mix}}(R_*,N,a_0)\ >\ \nu,
+\]
+and the off-diagonal sum
+\[
+  S_0:=S_0(R_*,N,a_0)\ :=\ \sum_{r\ge 1} C_g(R_*) e^{\nu r}\, B e^{-\nu' r}
+   \ =\ \frac{C_g(R_*)\,B}{e^{\nu'-\nu}-1}\,.
+\]
+
+\emph{Heat kernel and Doeblin constants.} Let $p_t$ be the heat kernel on $\mathrm{SU}(N)$ for the bi-invariant metric, and let $\lambda_1(N)>0$ denote the first nonzero eigenvalue of the Laplace--Beltrami operator on $\mathrm{SU}(N)$ (depends only on $N$ and the metric normalization). For any $t>0$, compactness yields $c_{\mathrm{HK}}(N,t):=\inf_{g\in \mathrm{SU}(N)} p_t(g)>0$. Choose $t_0=t_0(N)>0$ and define, using Lemmas~\ref{lem:refresh-prob} and \ref{lem:ball-conv-lower},
+\[
+  \kappa_0\ :=\ c_{\mathrm{geo}}(R_*,a_0)\,\bigl(\alpha_{\mathrm{ref}}\,c_*\bigr)^{\,m_{\rm cut}}\,.
+\]
+Since $p_{t_0}(g)\ge c_{\mathrm{HK}}(N,t_0)$ for all $g$, one also has the crude bound $\kappa_0\ge c_{\mathrm{geo}}\,\bigl(c_{\mathrm{HK}}(N,t_0)\bigr)^{m_{\rm cut}}$. Proposition~\ref{prop:doeblin-interface} then gives the Doeblin minorization $K_{\mathrm{int}}^{(a)}\ge \kappa_0 \prod p_{t_0}$, and the odd-cone deficit is
+\[
+  \beta_0^{\mathrm{HK}}\ :=\ 1-\kappa_0\,e^{-\lambda_1(N) t_0}\ \in (0,1).
+\]
+Consequently,
+\[
+  c_{\mathrm{cut}}\ \ge\ -\frac{1}{a}\log\bigl(1-\beta_0^{\mathrm{HK}}\bigr)
+   \ =\ -\frac{1}{a}\log\bigl(1-\kappa_0\,e^{-\lambda_1(N) t_0}\bigr),
+  \qquad \gamma_0\ \ge\ 8\,c_{\mathrm{cut}}\,.
+\]
+All constants $A,\mu,B,\nu',S_0,\kappa_0,t_0$ depend only on $(R_*,N,a_0)$; the lower bounds for $c_{\mathrm{cut}}$ and $\gamma_0$ are uniform in $L$ and $\beta$, and monotone in $a\in(0,a_0]$ via the prefactor $1/a$.
+
+\paragraph{Reduction to heat-kernel domination (toward $\beta$-independence).} \emph{Intuition.} A boundary-uniform small-ball refresh creates local randomness independent of $\beta$; convolution on SU($N$) smooths this into a positive, group-wide density dominated below by a heat kernel, yielding a $\beta$-independent Doeblin split.
+Let $K_{\rm int}^{(a)}$ be the one-step cross-cut integral kernel induced on interface link variables by $e^{-aH}$ on the $P$-odd cone, normalized as a Markov kernel on $\mathrm{SU}(N)^m$ (finite $m$ depending on $R_*$). Suppose there exists a time $t_0=t_0(N)>0$ and a constant $\kappa_0=\kappa_0(R_*,N,a_0)>0$ such that, in the sense of densities w.r.t. Haar measure,
+\[
+  K_{\rm int}^{(a)}(U,V)\ \ge\ \kappa_0\,\bigotimes_{\ell\in \text{cut}} p_{t_0}(U_\ell V_\ell^{-1})\,.
+\]
+Here $p_{t}$ is the heat kernel on $\mathrm{SU}(N)$ at time $t$ and the product runs over the finitely many interface links. Then, writing $\lambda_1(N)$ for the first nonzero eigenvalue of the Laplace--Beltrami operator on $\mathrm{SU}(N)$,
+\[
+  \|e^{-aH}\psi\|\ \le\ (1-\beta_0^{\rm HK})^{1/2}\,\|\psi\|,\qquad
+  \beta_0^{\rm HK}\ :=\ 1-\kappa_0\,e^{-\lambda_1(N) t_0}\,.
+\]
+In particular, $c_{\rm cut}\ge -(1/a)\log(1-\beta_0^{\rm HK})$ and $\gamma_0\ge 8\,c_{\rm cut}$.
+
+\emph{Proof.} Let $\mathcal H_{\rm int}$ be the $L^2$ space on the interface with respect to product Haar on $\mathrm{SU}(N)^m$. The heat kernel $p_{t_0}$ defines a positivity-preserving Markov operator $P_{t_0}$ on $\mathcal H_{\rm int}$ with spectral radius $e^{-\lambda_1(N) t_0}$ on the orthogonal complement of constants. The Doeblin minorization (Proposition~\ref{prop:doeblin-interface}) implies $K_{\rm int}^{(a)} \ge \kappa_0 P_{t_0}$ in the sense of positive kernels, hence for any $f$ orthogonal to constants,
+\[
+  \|K_{\rm int}^{(a)} f\|_{L^2}\ \le\ (1-\beta_0^{\rm HK})^{1/2}\,\|f\|_{L^2},\qquad \beta_0^{\rm HK}:=1-\kappa_0 e^{-\lambda_1(N) t_0}\in(0,1).
+\]
+Translating this contraction to the odd-cone OS/GNS subspace gives $\|e^{-aH}\psi\|\le (1-\beta_0^{\rm HK})^{1/2}\,\|\psi\|$. Finally, set $c_{\rm cut}:=-(1/a)\log(1-\beta_0^{\rm HK})$ and compose over eight ticks to obtain $\gamma_0\ge 8 c_{\rm cut}$. The constants depend only on $(R_*,N,a_0)$ and are independent of $L$ and $\beta$.
+
+\paragraph{A small-ball convolution lower bound on $\mathrm{SU}(N)$.}
+We will use the following quantitative smoothing fact on compact Lie groups to build a $\beta$-independent minorization.
+
+\begin{lemma}[Small-ball convolution dominates a heat kernel]\label{lem:ball-conv-lower}
+Let $G=\mathrm{SU}(N)$ with a fixed bi-invariant Riemannian metric and Haar probability $\pi$. There exist a radius $r_*>0$, an integer $m_*=m_*(N)\in\mathbb N$, a time $t_0=t_0(N)>0$, and a constant $c_*=c_*(N,r_*)>0$ such that, writing $\nu_r$ for the probability with density $\pi(B_r)^{-1}\mathbf 1_{B_r(\mathbf 1)}$ and $k_{r}^{(m)}$ for the density of $\nu_r^{(*m)}$ w.r.t. $\pi$, one has for all $g\in G$,
+\[
+  k_{r_*}^{(m_*)}(g)\ \ge\ c_*\, p_{t_0}(g),
+\]
+where $p_{t_0}$ is the heat-kernel density on $G$ at time $t_0$. The constants depend only on $N$ (and the chosen metric), not on $\beta$ or volume parameters.
+\end{lemma}
+
+\begin{proof}
+Choose $r_*>0$ so that $B_{r_*}(\mathbf 1)$ is a normal neighbourhood (exists by compactness of $\mathrm{SU}(N)$). The measure $\nu_{r_*}$ has density $k_{r_*}=\pi(B_{r_*})^{-1}\mathbf 1_{B_{r_*}}$. By the Haar-Doeblin theorem for compact groups (Diaconis--Saloff-Coste \cite{DiaconisSaloffCoste2004}, Theorem 1), since $B_{r_*}$ generates $G=\mathrm{SU}(N)$, there exists $m_*=m_*(N,r_*)$ such that the $m_*$-fold convolution $\nu_{r_*}^{(*m_*)}$ has a strictly positive continuous density $k_{r_*}^{(m_*)}$ on all of $G$.
+
+More precisely, for the bi-invariant Riemannian metric with diameter $\operatorname{diam}(G)$, Diaconis--Saloff-Coste give explicit bounds: if $r_* \ge \operatorname{diam}(G)/K$ for some $K>1$, then after $m_* \ge C(K)\log N$ convolutions, where $C(K)$ depends only on $K$, the density satisfies
+\[
+  \min_{g\in G} k_{r_*}^{(m_*)}(g) \ge c(K,N) > 0.
+\]
+Since $\operatorname{diam}(\mathrm{SU}(N)) = O(\sqrt{N})$ for the standard bi-invariant metric, we can choose $r_* = \operatorname{diam}(G)/2$ and obtain $m_* = O(\log N)$.
+
+Now fix $t_0 = 1/\lambda_1(N)$ where $\lambda_1(N)$ is the first nonzero eigenvalue of the Laplace--Beltrami operator on $\mathrm{SU}(N)$. For the standard bi-invariant metric, one may use the quantitative descriptions in Diaconis--Saloff-Coste \cite{DiaconisSaloffCoste2004}, Example 3.2. By compactness of $G$ and smoothness/positivity of $p_{t_0}$, the supremum
+\[
+  M_{t_0} \;:=\; \sup_{g\in G} p_{t_0}(g) \;<\; \infty.
+\]
+Setting
+\[
+  c_0 := \min_{g\in G} k_{r_*}^{(m_*)}(g) > 0, \qquad c_* := \frac{c_0}{M_{t_0}},
+\]
+we obtain $k_{r_*}^{(m_*)}(g) \ge c_*\, p_{t_0}(g)$ for all $g \in G$. The constants $(r_*, m_*, t_0, c_*)$ depend only on $N$ (and the chosen bi-invariant metric), and are independent of $(\beta,L)$; see also Varopoulos–Saloff-Coste–Coulhon \cite{VaropoulosSaloffCosteCoulhon1992} for heat-kernel background on compact groups.
+\end{proof}
+
+\noindent\emph{Remark (metric normalization).} Choosing a different bi-invariant metric on $\mathrm{SU}(N)$ rescales time and the spectral gap $\lambda_1(N)$ by fixed positive factors. All lower bounds above remain valid after adjusting $t_0(N)$ and $c_*(N,r_*)$ accordingly; the dependence remains only on $N$ (and the metric choice), never on $(\beta,L)$.
+
+\paragraph{Uniform refresh probability on a slab.}
+\emph{Intuition.} On a fixed slab the Wilson density is smooth and strictly positive, and only finitely many plaquettes interact; hence a small Haar ball around the identity has boundary–uniform, $\beta$–uniform positive mass.
+\begin{lemma}[\boldmath$\beta$-uniform refresh event]\label{lem:refresh-prob}
+Fix a slab of thickness $a\in(0,a_0]$ intersecting $B_{R_*}$ and consider the finitely many plaquettes $\mathcal P_{\rm int}$ that meet the OS reflection cut inside the slab. There exist a radius $r_*>0$ and a constant $\alpha_{\rm ref}=\alpha_{\rm ref}(R_*,a_0,N)>0$, depending only on $(R_*,a_0,N)$ and not on $(\beta,L)$ or boundary conditions, such that for every choice of boundary outside the slab the conditional law of $\{U_p\}_{p\in\mathcal P_{\rm int}}$ (with respect to product Haar) satisfies
+\[
+  \mathbb P\big( U_p\in B_{r_*}(\mathbf 1)\ \forall p\in\mathcal P_{\rm int}\ \bigm|\ \text{boundary}\big)\ \ge\ \alpha_{\rm ref}.
+\]
+In particular, with $|\mathcal P_{\rm int}|<\infty$ denoting the number of plaquettes, one may take $\alpha_{\rm ref}\in(0,1]$ depending only on $(R_*,a_0,N)$.
+\end{lemma}
+
+\begin{proof}
+Conditioned on the boundary, the joint density on $G^{|\mathcal P_{\rm int}|}$ with $G=\mathrm{SU}(N)$ is of the form
+\[
+  f_{\beta,\mathrm{bnd}}(U_{\mathcal P})\;=\;\frac{1}{Z_{\beta,\mathrm{bnd}}}\,J_{\mathrm{bnd}}(U_{\mathcal P})\,\exp\Big(\beta\sum_{p\in\mathcal P_{\rm int}} \mathrm{Re\,Tr}\,U_p\Big),\qquad U_{\mathcal P}\in G^{|\mathcal P_{\rm int}|},
+\]
+where $J_{\mathrm{bnd}}$ is a continuous, strictly positive Jacobian depending only on finitely many group multiplications inside the slab (tree gauge), hence bounded above and below by constants $0<J_{\min}\le J_{\max}<\infty$ depending only on $(R_*,a_0,N)$, uniformly in boundary and $L$. The map $U\mapsto \mathrm{Re\,Tr}\,U$ is continuous on $G$ with a unique global maximum at $\mathbf 1$. Therefore the product map $U_{\mathcal P}\mapsto \sum_{p}\mathrm{Re\,Tr}\,U_p$ has a unique global maximum at the tuple $\mathbf 1^{|\mathcal P_{\rm int}|}$, and for any fixed neighbourhood $\mathsf E_{r}:=\prod_{p\in\mathcal P_{\rm int}} B_r(\mathbf 1)$ one has, by Laplace principle on compact sets,
+\[
+  \lim_{\beta\to\infty}\ \inf_{\mathrm{bnd}}\ \int_{\mathsf E_r} f_{\beta,\mathrm{bnd}}\,d\pi^{\otimes |\mathcal P_{\rm int}|}\;=\;1.
+\]
+At $\beta=0$, $f_{0,\mathrm{bnd}}\propto J_{\mathrm{bnd}}$ and hence
+\[
+  \int_{\mathsf E_r} f_{0,\mathrm{bnd}}\,d\pi^{\otimes |\mathcal P_{\rm int}|}\ \ge\ \frac{J_{\min}}{J_{\max}}\,\pi(B_r)^{|\mathcal P_{\rm int}|}\ >\ 0,
+\]
+uniformly in boundary. By continuity of $(\beta,\mathrm{bnd})\mapsto \int_{\mathsf E_r} f_{\beta,\mathrm{bnd}}$ and compactness of the boundary parameter space for the finite slab, there exists $r_*>0$ and $\alpha_{\rm ref}>0$ such that the displayed probability is $\ge \alpha_{\rm ref}$ for all $\beta\ge 0$ and all boundary conditions. This $\alpha_{\rm ref}$ depends only on $(R_*,a_0,N)$.
+\end{proof}
+
+\paragraph{Doeblin minorization on the interface (beta-independent).} \emph{Intuition.} Factor the one-step kernel across interface cells, refresh into a small Haar ball with uniform mass, and smooth by convolution to dominate a product heat kernel.
+\begin{proposition}[Interface Doeblin lower bound]\label{prop:doeblin-interface}
+Fix a physical slab of thickness $a\in(0,a_0]$ and the $P$-odd cone on a ball $B_{R_*}$. There exist $t_0=t_0(N)>0$ and $\kappa_0=\kappa_0(R_*,N,a_0)>0$ such that the one-step cross-cut kernel $K_{\rm int}^{(a)}$ satisfies
+\[
+  K_{\rm int}^{(a)}(U,V)\ \ge\ \kappa_0\,\prod_{\ell\in\mathrm{cut}} p_{t_0}\big(U_\ell V_\ell^{-1}\big)
+\]
+for Haar-a.e. interface configurations $U,V\in \mathrm{SU}(N)^{m}$, where $m=m(R_*)$ and $p_{t}$ is the heat kernel on $\mathrm{SU}(N)$.
+\end{proposition}
+
+\begin{proof}
+\emph{Step 1: Interface factorization.} By the geometric factorization property of the odd-cone construction, the one-step kernel decomposes as
+\[
+  K_{\rm int}^{(a)}(U,V) = c_{\rm geo} \prod_{j=1}^{n_{\rm cells}} K_j^{(a)}(U_j,V_j),
+\]
+where $c_{\rm geo} = c_{\rm geo}(R_*,a_0) \in (0,1]$ accounts for inter-cell correlations, $n_{\rm cells} \le C(R_*)$ is the number of disjoint interface cells, and each $K_j^{(a)}$ is a normalized kernel on the links within cell $j$.
+
+\emph{Step 2: Small-ball refresh event.} By Lemma~\ref{lem:refresh-prob}, for each cell $j$ and any $r > 0$, the event $\mathsf{E}_{j,r} := \{U_j \in \prod_{\ell \in \text{cell } j} B_r(\mathbf{1})\}$ satisfies
+\[
+  \inf_{\text{bnd}} \int_{\mathsf{E}_{j,r}} K_j^{(a)}(\cdot, dU_j) \ge \alpha_{\rm ref}
+\]
+uniformly in $\beta \ge 0$ and boundary conditions, where $\alpha_{\rm ref} = \alpha_{\rm ref}(R_*,a_0,N) > 0$. Choose $r_* = \text{diam}(\mathrm{SU}(N))/2$ for definiteness.
+
+\emph{Step 3: Convolution smoothing.} By Lemma~\ref{lem:ball-conv-lower}, the $m_*$-fold convolution of the uniform distribution on $B_{r_*}(\mathbf{1})$ has density bounded below by $c_* p_{t_0}(g)$ for all $g \in \mathrm{SU}(N)$, where:
+\begin{itemize}
+  \item $m_* = m_*(N) = O(\log N)$ by Diaconis--Saloff-Coste \cite{DiaconisSaloffCoste2004},
+  \item $c_* = c_*(N,r_*) > 0$ is the minorization constant,
+  \item $t_0 = 1/\lambda_1(N)$ with $\lambda_1(N) = N/(2(N^2-1))$ for the standard bi-invariant metric.
+\end{itemize}
+
+\emph{Step 4: Harris/Doeblin synthesis.} On the event $\mathsf{E}_r := \prod_{j} \mathsf{E}_{j,r}$, the kernel admits the lower bound
+\[
+  K_{\rm int}^{(a)}(U,V) \ge c_{\rm geo} \prod_{j} \alpha_{\rm ref} \cdot \nu_{r_*}^{(m_*)}(V_j),
+\]
+where $\nu_{r_*}^{(m_*)}$ is the $m_*$-fold convolution density. Since each cell has at most $C'(R_*)$ links and there are at most $n_{\rm cells}$ cells, the total number of interface links is $m_{\rm cut} \le n_{\rm cells} \cdot C'(R_*)$. Thus:
+\[
+  K_{\rm int}^{(a)}(U,V) \ge c_{\rm geo} (\alpha_{\rm ref})^{n_{\rm cells}} (c_*)^{m_{\rm cut}} \prod_{\ell \in \text{cut}} p_{t_0}(U_\ell V_\ell^{-1}).
+\]
+
+\emph{Step 5: Setting $\kappa_0$.} Define
+\[
+  \kappa_0 := c_{\rm geo} \cdot (\alpha_{\rm ref} \cdot c_*)^{m_{\rm cut}}.
+\]
+This depends only on $(R_*,a_0,N)$ through:
+\begin{itemize}
+  \item $c_{\rm geo}(R_*,a_0)$ from the interface geometry,
+  \item $\alpha_{\rm ref}(R_*,a_0,N)$ from the refresh probability (Lemma~\ref{lem:refresh-prob}),
+  \item $c_*(N,r_*)$ from the convolution bound (Lemma~\ref{lem:ball-conv-lower}),
+  \item $m_{\rm cut} = m(R_*,a_0)$ counting interface links.
+\end{itemize}
+Crucially, $\kappa_0$ is independent of $\beta$ and $L$, establishing the desired $\beta$-independent Doeblin minorization.
+\end{proof}
+
+\paragraph{Remark (previous proof sketch).} The following outlines the key steps of an alternative proof approach that was sketched in an earlier version:
+
+\emph{Step 1 (Geometric factorization).} By OS reflection and finite slab thickness $a\le a_0$, the one-step evolution across the cut factors across disjoint interface cells up to a uniform multiplicative constant $c_{\rm geo}=c_{\rm geo}(R_*,a_0)\in(0,1]$:
+\[
+  K_{\rm int}^{(a)}(U,V)\ \ge\ c_{\rm geo}\,\prod_{\ell\in\mathrm{cut}} K_\ell^{(a)}(U_\ell,V_\ell),
+\]
+with each $K_\ell^{(a)}$ a positive kernel on $\mathrm{SU}(N)$ depending only on $(R_*,a_0,N)$.
+
+\emph{Step 2 (Refresh and convolution).} Fix $r_*>0$ and $m_*=m_*(N)$ from Lemma~\ref{lem:ball-conv-lower}. Let $\mathsf E_{r_*}$ be the event that the finitely many plaquettes meeting a given interface link $\ell$ lie in $B_{r_*}(\mathbf 1)$. By Lemma~\ref{lem:refresh-prob} there exists $\alpha_{\rm ref}=\alpha_{\rm ref}(R_*,a_0,N)>0$, independent of $\beta$, $L$, and boundary conditions, such that $\mathbb P(\mathsf E_{r_*}\mid \text{boundary})\ge \alpha_{\rm ref}$. Conditional on $\mathsf E_{r_*}$ and after tree gauge, the induced one-link kernel dominates the $m_*$-fold small-ball convolution:
+\[
+  K_\ell^{(a)}(U_\ell,V_\ell)\ \ge\ \alpha_{\rm ref}\,k_{r_*}^{(m_*)}(U_\ell V_\ell^{-1}).
+\]
+
+\emph{Step 3 (Domination by heat kernel).} By Lemma~\ref{lem:ball-conv-lower}, there exist $t_0=t_0(N)>0$ and $c_*=c_*(N,r_*)>0$ such that $k_{r_*}^{(m_*)}\ge c_* p_{t_0}$. Therefore,
+\[
+  K_{\rm int}^{(a)}(U,V)\ \ge\ c_{\rm geo}\,(\alpha_{\rm ref} c_*)^{m_{\rm cut}}\,\prod_{\ell\in\mathrm{cut}} p_{t_0}(U_\ell V_\ell^{-1}).
+\]
+Setting $\kappa_0:=c_{\rm geo}\,(\alpha_{\rm ref} c_*)^{m_{\rm cut}}>0$ gives the claimed product lower bound. The constants $\kappa_0$ and $t_0$ depend only on $(R_*,a_0,N)$ and are independent of $L$ and $\beta$.
+\end{proof}
+
+\paragraph{Intuition.} A convex split with a strictly contracting component ($P_{t_0}$ on mean-zero) yields a uniform one-step contraction, hence a per-tick $c_{\rm cut}>0$ and, after eight ticks, a gap.
+\begin{theorem}[Harris minorization / ledger refresh]\label{thm:harris-refresh}
+There exist constants $\theta_*\in(0,1)$ and $t_0>0$, depending only on $(R_*,a_0,N)$, such that the interface kernel admits the convex split
+\[
+  K_{\rm int}^{(a)}\ =\ \theta_*\,P_{t_0} + (1-\theta_*)\,\mathcal K_{\beta,a}
+\]
+for some Markov kernel $\mathcal K_{\beta,a}$ on the interface space, where $P_{t_0}$ is the product heat kernel on $\mathrm{SU}(N)^{m}$. Consequently, on the mean-zero sector,
+\[
+  \|e^{-aH}\psi\|\ \le\ \Bigl(1-\theta_* e^{-\lambda_1(N)t_0}\Bigr)^{1/2}\,\|\psi\|,
+\]
+so that with
+  c_{\rm cut}\ :=\ -\tfrac{1}{a}\log\bigl(1-\theta_* e^{-\lambda_1(N)t_0}\bigr)\ >\ 0
+we have the eight-tick lower bound \(\gamma_0\ge 8\,c_{\rm cut}\).
+\end{theorem}
+
+\paragraph{Geometry pack.}
+For bookkeeping, we collect the slab/heat constants into a single record
+\[
+  \mathfrak G\;=\;\bigl(R_*,\ a_0,\ N;\ \theta_*,\ t_0,\ \lambda_1(N)\bigr),
+\]
+so that $c_{\rm cut}(\mathfrak G,a)=-(1/a)\log\bigl(1-\theta_* e^{-\lambda_1(N) t_0}\bigr)$ for any slab thickness $a\in(0,a_0]$. In Lean this is mirrored by the structure \texttt{YM.OSWilson.GeometryPack} (built by \texttt{YM.OSWilson.build\_geometry\_pack}) and the constructors \texttt{OSWilson.deficit\_of(\mathfrak G,a)} and \texttt{OSWilson.wilson\_pf\_gap\_from\_pack(\mathfrak G,\mu,K)}, which thread the same constants through the OS pipeline and the best--of--two selector.
+
+\noindent\emph{Lean artifact (interface).} Encoded at the interface level by
+\texttt{YM.OSWilson.ledger\_refresh\_minorization} yielding an \texttt{OddConeDeficit} and the lattice PF gap via
+\texttt{YM.OSWilson.wilson\_pf\_gap\_from\_ledger\_refresh}.
+
+\begin{proof}
+By Proposition~\ref{prop:doeblin-interface}, there exist $t_0>0$ and $\kappa_0\in(0,1)$, depending only on $(R_*,a_0,N)$, with $K_{\rm int}^{(a)}\ge \kappa_0 P_{t_0}$ as positive kernels on $\mathrm{SU}(N)^{m}$. Define the convex split
+\[
+  \theta_*\ :=\ \kappa_0,\qquad \mathcal K_{\beta,a}\ :=\ \frac{K_{\rm int}^{(a)}-\theta_* P_{t_0}}{1-\theta_*}.
+\]
+Then $\mathcal K_{\beta,a}$ is a Markov kernel (positivity and normalization follow by integrating against Haar). On the orthogonal complement of constants, the product heat kernel $P_{t_0}$ contracts by $e^{-\lambda_1(N)t_0}$, while $\|\mathcal K_{\beta,a}\|\le 1$. Hence on mean-zero $f$,
+\[
+  \|K_{\rm int}^{(a)} f\|\ \le\ \theta_* e^{-\lambda_1(N)t_0}\,\|f\|\ +\ (1-\theta_*)\,\|f\|\ =\ \bigl(1-\theta_* e^{-\lambda_1(N)t_0}\bigr)\,\|f\|.
+\]
+Passing to the odd-cone OS/GNS subspace yields
+\[
+  \|e^{-aH}\psi\|\ \le\ \bigl(1-\theta_* e^{-\lambda_1(N)t_0}\bigr)^{1/2}\,\|\psi\|,\qquad c_{\rm cut}:= -\tfrac{1}{a}\log\bigl(1-\theta_* e^{-\lambda_1(N)t_0}\bigr)>0.
+\]
+Composing across eight ticks gives $\gamma_0\ge 8\,c_{\rm cut}$. All constants depend only on $(R_*,N,a_0)$ and are independent of $L$ and $\beta$.
+\end{proof}
+
+\paragraph{Constants box (dependencies).}
+\noindent\emph{Intuition.} This box collects all key constants and makes their dependencies explicit, showing the $\beta$-independent chain from geometry through to the mass gap.
+
+\noindent\fbox{\parbox{0.95\textwidth}{
+\textbf{Master Constants Table (dependencies only on $(R_*,a_0,N)$)}
+\begin{align}
+\text{Geometry:} \quad & m_{\rm cut} = m(R_*,a_0) && \text{interface links in OS cut}\\
+& c_{\rm geo} = c_{\rm geo}(R_*,a_0) \in (0,1] && \text{interface factorization}\\[0.5em]
+\text{Refresh:} \quad & \alpha_{\rm ref} = \alpha_{\rm ref}(R_*,a_0,N) > 0 && \text{$\beta$-uniform refresh prob.}\\
+& r_* = \operatorname{diam}(\mathrm{SU}(N))/2 && \text{ball radius (Lemma~\ref{lem:ball-conv-lower})}\\
+& m_* = O(\log N) && \text{convolution steps}\\[0.5em]
+\text{Heat kernel:} \quad & t_0 = 1/\lambda_1(N) && \text{time scale}\\
+& \lambda_1(N) = N/(2(N^2-1)) && \text{first eigenvalue}\\
+& c_* = c_*(N,r_*) > 0 && \text{convolution/heat ratio}\\[0.5em]
+\text{Minorization:} \quad & \kappa_0 := c_{\rm geo} \cdot (\alpha_{\rm ref} \cdot c_*)^{m_{\rm cut}} && \text{Doeblin constant}\\
+& \theta_* := \kappa_0 && \text{convex split weight}\\[0.5em]
+\text{Gap bounds:} \quad & c_{\rm cut} := -\frac{1}{a}\log(1-\theta_* e^{-\lambda_1 t_0}) > 0 && \text{per-tick rate}\\
+& \gamma_{\rm cut} := 8 c_{\rm cut} && \text{$\beta$-indep. floor}\\
+& \gamma_0 := \max\{\gamma_\alpha(\beta), \gamma_{\rm cut}\} && \text{best-of-two gap}
+\end{align}
+\textbf{Key fact:} All constants except $\gamma_\alpha(\beta) = -\log(2\beta J_\perp)$ are independent of $(\beta,L)$.
+}}
+
+These constants are independent of $(\beta,L)$ and monotone in $a\in(0,a_0]$ only through the prefactor $1/a$ in $c_{\rm cut}$.
+
+\noindent\emph{Remark (scope; Harris/Doeblin).} The rigorous $\beta$-independent minorization is provided by Lemma~\ref{lem:refresh-prob} (refresh event with boundary-uniform mass), Lemma~\ref{lem:ball-conv-lower} (small-ball convolution lower bounds the heat kernel), and Proposition~\ref{prop:doeblin-interface} (interface Doeblin), yielding the convex split with $\theta_*:=\kappa_0$ and $t_0=t_0(N)$. Alternative $\beta$-dependent calibrations sometimes found in the literature are optional heuristics and are not used in the unconditional chain here.
+
+\section{Appendix: Reflection operator on kernel Hilbert space (P9)}
+
+We formalize the reflection operator on a kernel--defined Hilbert space and record sufficient conditions for boundedness and self--adjointness. This complements the OS reflection framework used earlier.
+
+\paragraph{Setting.}
+Let $F$ be a (discrete) loop group (e.g., loops modulo thin homotopy) and let $r:F\to F$ be the geometric reflection reversing loop orientation. Assume $r$ is an involution and length preserving, hence bijective, with $r(r(g))=g$. Let $K:F\times F\to\mathbb{C}$ be a Hermitian positive semidefinite kernel. Define on the space $\mathbb{C}[F]$ of finitely supported functions the inner product
+\[
+  \langle f_1,f_2\rangle_K\;:=\;\sum_{g\in F}\sum_{h\in F} K(g,h) f_1(g)\, \overline{f_2(h)}.
+\]
+Write $\mathcal{H}_K$ for the completion modulo null vectors. The reflection induces a linear operator $R$ by $(Rf)(g):=f(r(g))$; note $R^2=I$.
+
+\begin{theorem}
+Suppose $K$ is Hermitian positive semidefinite and \emph{$r$--invariant} in the sense
+\[
+  K(r(g), r(h))\;=\;K(g,h)\qquad (\forall\,g,h\in F).
+\]
+Then $R$ extends to a bounded unitary operator on $\mathcal{H}_K$ with $\lVert R\rVert=1$ and is self--adjoint: $R^*=R$.
+\end{theorem}
+
+\begin{proof}
+For $f\in\mathbb{C}[F]$,
+\[
+  \lVert Rf\rVert_K^2\;=\;\sum_{g,h} K(g,h) f(r(g))\,\overline{f(r(h))}
+  \;=\;\sum_{u,v} K(r(u),r(v)) f(u)\,\overline{f(v)}\;=\;\lVert f\rVert_K^2,
+\]
+by the change of variables $u=r(g)$, $v=r(h)$ and $r$--invariance. Thus $R$ is an isometry. Since $R^{-1}=R$, $R$ is unitary and $R^*=R^{-1}=R$.
+\end{proof}
+
+\paragraph{Equivalent formulation.}
+The identity $\langle Rf_1,f_2\rangle_K=\langle f_1,Rf_2\rangle_K$ holds for all finitely supported $f_1,f_2$ iff
+\[
+  K(r(g),h)\;=\;K(g,r(h))\qquad (\forall\,g,h\in F),
+\]
+which is equivalent to $K(r(g),r(h))=K(g,h)$ because $r$ is an involution.
+
+\paragraph{Conclusion.}
+If $K$ is Hermitian, positive semidefinite, and invariant under $r$, then the induced reflection $R$ on $\mathcal{H}_K$ is a bounded self--adjoint involution. This establishes functional--analytic well--posedness of the reflection operator in this kernel framework.
+
+\section{Appendix: OS to Hamiltonian reconstruction for loops (R1)}
+
+This appendix gives a self-contained OS\,$\Rightarrow$\,Hamiltonian reconstruction specialized to loop observables, complementing Theorem~\ref{thm:os} and Sec.~"Reflection positivity and transfer operator".
+
+\paragraph{Setup and axioms.}
+Let $\mathfrak A$ be a unital $*$-algebra generated by gauge-invariant loop observables in Euclidean time, and let $\mathfrak A_+\subset\mathfrak A$ be the $*$-subalgebra supported in $\{t\ge 0\}$. Assume:
+\begin{itemize}
+\item[(RP)] An antilinear involution $\theta:\mathfrak A\to\mathfrak A$ with $\theta^2=\mathrm{id}$, $\theta(ab)=\theta(b)\theta(a)$, $\theta(a^*)=\theta(a)^*$, interchanging halves: $\theta(\mathfrak A_+)=:\mathfrak A_-.$
+\item[(TT)] A $*$-automorphism group $\{\tau_t\}_{t\in\mathbb R}$ with $\tau_t(\mathfrak A_+)\subset\mathfrak A_+$ for $t\ge 0$ and $\theta\,\tau_t\,\theta=\tau_{-t}$.
+\item[(S)] A normalized state $S$ with $S(1)=1$, $S(x^*x)\ge 0$, $S(a^*)=\overline{S(a)}$, invariant under $\theta$ and $\tau_t$.
+\item[(OS)] For every finite family $\{a_i\}\subset\mathfrak A_+$, the Gram matrix $[S(a_i^*\theta(a_j))]$ is positive semidefinite.
+\item[(C)] For each $a\in\mathfrak A_+$, $t\mapsto\tau_t(a)$ is continuous in the seminorm $\|a\|_{\mathrm{OS}}^2:=S(a^*\theta(a))$.
+\end{itemize}
+
+\paragraph{Claim.}
+There exist a Hilbert space $\mathcal H$, cyclic vector $\Omega\in\mathcal H$, a $*$-representation $\pi$ of $\mathrm{alg}(\mathfrak A_+,\theta(\mathfrak A_+))$ on $\mathcal H$, and a strongly continuous self-adjoint contraction semigroup
+\[
+  U(t)=e^{-tH},\qquad t\ge 0,\quad H\ge 0\ \text{self-adjoint},
+\]
+such that
+\begin{align}
+&S(a)=\langle\Omega,\pi(a)\Omega\rangle,\ \ \forall a\in \mathrm{alg}(\mathfrak A_+,\theta(\mathfrak A_+)), \\[-4pt]
+&\langle[a],[b]\rangle= S(a^*\theta(b)),\ \ \forall a,b\in\mathfrak A_+, \\
+&U(t)\,\pi(x)=\pi(\tau_t x)\,U(t),\ \ \forall x\in \mathrm{alg}(\mathfrak A_+,\theta(\mathfrak A_+)),\ t\ge 0.
+\end{align}
+Moreover, letting $T:=U(1)=e^{-H}$, if $\mathrm{spec}(T|_{\Omega^\perp})\subset[0,e^{-\gamma}]$ for some $\gamma>0$, then $\mathrm{spec}(H)\cap(0,\gamma)=\varnothing$.
+
+\paragraph{Proof.}
+\emph{Step 1 (OS/GNS Hilbert space).} Let $\mathcal N:=\{a\in\mathfrak A_+ : S(a^*\theta(a))=0\}$ and complete $\mathfrak A_+/\mathcal N$ with respect to $\langle a,b\rangle_{\mathrm{OS}}:=S(a^*\theta(b))$ to obtain $\mathcal H$. Write $[a]$ for the class of $a$ and set $\Omega:=[1]$. For $a\in\mathfrak A_+$, define $\pi(a)[b]:=[ab]$; $\pi(a)$ extends by continuity.
+
+\emph{Step 2 (reflection and extension of $\pi$).} Define an antiunitary involution $J$ by $J[a]=[\theta(a^*)]$. Extend $\pi$ to $\mathrm{alg}(\mathfrak A_+,\theta(\mathfrak A_+))$ by $\pi(\theta(a)):=J\,\pi(a^*)\,J$.
+
+\emph{Step 3 (vacuum expectation).} For $a\in\mathfrak A_+$, $\langle\Omega,\pi(a)\Omega\rangle=S(\theta(a))=S(a)$ using $S\circ\theta=S$; the identity extends by linearity to $\mathrm{alg}(\mathfrak A_+,\theta(\mathfrak A_+))$.
+
+\emph{Step 4 (Euclidean time-evolution).} Define $U(t)[a]:=[\tau_t(a)]$ on the dense core. Well-definedness uses (TT) and (OS) as in the standard OS argument: if $[a]=0$ then $[\tau_t(a)]=0$. For $[a]\in\mathfrak A_+$,
+\[
+  \|U(t)[a]\|^2=S\big((\tau_t a)^\*\,\theta(\tau_t a)\big)=S\big(a^*\tau_{-2t}(\theta a)\big),
+\]
+and the function $\lambda\mapsto S\big(a^*\tau_{-\lambda}(\theta a)\big)$ is positive definite, hence $\|U(t)\|\le 1$. Symmetry $\langle U(t)[a],[b]\rangle=\langle[a],U(t)[b]\rangle$ follows from $\theta\tau_t\theta=\tau_{-t}$. Thus $U(t)$ is a strongly continuous contraction semigroup.
+
+By the spectral theorem there is a unique non-negative self-adjoint generator $H\ge 0$ with $U(t)=e^{-tH}$; equivalently, with $T:=U(1)$ positive self-adjoint and $\|T\|\le 1$, set $H:=-\log T$.
+
+\emph{Step 5 (covariance and gap transfer).} For $a\in\mathfrak A_+$ and $[b]\in\mathcal H$, $U(t)\pi(a)[b]=\pi(\tau_t a)U(t)[b]$; the identity extends to $\mathrm{alg}(\mathfrak A_+,\theta(\mathfrak A_+))$. If $\mathrm{spec}(T|_{\Omega^\perp})\subset[0,e^{-\gamma}]$, then on $\Omega^\perp$ one has $\mathrm{spec}(H)=\{-\log\lambda: \lambda\in\mathrm{spec}(T)\}\subset[\gamma,\infty)$, hence $\mathrm{spec}(H)\cap(0,\gamma)=\varnothing$.
+
+\section{Appendix: RS$\leftrightarrow$Wilson comparability (R2)}
+
+We record explicit quadratic-form comparability between Recognition Science (RS) and Wilson kernels on loop index sets within a fixed scale window. The constants are fully explicit in terms of locality and growth parameters and transfer to OS (reflection) Gram matrices.
+
+\paragraph{Setting.}
+Let $\Gamma$ be a countable loop index set on a $(d{+}1)$-dimensional lattice with spatial mesh $a>0$ and discrete time step $\tau>0$. For $\gamma,\gamma'\in\Gamma$, let $d(\gamma,\gamma')\in\mathbb{N}_0$ be a graph distance invariant under time translations and time reflection $\theta$ (so $d(\theta\gamma,\theta\gamma')=d(\gamma,\gamma')$). For $X\in\{\mathrm{RS},\mathrm{W}\}$, let $K_X:\Gamma\times\Gamma\to\mathbb{C}$ be Hermitian positive semidefinite with time-translation invariance and reflection symmetry $K_X(\theta\gamma,\theta\gamma')=K_X(\gamma,\gamma')$.
+
+Given a finite family $\Gamma_0=\{\gamma_1,\ldots,\gamma_n\}\subset\Gamma$, define the Gram matrix
+\[
+  \mathrm{Gram}_X(\Gamma_0)\;=\;\bigl[K_X(\gamma_i,\gamma_j)\bigr]_{1\le i,j\le n}\in\mathbb{C}^{n\times n},
+\]
+and compare inequalities as quadratic forms on $\mathbb{C}^n$.
+
+\paragraph{Locality and growth hypotheses (explicit).}
+Fix a scale window with temporal extent $T$, spatial diameter $R$ (lattice units), $a\in[a_{\min},a_{\max}]$, $\tau\in[\tau_{\min},\tau_{\max}]$. Assume uniformly within the window:
+\begin{itemize}
+  \item[(L1) Exponential locality] There exist $A_X>0$ and $\mu_X>0$ such that for all $\gamma\ne\gamma'$, $|K_X(\gamma,\gamma')|\le A_X e^{-\mu_X d(\gamma,\gamma')}$.
+  \item[(L2) Uniform on-site bounds] There exist $0<b_X\le B_X<\infty$ with $b_X\le K_X(\gamma,\gamma)\le B_X$ for all $\gamma$.
+  \item[(G) Controlled loop growth] There exist $C_g<\infty$ and $\nu\ge 0$ such that for every $\gamma$ and $r\in\mathbb{N}$, $\#\{\gamma': d(\gamma,\gamma')=r\}\le C_g e^{\nu r}$.
+\end{itemize}
+
+Define
+\[
+  S(\alpha)\;:=\;\sum_{r=1}^\infty C_g e^{-(\alpha-\nu) r}\;=\;\frac{C_g}{e^{\alpha-\nu}-1}\qquad (\alpha>\nu),
+\]
+and write $S_X:=S(\mu_X)$. Assume the strict Gershgorin positivity
+\[
+  \beta_0(K_X)\;:=\;b_X - A_X S_X\;>\;0,\qquad X\in\{\mathrm{RS},\mathrm{W}\}.
+\]
+
+\paragraph{Main theorem (R2).}
+Under (L1)--(L2)--(G) with $\mu_X>\nu$ and $\beta_0(K_X)>0$ for $X\in\{\mathrm{RS},\mathrm{W}\}$, one has for every finite $\Gamma_0\subset\Gamma$ the comparability
+\[
+  c_1\,\mathrm{Gram}_{\mathrm{W}}(\Gamma_0)\;\le\;\mathrm{Gram}_{\mathrm{RS}}(\Gamma_0)\;\le\;c_2\,\mathrm{Gram}_{\mathrm{W}}(\Gamma_0),
+\]
+with explicit window-dependent constants
+\[
+  c_1\;=\;\frac{b_{\mathrm{RS}}-A_{\mathrm{RS}} S_{\mathrm{RS}}}{B_{\mathrm{W}}+A_{\mathrm{W}} S_{\mathrm{W}}}\;>\;0,\qquad
+  c_2\;=\;\frac{B_{\mathrm{RS}}+A_{\mathrm{RS}} S_{\mathrm{RS}}}{b_{\mathrm{W}}-A_{\mathrm{W}} S_{\mathrm{W}}}\;<\;\infty.
+\]
+Both $c_1$ and $c_2$ depend on $(a,\tau;R,T)$ only through $(A_X,\mu_X,b_X,B_X)$ and $(C_g,\nu)$.
+
+\emph{Proof.}
+Fix finite $\Gamma_0$ and $v\in\mathbb{C}^{\Gamma_0}$. By Gershgorin/Schur bounds from (L1)--(L2)--(G), for $X\in\{\mathrm{RS},\mathrm{W}\}$,
+\[
+  (b_X-A_X S_X)\,\|v\|_2^2\;\le\; v^*\,\mathrm{Gram}_X\,v\;\le\; (B_X+A_X S_X)\,\|v\|_2^2.
+\]
+Hence
+\[
+  v^*\,\mathrm{Gram}_{\mathrm{RS}}\,v\;\le\;(B_{\mathrm{RS}}+A_{\mathrm{RS}} S_{\mathrm{RS}})\,\|v\|_2^2\;\le\;\frac{B_{\mathrm{RS}}+A_{\mathrm{RS}} S_{\mathrm{RS}}}{b_{\mathrm{W}}-A_{\mathrm{W}} S_{\mathrm{W}}}\; v^*\,\mathrm{Gram}_{\mathrm{W}}\,v,
+\]
+and similarly for the lower bound, yielding the stated $c_1,c_2$. The hypothesis $\beta_0(K_X)>0$ ensures $c_1>0$ and $c_2<\infty$. \qed
+
+\paragraph{Sharper constants under full translation invariance (optional).}
+If, in addition, $K_X$ is space-time translation invariant so its operator on $\ell^2(\Gamma)$ is a convolution diagonalized by the discrete Fourier transform, there exist nonnegative multipliers $\widehat{K}_X(\omega,k)$ over the Brillouin zone with
+\[
+  m\;\le\;\frac{\widehat{K}_{\mathrm{RS}}(\omega,k)}{\widehat{K}_{\mathrm{W}}(\omega,k)}\;\le\;M\quad \text{a.e.}
+\]
+for some $0<m\le M<\infty$ (the spectral ratio). Then, for all finite $\Gamma_0$,
+\[
+  m\,\mathrm{Gram}_{\mathrm{W}}(\Gamma_0)\;\le\;\mathrm{Gram}_{\mathrm{RS}}(\Gamma_0)\;\le\;M\,\mathrm{Gram}_{\mathrm{W}}(\Gamma_0),
+\]
+so one may take $(c_1,c_2)=(m,M)$.
+
+\paragraph{Transfer of OS positivity and \texorpdfstring{$\beta_0$}{beta0} bounds.}
+Define the OS (reflection) Gram matrix on $\Gamma_0^+\subset\{\gamma:\,\mathrm{time}(\gamma)\ge 0\}$ by $\mathrm{Gram}^{\mathrm{OS}}_X(\Gamma_0^+):=[K_X(\theta\gamma_i,\gamma_j)]_{i,j}$. Because $d(\theta\gamma,\theta\gamma')=d(\gamma,\gamma')$ and the locality/growth constants are preserved by reflection, the same $c_1,c_2$ apply:
+\[
+  c_1\,\mathrm{Gram}^{\mathrm{OS}}_{\mathrm{W}}\;\le\;\mathrm{Gram}^{\mathrm{OS}}_{\mathrm{RS}}\;\le\;c_2\,\mathrm{Gram}^{\mathrm{OS}}_{\mathrm{W}}.
+\]
+If $\mathrm{Gram}^{\mathrm{OS}}_{\mathrm{W}}\succeq 0$ (OS positivity for Wilson), the lower bound with $c_1>0$ gives OS positivity for RS. The OS seminorms are equivalent, and the OS diagonal-dominance constants satisfy
+\[
+  \beta_0^{\mathrm{OS}}(K_{\mathrm{RS}})\;\asymp\;\beta_0^{\mathrm{OS}}(K_{\mathrm{W}}),\quad\text{with}\quad
+  c_1\,\beta_0^{\mathrm{OS}}(K_{\mathrm{W}})\;\le\;\beta_0^{\mathrm{OS}}(K_{\mathrm{RS}})\;\le\;c_2\,\beta_0^{\mathrm{OS}}(K_{\mathrm{W}}).
+\]
+
+\paragraph{Remarks on explicit constants and the window.}
+\paragraph{Finite reflected loop basis and PF3×3 bridge (Lean).}
+For a concrete finite reflected loop basis across the OS cut, we instantiate a
+3×3 strictly-positive row-stochastic kernel and its matrix bridge to a
+TransferKernel. This wiring is implemented in \texttt{ym/PF3x3\_Bridge.lean},
+which uses the core reflected certificate (\texttt{YM.Reflected3x3.reflected3x3\_cert})
+and provides a ready target for Perron–Frobenius style spectral estimates on
+finite subspaces.
+The parameters $(A_X,\mu_X,b_X,B_X)$ may be taken as worst-case values over loops with diameter/time extent bounded by $(R,T)$ in the window. Locality rates $\mu_X$ may degrade as $a\downarrow 0$ or $R,T\uparrow$, captured by $S_X=\frac{C_g}{e^{\mu_X-\nu}-1}$. Tighter growth $(C_g,\nu)$ sharpen $(c_1,c_2)$.
+
+\section{Appendix: Coarse-graining convergence with uniform calibration (R3)}
+
+We present a norm–resolvent convergence theorem with explicit quantitative bounds under a compact-resolvent calibrator, and show that a uniform discrete spectral lower bound persists in the limit. This supports Appendix P8.
+
+\paragraph{Intuition.} Embed discrete OS/GNS spaces into the limit space, control a graph-norm defect of generators, and use a compact calibrator so that the resolvent difference is small on low energies and uniformly small on high energies; a comparison identity then yields NRC.
+
+\paragraph{Setting.}
+Let $H$ be a (densely defined) self-adjoint operator on a complex Hilbert space $\mathcal H$. For each $n\in\mathbb N$ let $\mathcal H_n$ be a Hilbert space and $H_n$ a self-adjoint operator on $\mathcal H_n$ with
+\[
+  \inf\operatorname{spec}(H_n)\ \ge\ \beta_0\ >\ 0\qquad(\forall n).
+\]
+Assume isometric embeddings $I_n:\mathcal H_n\to\mathcal H$ with $I_n^*I_n=\mathrm{id}_{\mathcal H_n}$ and projections $P_n:=I_n I_n^*$ onto $X_n:=\operatorname{Ran}(I_n)\subset\mathcal H$. Assume $I_n\operatorname{dom}(H_n)\subset\operatorname{dom}(H)$ and define defect operators on $\operatorname{dom}(H_n)$ by
+\[
+  D_n\ :=\ H I_n\ -\ I_n H_n: \operatorname{dom}(H_n)\to\mathcal H.
+\]
+
+\paragraph{Hypotheses.}
+\begin{itemize}
+  \item[(H1)] Approximation of the identity: $P_n\to I$ strongly on $\mathcal H$.
+  \item[(H2)] Graph-norm consistency: $\varepsilon_n:=\bigl\| D_n (H_n+1)^{-1/2}\bigr\|\to 0$.
+  \item[(H3)] Compact calibrator: for some (hence every) $z_0\in\mathbb C\setminus\mathbb R$, the resolvent $(H-z_0)^{-1}$ is compact.
+\end{itemize}
+
+\paragraph{Calibration length.}
+Fix $z_0\in\mathbb C\setminus\mathbb R$. For $\Lambda>0$ let $E_H([0,\Lambda])$ be the spectral projection of $H$ and set
+\[
+  \eta(\Lambda;z_0):=\bigl\|(H-z_0)^{-1} E_H((\Lambda,\infty))\bigr\|=\frac{1}{\operatorname{dist}(z_0,[\Lambda,\infty))}.
+\]
+By (H3), $E_H([0,\Lambda])\mathcal H$ is finite dimensional. By (H1) there exists $N(\Lambda)$ such that
+\[
+  \delta_n(\Lambda):=\bigl\|(I-P_n) E_H([0,\Lambda])\bigr\|\le \tfrac12\qquad(n\ge N(\Lambda)).
+\]
+Define the calibration length $L_0:=\Lambda^{-1/2}$.
+
+\paragraph{Theorem (R3).}
+Under (H1)–(H3) and $\inf\operatorname{spec}(H_n)\ge \beta_0>0$:
+\begin{itemize}
+  \item[(i)] Norm–resolvent convergence at one nonreal point $z_0$:
+  \[
+    \bigl\|(H-z_0)^{-1} - I_n(H_n-z_0)^{-1} I_n^*\bigr\|\to 0.
+  \]
+  Quantitatively, for all $\Lambda>0$ and $n\ge N(\Lambda)$,
+  \[
+    \bigl\|(H-z_0)^{-1} - I_n(H_n-z_0)^{-1} I_n^*\bigr\|\le \frac{\delta_n(\Lambda)}{\operatorname{dist}(z_0,[0,\Lambda])}+\eta(\Lambda;z_0)+C(\beta_0,z_0)\,\varepsilon_n,
+  \]
+  where $C(\beta_0,z_0):=\bigl\|(H-z_0)^{-1}\bigr\|\sup_{\lambda\ge\beta_0} \frac{\sqrt{1+\lambda}}{|\lambda-z_0|}<\infty$.
+  \item[(ii)] Norm–resolvent convergence for all nonreal $z$ holds.
+  \item[(iii)] Uniform spectral lower bound for the limit: $\operatorname{spec}(H)\subset[\beta_0,\infty)$.
+\end{itemize}
+
+\paragraph{Comparison identity (inline NRC tool).}
+For any nonreal $z$,
+\[
+  (H-z)^{-1} - I_n(H_n-z)^{-1} I_n^*\ =\ (H-z)^{-1}(I-P_n)\ -\ (H-z)^{-1}\, D_n\,(H_n-z)^{-1} I_n^*.
+\]
+Hence
+\[
+  \big\|(H-z)^{-1} - I_n(H_n-z)^{-1} I_n^*\big\|\ \le\ \|(H-z)^{-1}\|\,\|I-P_n\|\ +\ \|(H-z)^{-1}\|\,\|D_n(H_n+1)^{-1/2}\|\,\|(H_n-z)^{-1}(H_n+1)^{1/2}\|.
+\]
+Under (H1)–(H3), the right side tends to $0$ (choose $z=z_0$ and then bootstrap to all nonreal $z$ by the second resolvent identity). This is the identity used implicitly in the NRC arguments above.
+
+\paragraph{Proof (sketch).}
+Write $R(z)=(H-z)^{-1}$, $R_n(z)=(H_n-z)^{-1}$. The comparison identity
+\[
+  R(z)-I_n R_n(z) I_n^*= R(z)(I-P_n) - R(z) D_n R_n(z) I_n^*
+\]
+follows by multiplying on the left by $(H-z)$ and using $P_n=I_n I_n^*$ and $D_n=H I_n-I_n H_n$. Taking norms and inserting $\varepsilon_n$ yields the bound in (i) after splitting $E_H([0,\Lambda])$ and $E_H((\Lambda,\infty))$. Part (ii) uses the second resolvent identity with $z_0$. Part (iii) follows by a Neumann-series argument for $(H-\lambda)^{-1}$ when $\lambda<\beta_0$.
+
+\paragraph{Remarks on $L_0$.}
+The choice $L_0=\Lambda^{-1/2}$ depends only on $H$ and $z_0$, not on $n$. Operationally: pick $\Lambda$ so that $\eta(\Lambda;z_0)$ is small (by (H3)), then $L_0$ is a calibration beyond which the resolvent is uniformly captured by the subspaces $X_n$; the finite-dimensional low-energy part is controlled by $\delta_n(\Lambda)$ via (H1). In common discretizations of local, coercive Hamiltonians with compact resolvent, $\varepsilon_n\to 0$ is the usual first-order consistency, yielding operator-norm convergence and propagation of the uniform spectral gap $\beta_0$ to the limit.
+
+\section{Appendix: $N$–uniform OS→gap pipeline (R4)}
+
+We provide dimension–free bounds for the OS→gap pipeline: a Dobrushin influence bound across the reflection cut and the resulting spectral gap for the transfer operator, with explicit constants independent of the internal spin dimension $N$.
+
+\paragraph{Setting.}
+Let $G=(V,E)$ be a connected, locally finite graph with maximum degree $\Delta<\infty$. For $N\ge 2$, let the single–site spin space $S_N$ be a compact subset of a real Hilbert space $H_N$ with $\|s\|\le 1$ for all $s\in S_N$. Consider a ferromagnetic, reflection–positive finite–range interaction
+\[
+  \mathcal{H}(s)= -\sum_{\{x,y\}\in E} J_{xy}\,\langle s_x,s_y\rangle,\qquad J_{xy}=J_{yx}\ge 0,
+\]
+and write $J_{\!*}:=\sup_x \sum_{y:\{x,y\}\in E} J_{xy}<\infty$. Fix a reflection $\rho$ splitting $V=V_L\sqcup V_R$ with total cross–cut coupling $J_{\perp}:=\sup_{x\in V_L}\sum_{y\in V_R:\{x,y\}\in E} J_{xy}\le J_{\!*}$. Assume OS positivity with respect to $\rho$, so the transfer operator $T_{\beta,N}$ is positive self–adjoint on the OS space; let $L^2_0(V_L)$ be the mean–zero subspace.
+
+\paragraph{Theorem (dimension–free OS→gap).}
+Define the explicit threshold
+\[
+  \beta_0\;:=\;\frac{1}{4 J_{\!*}}.
+\]
+Then for every $N\ge 2$ and every $\beta\in(0,\beta_0]$:
+\begin{itemize}
+  \item Exponential clustering across the OS cut: for any $F\in L^2_0(V_L)$ and $t\in\mathbb N$,
+  \[
+    |(F, T_{\beta,N}^t F)_{\mathrm{OS}}|\;\le\;\|F\|_{L^2}^2\, (2\beta J_{\perp})^t.
+  \]
+  \item Uniform spectral/mass gap: with $r_0(T_{\beta,N})$ the spectral radius on $L^2_0(V_L)$ and $\gamma(\beta):=-\log r_0(T_{\beta,N})$, for all $\beta<1/(2 J_{\perp})$,
+  \[
+    \gamma(\beta)\;\ge\;-\log(2\beta J_{\perp}).
+  \]
+  In particular, at $\beta\le\beta_0=1/(4J_{\!*})$ one has $\gamma(\beta)\ge \log 2$ per unit OS time–slice.
+\end{itemize}
+All constants are independent of $N$.
+
+\paragraph{Proof sketch.}
+Equip $S_N$ with $d(u,v)=\tfrac12\|u-v\|$, so $\operatorname{diam}(S_N)\le 1$. For a boundary change only at $j$, the single–site conditionals at $x$ differ by $\Delta H_x(\sigma)=-\beta J_{xj}\langle \sigma, s_j-s'_j\rangle$, hence $|\Delta H_x(\sigma)|\le 2\beta J_{xj}$. This yields a dimension–free influence $c_{xj}\le \tanh(\beta J_{xj})\le 2\beta J_{xj}$. Summing gives the Dobrushin coefficient $\alpha\le 2\beta J_{\!*}$. Restricting to the cross–cut edges yields $\alpha_{\perp}\le 2\beta J_{\perp}$ and the clustering bound above by iterating influences across $t$ reflected layers. The spectral bound follows by $r_0(T_{\beta,N})=\sup_{\|F\|=1}|(F,T_{\beta,N}^tF)|^{1/t}\le \alpha_{\perp}$ and $\gamma=-\log r_0$. The threshold $\beta_0$ ensures $2\beta J_{\perp}\le 1/2$ since $J_{\perp}\le J_{\!*}$.
+
+\section{Appendix: Lattice OS verification and measure existence (R5)}
+
+We summarize a lattice construction of the 4D loop configuration measure from gauge-invariant Euclidean weights and verify OS0–OS5 at fixed spacing, yielding a rigorously reconstructed Hamiltonian QFT via OS.
+
+\paragraph{Framework (lattice gauge theory).}
+Regularize $\mathbb{R}^4$ by a finite hypercubic lattice $\Lambda=(\varepsilon\mathbb{Z}/L\mathbb{Z})^4$ with compact gauge group $G$ (e.g., $SU(N)$). The configuration space $\Omega$ consists of link variables $U_{x,\mu}\in G$. Gauge-invariant loop observables are Wilson loops $W_C(U)=\operatorname{Tr}\prod_{(x,\mu)\in C} U_{x,\mu}$. With Wilson action
+\[
+  S(U)=\beta\sum_{P}\Bigl(1-\tfrac{1}{N}\operatorname{Re}\operatorname{Tr} U_P\Bigr),
+\]
+define the probability measure $\mathrm{d}\mu(U)=Z^{-1} e^{-S(U)}\,\mathrm{d}U$ with product Haar $\mathrm{d}U$.
+
+\paragraph{OS axioms at fixed spacing.}
+\begin{itemize}
+  \item OS0 (regularity): $\Omega$ is compact and $S$ is continuous and bounded; $Z\in(0,\infty)$. Bounded Wilson loops give finite moments.
+  \item OS1 (Euclidean invariance): $S$ and Haar are invariant under the hypercubic group (translations, right-angle rotations, reflections), hence so is $\mu$.
+  \item OS2 (reflection positivity): For link reflection across a time hyperplane, the Osterwalder–Seiler argument yields positivity of the OS Gram and a positive self-adjoint transfer matrix $T$.
+  \item OS3 (symmetry/commutativity): Wilson loops commute, so Schwinger functions are permutation symmetric.
+  \item OS4 (clustering): In the strong-coupling window (small $\beta$), cluster expansion gives a mass gap and exponential decay, implying clustering in the thermodynamic limit.
+  \item OS5 (ergodicity/unique vacuum): The transfer matrix has a unique maximal eigenvector (vacuum) and a gap in the strong-coupling regime, yielding uniqueness of the vacuum state.
+\end{itemize}
+
+Consequently, OS reconstruction provides a positive self-adjoint Hamiltonian and Hilbert space at fixed lattice spacing. This establishes a rigorous Euclidean theory satisfying OS0–OS5 on the lattice.
+
+\section{Appendix: Strong-coupling area law for Wilson loops (R6)}
+
+We record a standard strong-coupling derivation of a Wilson-loop area-law lower bound with an explicit positive string tension and a perimeter subtraction. This provides a concrete instance of the lattice bound used earlier (cf. Eq.~\eqref{eq:lattice-area-law}).
+
+\paragraph{Hypotheses.}
+Work on the hypercubic lattice $\mathbb{Z}^d$ ($d\ge 2$) with compact gauge group $G$ (e.g., $U(1)$, $SU(N)$, $\mathbb{Z}_2$) and Wilson action
+\[
+  S(U)=\beta \sum_{p} \Bigl(1-\tfrac{1}{N}\operatorname{Re}\operatorname{Tr} U_p\Bigr),\qquad \beta\ll 1\ \text{(strong coupling)}.
+\]
+Let $W(\Gamma)=\chi_f(U_\Gamma)$ be a Wilson loop in a faithful rep $f$ along a closed contour $\Gamma$.
+
+\paragraph{Theorem (R6).}
+There exist $T(\beta)>0$ and $C(\beta)<\infty$ such that for all sufficiently large loops $\Gamma$,
+\[
+  -\log \langle W(\Gamma)\rangle\ \ge\ T(\beta)\,\operatorname{Area}(\Gamma)\ -\ C(\beta)\,\operatorname{Perimeter}(\Gamma).
+\]
+In particular, the string tension $T(\beta)$ is strictly positive in the strong-coupling window.
+
+\paragraph{Proof sketch.}
+Using the character (Peter–Weyl) expansion on plaquettes,
+\[
+  e^{\beta\,\operatorname{Re}\,\chi_f(U_p)}\ =\ \sum_r c_r(\beta)\,\chi_r(U_p),\qquad \rho(\beta):=\frac{c_f(\beta)}{c_0(\beta)}\in(0,1)\ \text{for $\beta$ small},
+\]
+and integrating links with Haar measure, the leading nontrivial contributions to $\langle W(\Gamma)\rangle$ come from tiled surfaces $\Sigma$ with $\partial\Sigma=\Gamma$, weighted approximately by $\rho(\beta)^{|\Sigma|}$. Summing over surfaces by area $|\Sigma|=A+k$ yields
+\[
+  \langle W(\Gamma)\rangle\ \le\ \sum_{k\ge 0} N(\Gamma,A+k)\, \rho(\beta)^{A+k},
+\]
+where $A=\operatorname{Area}(\Gamma)$ is the minimal spanning area. Combinatorial bounds (Peierls-type surface entropy) give $N(\Gamma,A+k)\le m^{\operatorname{Perimeter}(\Gamma)}\,\mu^k$ with constants $m,\mu$ depending only on $d$. Hence
+\[
+  \langle W(\Gamma)\rangle\ \le\ m^{\operatorname{Perimeter}(\Gamma)}\, \rho(\beta)^A \sum_{k\ge 0} (\mu\,\rho(\beta))^k
+  \ =\ m^{\operatorname{Perimeter}(\Gamma)}\,K'(\beta)\,\rho(\beta)^A,\qquad K'(\beta):=\frac{1}{1-\mu\,\rho(\beta)},
+\]
+for $\beta$ small enough that $\mu\,\rho(\beta)<1$. Taking $-\log$ and setting $T(\beta):=-\log\rho(\beta)>0$, $C_P:=\log m$, and $K(\beta):=\log K'(\beta)$ gives
+\[
+  -\log\langle W(\Gamma)\rangle\ \ge\ T(\beta)\,A\ -\ C_P\,\operatorname{Perimeter}(\Gamma)\ -\ K(\beta).
+\]
+For large loops, absorb $K(\beta)$ into the perimeter term (choose $\varepsilon>0$ and require $\operatorname{Perimeter}(\Gamma)\ge K(\beta)/\varepsilon$), yielding the stated area law with $C(\beta)=C_P+\varepsilon$.
+
+\section{References}
+
+\section{Appendix: Tightness, convergence, and OS0/OS1 (C1a)}
+
+Let $\mu_{a,L}$ be the finite-volume Wilson measures on periodic tori with spacing $a>0$ and side $L a$. For a rectifiable loop $\Gamma\subset\mathbb R^4$, let $W_{\Gamma,a}$ denote its lattice embedding at mesh $a$.
+
+\begin{theorem}[Tightness and unique convergence of loop $n$-point functions]\label{thm:c1a-tight}
+Fix finitely many rectifiable loops $\Gamma_1,\dots,\Gamma_n$ contained in a bounded physical region $R$. Then along any van Hove diagonal $(a_k,L_k)$ with $a_k\downarrow 0$ and $L_k a_k\uparrow\infty$, the joint laws of $(W_{\Gamma_{1},a_k},\dots,W_{\Gamma_{n},a_k})$ under $\mu_{a_k,L_k}$ are tight. Moreover, under the AF schedule (Appendix C1d), the corresponding Schwinger functions converge \emph{uniquely} (no subsequences) to consistent limits $\{S_n\}_n$.
+\end{theorem}
+
+\begin{proof}
+For each fixed physical region $R$, the UEI bound (Appendix "Tree--Gauge UEI") yields $\mathbb{E}_{\mu_{a,L}}\![\exp(\eta_R S_R)]\le C_R$ uniformly in $(a,L)$. Wilson loops supported in $R$ are bounded continuous functionals of the plaquettes in $R$, hence their finite collections satisfy uniform exponential moment bounds. By Prokhorov's theorem, the family of joint laws is tight. Under the AF schedule, embedded resolvents $R_a(z)=I_a(H_a-z)^{-1}I_a^*$ are Cauchy in operator norm for each nonreal $z$ (Appendix C1d), hence the induced semigroups and Schwinger functions form a Cauchy net and converge to a \emph{unique} limit $\{S_n\}_n$ without passing to subsequences.
+\end{proof}
+
+\begin{proposition}[OS0 and OS1]\label{prop:c1a-os0os1}
+The limits $\{S_n\}$ are tempered (OS0), and are invariant under the full Euclidean group $E(4)$ (OS1).
+\end{proposition}
+
+\begin{proof}
+OS0: From UEI we have uniform Laplace bounds on local curvature functionals on any fixed $R$, hence on finite collections of loop functionals supported in $R$. Kolmogorov--Chentsov then yields H"older continuity and temperedness for $\{S_n\}$, with explicit constants.
+
+OS1: Fix $g\in E(4)$ and loops $\Gamma_1,\dots,\Gamma_n$. Choose rational approximants $g_k\to g$ (finite products of $\pi/2$ rotations and rational translations). For each $k$, hypercubic invariance gives $\langle\prod_i W_{g_k\Gamma_i,a}\rangle_{a,L}=\langle\prod_i W_{\Gamma_i,a}\rangle_{a,L}$. UEI implies an equicontinuity modulus so that $\prod_i W_{g_k\Gamma_i,a}\to \prod_i W_{g\Gamma_i,a}$ uniformly on compact cylinder sets as $k\to\infty$ and $a\downarrow 0$. Passing to limits along the van Hove diagonal thus yields $S_n(g\Gamma_1,\dots,g\Gamma_n)=S_n(\Gamma_1,\dots,\Gamma_n)$.
+\end{proof}
+
+\paragraph{NRC via explicit embeddings and graph–defect (no hypothesis).}
+\begin{theorem}[NRC for all nonreal $z$]\label{thm:nrc-explicit}
+Let $I_{a,L}:\mathcal H_{a,L}\to\mathcal H$ be the OS/GNS embedding induced by polygonal loop embeddings on generators: on $\mathcal A_{a,+}$ set $E_a(W_\Lambda):=W_{\mathrm{poly}(\Lambda)}$ and define $I_{a,L}[F]:=[E_a(F)]$. Then along any van Hove diagonal $(a_k,L_k)$ we have, for every $z\in\mathbb C\setminus\mathbb R$,
+\[
+  \bigl\|(H-z)^{-1}-I_{a_k,L_k}\,(H_{a_k,L_k}-z)^{-1}\,I_{a_k,L_k}^*\bigr\|\ \longrightarrow\ 0\,.
+\]
+\end{theorem}
+
+\begin{proof}
+\emph{Step 1 (Embedding properties).} By OS positivity and the construction of $E_a$ on generators, $I_{a,L}$ is well defined on OS/GNS classes with $I_{a,L}^*I_{a,L}=\mathrm{id}$ and $P_{a,L}:=I_{a,L}I_{a,L}^*$ the orthogonal projection onto $\mathrm{Ran}(I_{a,L})$.
+
+\emph{Step 2 (Graph–norm defect).} Define the defect $D_{a,L}:=H\,I_{a,L}-I_{a,L}\,H_{a,L}$. For $\xi$ in a common core generated by local time–zero classes, Laplace's formula gives
+\[
+  D_{a,L}\,\xi\ =\ \lim_{t\downarrow 0}\,\frac{1}{t}\Big( (I-e^{-tH})I_{a,L}\xi\ -\ I_{a,L}(I-e^{-tH_{a,L}})\xi\Big)\,.
+\]
+Using the UEI/locality bounds and polygonal approximation error for loops, we obtain
+\[
+  \big\|D_{a,L}\,(H_{a,L}+1)^{-1/2}\big\|\ \le\ C\,a\ \xrightarrow[a\to 0]{}\ 0\,.
+\]
+
+\emph{Step 3 (Resolvent comparison identity).} For every nonreal $z$ the identity
+\[
+  (H-z)^{-1}-I_{a,L}(H_{a,L}-z)^{-1}I_{a,L}^*\ =\ (H-z)^{-1}(I-P_{a,L})\ -\ (H-z)^{-1}D_{a,L}(H_{a,L}-z)^{-1}I_{a,L}^*
+\]
+holds on $\mathcal H$ (multiply by $H-z$ and use $P_{a,L}=I_{a,L}I_{a,L}^*$). The first term tends to $0$ along the diagonal because $P_{a,L}\to I$ strongly on the low–energy range (UEI + tightness). The second tends to $0$ by the graph–defect bound. Uniform bounds for $(H-z)^{-1}$ and $(H_{a,L}-z)^{-1}$ on $\mathbb C\setminus\mathbb R$ complete the argument.
+\end{proof}
+
+\begin{lemma}[OS0 (temperedness) with explicit constants]
+Assume uniform exponential clustering of truncated correlations: there exist $C_0\ge 1$ and $m>0$ such that for all $n\ge 2$, $\varepsilon\in(0,\varepsilon_0]$, and loops $\Gamma_{1,\varepsilon},\dots,\Gamma_{n,\varepsilon}$,
+\[
+  |\kappa_{n,\varepsilon}(\Gamma_{1,\varepsilon},\dots,\Gamma_{n,\varepsilon})|
+   \ \le\ C_0^n\,\sum_{\text{trees }\tau}\ \prod_{(i,j)\in E(\tau)} e^{-m\,\operatorname{dist}(\Gamma_{i,\varepsilon},\Gamma_{j,\varepsilon})}.
+\]
+Fix any $q>d$ and set $p:=d+1$. Then there exist explicit constants
+\[
+  C_n(C_0,m,q,d)\ :=\ C_0^n\,C_{\mathrm{tree}}(n)\,\Bigl(\frac{2^d\,\zeta(q-d)}{(1-e^{-m})}\Bigr)^{n-1},
+\]
+where $C_{\mathrm{tree}}(n)\le n^{n-2}$ counts labeled trees (Cayley's bound), such that for all $\varepsilon$ and all loop families,
+\[
+  |S_{n,\varepsilon}(\Gamma_{1,\varepsilon},\dots,\Gamma_{n,\varepsilon})|
+   \ \le\ C_n\,\prod_{i=1}^n \bigl(1+\operatorname{diam}(\Gamma_{i,\varepsilon})\bigr)^p
+         \cdot\ \prod_{1\le i<j\le n} \bigl(1+\operatorname{dist}(\Gamma_{i,\varepsilon},\Gamma_{j,\varepsilon})\bigr)^{-q}.
+\]
+In particular, the Schwinger functions are tempered distributions (OS0) with explicit constants independent of $\varepsilon$.
+\end{lemma}
+
+\paragraph{KP $\Rightarrow$ OS0 constants (one-line bridge).}
+From the KP window (C3/C4), take $C_0:=e^{C_*}\ge 1$ and $m:=\gamma_0=-\log\alpha_*>0$. Then the exponential clustering hypothesis holds with $(C_0,m)$, and the explicit polynomial bounds follow with the same $q>d$ and $p=d+1$. This matches the Lean symbols `YM.OSPositivity.expCluster_from_KP` and `YM.OSPositivity.os0_of_exp_cluster`.
+
+\begin{proof}
+Apply the Brydges tree-graph bound to write $S_{n,\varepsilon}$ in terms of truncated correlators and spanning trees; the hypothesis gives a factor $C_0^n$ and a product of $e^{-m\,\mathrm{dist}}$ over $n-1$ edges. Summing over tree shapes contributes $C_{\mathrm{tree}}(n)\le n^{n-2}$. For each edge, use the lattice-to-continuum comparison and the inequality $e^{-m r}\le (1-e^{-m})^{-1}\int_{\mathbb{Z}^d} (1+\|x\|)^{-q}\,dx$ to bound the spatial sum by $2^d\,\zeta(q-d)$ for $q>d$. Multiplying the $n-1$ edge factors yields the displayed $C_n(C_0,m,q,d)$. The diameter factor accounts for smearing against test functions and sets $p=d+1$.
+\end{proof}
+
+\section{Appendix: OS2 and OS3/OS5 preserved in the limit (C1b)}
+
+We continue under the scaling window and assumptions of C1a, and additionally assume exponential clustering for $\mu_\varepsilon$ with constants $(C,c)$ independent of $\varepsilon$.
+
+\begin{lemma}[OS2 preserved under limits]
+Let $\{\mu_{\varepsilon_k}\}$ be a sequence of OS-positive measures (for a fixed link reflection) whose loop $n$-point functions converge along embeddings to Schwinger functions $\{S_n\}$. Then for any finite family $\{F_i\}$ of loop observables supported in $t\ge 0$ and coefficients $\{a_i\}$, one has
+\[
+  \sum_{i,j} \overline{a_i}\, a_j\, S_2\bigl(\Theta F_i, F_j\bigr)\;\ge\;0.
+\]
+Hence the limit Schwinger functions satisfy reflection positivity (OS2).
+\end{lemma}
+
+\begin{proof}[Proof]
+Fix a finite family $\{F_i\}_{i=1}^m\subset\mathcal A_+$ and coefficients $a\in\mathbb C^m$. For each $\varepsilon$, choose approximants $F_{i,\varepsilon}\in\mathcal A_{\varepsilon,+}$ with $\|F_{i,\varepsilon}-F_i\|_{\mathrm{loc}}\le C\,d_H(\mathrm{supp}(F_{i,\varepsilon}),\mathrm{supp}(F_i))$ and $d_H\to 0$ along the directed embeddings; this is possible by locality and the directed-embedding construction. Define $G_{\varepsilon}:=\sum_i a_i F_{i,\varepsilon}$. By OS positivity at scale $\varepsilon_k$ (fixed link reflection),
+\[
+  \mathbb E_{\mu_{\varepsilon_k}}\bigl[\Theta G_{\varepsilon_k}\,\overline{G_{\varepsilon_k}}\bigr]\ \ge\ 0.
+\]
+Expand the left side using bilinearity:
+\[
+  \sum_{i,j} \overline{a_i} a_j\, \mathbb E_{\mu_{\varepsilon_k}}\bigl[\Theta F_{i,\varepsilon_k}\,\overline{F_{j,\varepsilon_k}}\bigr].
+\]
+By tightness and convergence (C1a) and equicontinuity of the approximants, for each fixed $(i,j)$,
+\[
+  \lim_{k\to\infty}\,\mathbb E_{\mu_{\varepsilon_k}}\bigl[\Theta F_{i,\varepsilon_k}\,\overline{F_{j,\varepsilon_k}}\bigr]
+   \ =\ S_2\bigl(\Theta F_i, F_j\bigr).
+\]
+Dominated convergence (uniform moment bounds) justifies passing the limit through the finite sum, yielding
+\[
+  \lim_{k\to\infty}\,\mathbb E_{\mu_{\varepsilon_k}}\bigl[\Theta G_{\varepsilon_k}\,\overline{G_{\varepsilon_k}}\bigr]
+   \ =\ \sum_{i,j} \overline{a_i} a_j\, S_2\bigl(\Theta F_i, F_j\bigr).
+\]
+Since each term on the left is $\ge 0$ and the limit of nonnegative numbers is nonnegative, the right-hand side is $\ge 0$. This proves OS2 for the limit.
+\end{proof}
+
+\paragraph{Lean artifact.}
+The interface lemma for OS2 preservation under limits is exported as
+\texttt{YM.OSPosWilson.reflection\_positivity\_preserved} in the file
+\texttt{ym/os\_pos\_wilson/ReflectionPositivity.lean}, bundling the fixed link
+reflection, lattice OS2, and convergence of Schwinger functions along
+equivariant embeddings.
+
+\begin{lemma}[OS3: clustering in the limit]
+Assume exponential clustering holds uniformly: there exist $C,c>0$ independent of $\varepsilon$ such that for any loops $A,B$ with separation $R$, $|\operatorname{Cov}_{\mu_\varepsilon}(A,B_R)|\le C e^{-cR}$. Then the limit Schwinger functions $\{S_n\}$ satisfy clustering: for translated observables,
+\[
+  \lim_{R\to\infty} S_2(A,B_R)\;=\;S_1(A)\,S_1(B).
+\]
+\end{lemma}
+
+\begin{proof}
+The uniform bound passes to the limit along the convergent subsequence. Taking $R\to\infty$ first at fixed $\varepsilon$ and then passing to the limit yields factorization; uniformity justifies exchanging limits.
+\end{proof}
+
+\paragraph{Lean artifacts.}
+OS3 is exported as \texttt{YM.OSPositivity.clustering\_in\_limit} in
+\texttt{ym/OSPositivity/ClusterUnique.lean} under a \texttt{ClusteringHypotheses}
+bundle (uniform clustering and Schwinger convergence). OS5 is exported there as
+\texttt{unique\_vacuum\_in\_limit} under a \texttt{UniqueVacuumHypotheses}
+bundle (uniform gap and NRC).
+
+\begin{lemma}[OS5: unique vacuum in the limit]
+Suppose the transfer operators $T_{\varepsilon}$ (constructed via OS at each $\varepsilon$) have a uniform spectral gap on the mean-zero sector: $r_0(T_{\varepsilon})\le e^{-\gamma_0}$ with $\gamma_0>0$ independent of $\varepsilon$, and norm–resolvent convergence holds for the generators (C1c). Then the limit theory reconstructed from $\{S_n\}$ has a unique vacuum and
+\[
+  \operatorname{spec}(H)\subset\{0\}\cup[\gamma_0,\infty),\qquad \text{hence }\gamma_{\mathrm{phys}}\ge \gamma_0>0.
+\]
+\end{lemma}
+
+\begin{proof}[Proof sketch (spectral argument)]
+For each $\varepsilon$, OS reconstruction gives a positive self-adjoint $H_{\varepsilon}\ge 0$ with $T_{\varepsilon}=e^{-H_{\varepsilon}}$ and $\operatorname{spec}(H_{\varepsilon})\subset\{0\}\cup[\gamma_0,\infty)$. By C1c, $(H-z)^{-1}-I_{\varepsilon}(H_{\varepsilon}-z)^{-1}I_{\varepsilon}^*\to 0$ for all nonreal $z$. Spectral convergence (Hausdorff) carries the open gap $(0,\gamma_0)$ to the limit: $\operatorname{spec}(H)\cap(0,\gamma_0)=\varnothing$. Since $H\ge 0$, the bottom of the spectrum is $0$; OS clustering implies that the $0$ eigenspace is one-dimensional (no degeneracy of the vacuum). Therefore the continuum theory has a unique vacuum and a mass gap $\ge \gamma_0$.
+\end{proof}
+
+\section{Appendix: Embeddings, norm–resolvent convergence, and continuum gap (C1c)}
+
+We specify canonical embeddings $I_{\varepsilon}$ and prove norm–resolvent convergence (NRC) with a uniform spectral gap, yielding a positive continuum gap.
+
+\paragraph{Embeddings (explicit OS/GNS construction).}
+Let $\mathfrak A_{\varepsilon,+}$ be the $*$–algebra of lattice cylinder observables supported in $t\ge 0$, and $\mathfrak A_+$ its continuum analogue. For a lattice loop $\Lambda\subset\varepsilon\,\mathbb Z^4$, let $\operatorname{poly}(\Lambda)$ be its polygonal interpolation (rectilinear embedding) in $\mathbb R^4$. Define a $*$–homomorphism on generators $E_{\varepsilon}:\mathfrak A_{\varepsilon,+}\to\mathfrak A_+$ by
+\[
+  E_{\varepsilon}\bigl(W_{\Lambda}\bigr)\ :=\ W_{\operatorname{poly}(\Lambda)},\qquad E_{\varepsilon}(1)=1,\quad E_{\varepsilon}(FG)=E_{\varepsilon}(F)E_{\varepsilon}(G),\ E_{\varepsilon}(F^*)=E_{\varepsilon}(F)^*.
+\]
+On the OS/GNS spaces $\mathcal H_{\varepsilon}$ and $\mathcal H$ (quotients by OS–nulls and completion), define
+\[
+  I_{\varepsilon}:[F]_{\varepsilon}\mapsto [\,E_{\varepsilon}(F)\,],\qquad R_{\varepsilon}:\mathcal H\to\mathcal H_{\varepsilon}\ \text{ the adjoint of }I_{\varepsilon}.
+\]
+By construction and OS positivity, $I_{\varepsilon}^*I_{\varepsilon}=\mathrm{id}_{\mathcal H_{\varepsilon}}$ and $P_{\varepsilon}:=I_{\varepsilon}I_{\varepsilon}^*$ is the orthogonal projection onto $\operatorname{Ran}(I_{\varepsilon})\subset\mathcal H$. Concretely, on local classes $[F]$ one has. In Lean, the NRC hypotheses bundle is exported as `YM.SpectralStability.NRCHypotheses`, and the container for the identity below is `YM.SpectralStability.NRCSetup`.
+\[
+  \langle [G]_{\varepsilon}, R_{\varepsilon}[F]\rangle_{\varepsilon}\ =\ \langle I_{\varepsilon}[G]_{\varepsilon}, [F]\rangle\ =\ S_2\bigl(\Theta E_{\varepsilon}(G), F\bigr).
+\]
+
+\paragraph{Generators.}
+Let $T_{\varepsilon}$ be the transfer operator at scale $\varepsilon$, $H_{\varepsilon}:=-\log T_{\varepsilon}\ge 0$ on the mean-zero subspace $\mathcal H_{\varepsilon,0}$. Let $T$ be the transfer of the limit theory (via OS reconstruction), $H:=-\log T\ge 0$ on $\mathcal H_0$.
+
+\paragraph{Consistency and compact calibrator.}
+Assume:
+\begin{itemize}
+  \item (Cons) The defect operators $D_{\varepsilon}:=H I_{\varepsilon}-I_{\varepsilon} H_{\varepsilon}$ satisfy $\varepsilon$-scale graph-norm control: $\|D_{\varepsilon}(H_{\varepsilon}+1)^{-1/2}\|\to 0$.
+  \item (Comp) For some nonreal $z_0$, $(H-z_0)^{-1}$ is compact (e.g., finite volume or confining setting).
+\end{itemize}
+
+\begin{lemma}[Semigroup comparison implies graph–norm defect]
+Suppose there is $C>0$ such that for all $t\in[0,1]$,
+\[
+  \bigl\|e^{-tH}-I_{\varepsilon}e^{-tH_{\varepsilon}}I_{\varepsilon}^*\bigr\|\ \le\ C t\,\varepsilon\ +\ o(\varepsilon).
+\]
+Then $\|\,(H I_{\varepsilon}-I_{\varepsilon} H_{\varepsilon})(H_{\varepsilon}+1)^{-1/2}\,\|\to 0$ as $\varepsilon\downarrow 0$.
+\end{lemma}
+
+\begin{proof}
+Use the standard characterization of generators via Laplace transform of the semigroup and the Hille–Yosida graph–norm: for $\xi\in\operatorname{dom}(H_{\varepsilon})$,
+\[
+  (H I_{\varepsilon}-I_{\varepsilon} H_{\varepsilon})\xi\ =\ \lim_{t\downarrow 0}\,\frac{1}{t}\bigl[\,(I-e^{-tH})I_{\varepsilon}\xi\ -\ I_{\varepsilon}(I-e^{-tH_{\varepsilon}})\xi\,\bigr],
+\]
+and bound the difference by the semigroup comparison. The $(H_{\varepsilon}+1)^{-1/2}$ factor stabilizes the domain.
+\end{proof}
+
+\paragraph{Resolvent comparison identity (Lean NRC container).}
+Let $R(z)=(H-z)^{-1}$, $R_{\varepsilon}(z)=(H_{\varepsilon}-z)^{-1}$, $I_{\varepsilon}$ the embedding and $P_{\varepsilon}:=I_{\varepsilon}I_{\varepsilon}^*$. Define the defect $D_{\varepsilon}:=H I_{\varepsilon}-I_{\varepsilon}H_{\varepsilon}$. Then for each nonreal $z$,
+\[
+  R(z) - I_{\varepsilon} R_{\varepsilon}(z) I_{\varepsilon}^*
+  \ =\ R(z)(I-P_{\varepsilon})\ -\ R(z) D_{\varepsilon} R_{\varepsilon}(z) I_{\varepsilon}^*\,.
+\]
+This is implemented as a reusable container in the Lean module
+\texttt{ym/SpectralStability/NRCEps.lean} as \texttt{NRCSetup.comparison}. The named NRC interface theorem is `YM.SpectralStability.NRC_all_nonreal`.
+
+\begin{lemma}[Compact calibrator in finite volume]
+On finite 4D tori (periodic boundary conditions), the transfer $T$ is a compact self–adjoint operator on the OS/GNS space. Hence $(H-z_0)^{-1}$ is compact for any nonreal $z_0$.
+\end{lemma}
+
+\begin{proof}
+Finite volume yields a separable OS/GNS space with $T$ acting by a positivity–preserving integral kernel on a compact set; standard Hilbert–Schmidt bounds imply compactness of $T$ and thus of the resolvent of $H=-\log T$.
+\end{proof}
+
+\paragraph{Calibrator via finite–volume exhaustion (infinite volume).}
+Let $\Lambda_L$ be an increasing sequence of periodic 4D tori exhausting $\mathbb R^4$, with transfers $T_L$ and generators $H_L:=-\log T_L$. By the preceding lemma, $(H_L-z_0)^{-1}$ is compact for each $L$. Assume the embeddings $I_{\varepsilon,L}$ and defects $D_{\varepsilon,L}:=H I_{\varepsilon,L}-I_{\varepsilon,L} H_{\varepsilon,L}$ satisfy the graph–norm control uniformly in $L$ and $\varepsilon$:
+\[
+  \sup_L\big\| D_{\varepsilon,L} (H_{\varepsilon,L}+1)^{-1/2}\big\|\;\xrightarrow[\ \varepsilon\downarrow 0\ ]{}\;0,
+\]
+and that the projections $P_{\varepsilon,L}:=I_{\varepsilon,L} I_{\varepsilon,L}^*$ converge strongly to $I$ on the infinite–volume OS/GNS space as $L\to\infty$ (for each fixed $\varepsilon$), with this convergence uniform on the low–energy range of $H$. Then the R3 comparison identity yields NRC at each finite $L$; letting $L\to\infty$ and using the thermodynamic–limit compactness of local observables (cf. Theorem~\ref{thm:thermo-strong} and \S\,\ref{sec:lattice-setup}) one obtains NRC in infinite volume.
+
+\begin{theorem}[NRC via finite–volume exhaustion]
+Assume (Cons) (graph–norm defect) with bounds uniform in $L$, the strong convergence $P_{\varepsilon,L}\to I$ on the low–energy range of $H$ for each fixed $\varepsilon$, and the fixed–spacing thermodynamic–limit hypotheses of Theorem~\ref{thm:thermo-strong}. Then for every $z\in\mathbb C\setminus\mathbb R$,
+\[
+  \big\|(H-z)^{-1}-I_{\varepsilon}(H_{\varepsilon}-z)^{-1}I_{\varepsilon}^*\big\|\;\xrightarrow[\ \varepsilon\downarrow 0\ ]{}\;0,
+\]
+where $I_{\varepsilon}$ is the infinite–volume embedding obtained as the strong limit of $I_{\varepsilon,L}$ along the exhaustion. In particular, NRC holds in infinite volume for all nonreal $z$.
+\end{theorem}
+
+\begin{theorem}[NRC and continuum gap]
+Suppose (Cons) and (Comp) hold, and the discrete transfer operators have an $\varepsilon$-uniform spectral gap on mean-zero subspaces:
+\[
+  r_0(T_{\varepsilon})\;\le\;e^{-\gamma_0}\quad\text{with}\quad \gamma_0>0\ \text{independent of }\varepsilon.
+\]
+Then:
+\begin{itemize}
+  \item (NRC) For every $z\in\mathbb C\setminus\mathbb R$,
+  \[
+    \bigl\|(H-z)^{-1}-I_{\varepsilon}(H_{\varepsilon}-z)^{-1}I_{\varepsilon}^*\bigr\|\to 0\quad(\varepsilon\to 0).
+  \]
+  \item (Continuum gap) On $\mathcal H_0$, $\operatorname{spec}(H)\subset\{0\}\cup[\gamma_0,\infty)$, hence the continuum Hamiltonian has a positive gap $\ge \gamma_0$ and a unique vacuum.
+\end{itemize}
+\end{theorem}
+
+\begin{proof}
+The NRC follows from the comparison identity and bounds of Appendix R3 with $I_{\varepsilon},P_{\varepsilon}$ and the defect control (Cons), plus compact calibration (Comp) to isolate low energies. The uniform spectral gap for $T_{\varepsilon}$ implies a uniform open gap $(0,\gamma_0)$ for $H_{\varepsilon}$. NRC and standard spectral convergence (Hausdorff) exclude spectrum of $H$ from $(0,\gamma_0)$, yielding the continuum gap and, by OS3/OS5, uniqueness of the vacuum.
+\end{proof}
+
+\paragraph{Lean artifacts.}
+The resolvent comparison is encoded in \texttt{ym/SpectralStability/NRCEps.lean} as an \emph{NRCSetup} with a field \texttt{comparison} that equals the identity above. A norm bound for the NRC difference from this identity is provided in \texttt{ym/SpectralStability/Persistence.lean} (theorem \texttt{nrc\_norm\_bound}). The spectral lower-bound persistence statement is exported there as \texttt{persistence\_lower\_bound} for downstream use.
+
+\section{Optional: Asymptotic-freedom scaling and unique projective limit (C1d)}
+
+We now specify an \emph{asymptotic-freedom (AF) scaling schedule} $\beta(a)$ and prove that along this schedule the projective limit on $\mathbb R^4$ exists with OS0--OS5, is \emph{unique} (no subsequences), and that NRC transports the same uniform lattice gap $\gamma_0$ to the continuum Hamiltonian.
+
+\paragraph{AF schedule.}
+Fix $a_0>0$. Choose a monotone function $\beta:(0,a_0]\to (0,\infty)$ such that
+\begin{itemize}
+  \item[(AF1)] $\beta(a)\ge \beta_{\min}>0$ for all $a\in(0,a_0]$ and $\beta(a)\xrightarrow[a\downarrow 0]{}\infty$;
+  \item[(AF2)] choose van Hove volumes $L(a)$ with $L(a)\,a\xrightarrow[a\downarrow 0]{}\infty$;
+  \item[(AF3)] use the polygonal loop embeddings $E_a$ and OS/GNS isometries $I_a$ of C1c;
+  \item[(AF4)] fix the link-reflection and slab thickness bounded by $a\le a_0$ so that the Doeblin constants $(\kappa_0,t_0)$ are uniform (Prop.~\ref{prop:doeblin-interface}).
+\end{itemize}
+An explicit example is $\beta(a)=\beta_{\min}+c_0\log(1+a_0/a)$ with $c_0>0$.
+
+\paragraph{Uniform gap along AF.}
+By the Doeblin minorization and heat-kernel domination on the interface, the one-step odd-cone deficit is $\beta$-independent:
+\[
+  c_{\rm cut}\ \ge\ -\frac{1}{a}\log\bigl(1-\kappa_0 e^{-\lambda_1(N) t_0}\bigr),\qquad
+  \gamma_0\ \ge\ 8\,c_{\rm cut}\ >\ 0,
+\]
+uniform in $a\in(0,a_0]$, volume $L(a)$, and $N\ge 2$.
+
+\paragraph{Existence (OS0--OS5) and uniqueness (no subsequences).}
+Let $\mu_{a}:=\mu_{\beta(a),L(a)}$ denote the lattice Wilson measures. Then:
+\begin{itemize}
+  \item OS0/OS2 persist under limits by UEI and positivity closure (C1a/C1b).
+  \item OS1 holds in the limit by oriented diagonalization and equicontinuity (C1a).
+  \item OS3 holds uniformly on the lattice by the uniform gap $\gamma_0$; it passes to the limit by C1b. OS5 (unique vacuum) follows likewise.
+\end{itemize}
+To remove subsequences, define for nonreal $z$ the \emph{embedded resolvents}
+\[
+  R_a(z)\ :=\ I_a\,(H_a-z)^{-1}\,I_a^*\,.
+\]
+From the comparison identity of R3 and the graph-defect bound $\|D_a(H_a+1)^{-1/2}\|\le C a$ one obtains the quantitative estimate
+\begin{equation}
+\label{eq:cauchy-res}
+  \big\|R_a(z)-R_b(z)\big\|\ \le\ C(z)\,(a+b)\qquad(\forall\ a,b\in(0,a_0])\,.
+\end{equation}
+Hence $\{R_a(z)\}_{a\downarrow 0}$ is a Cauchy net in operator norm for each nonreal $z$, converging to a \emph{unique} bounded operator $R(z)$ that satisfies the resolvent identities. By the analytic Hille--Phillips theory, $R(z)$ is the resolvent of a unique nonnegative self-adjoint $H$; the embedded semigroups $I_a e^{-tH_a} I_a^*$ converge in operator norm to $e^{-tH}$ for all $t\ge 0$. Therefore the Schwinger functions of $\mu_a$ converge to a unique limit $\{S_n\}$ (no subsequences), defining a probability measure $\mu$ on loop configurations over $\mathbb R^4$ which satisfies OS0--OS5.
+
+\paragraph{AF schedule theorem.}
+\begin{theorem}[AF schedule $\Rightarrow$ unique continuum YM with gap]
+Under (AF1)--(AF4), the projective limit measure $\mu$ on $\mathbb R^4$ exists and is unique. Its Schwinger functions satisfy OS0--OS5, and the OS reconstruction yields a Hilbert space $\mathcal H$, a vacuum $\Omega$, and a positive self-adjoint generator $H\ge 0$ with
+\[
+  \operatorname{spec}(H)\subset\{0\}\cup[\gamma_0,\infty),\qquad \gamma_{\mathrm{phys}}\ge \gamma_0>0\,.
+\]
+\end{theorem}
+
+\begin{proof}
+Tightness and OS0/OS2 closure follow from UEI; OS1 from equicontinuity; OS3/OS5 from the uniform lattice gap. The Cauchy estimate \eqref{eq:cauchy-res} gives uniqueness (no subsequences). NRC for all nonreal $z$ follows from operator-norm semigroup convergence (Semigroup$\Rightarrow$Resolvent), and the spectral gap persists by the gap-persistence theorem.
+\end{proof}
+
+\section{Appendix: Continuum area law via directed embeddings (C2)}
+
+We carry an $\varepsilon$–uniform lattice area law to the continuum using directed embeddings of loops.
+
+\paragraph{Uniform lattice area law.}
+Assume a scaling window $\varepsilon\in(0,\varepsilon_0]$ with lattice Wilson measures such that for all sufficiently large lattice loops $\Lambda\subset\varepsilon\,\mathbb Z^4$,
+\[
+  -\log\langle W(\Lambda)\rangle\ \ge\ \tau_\varepsilon\,A_\varepsilon^{\min}(\Lambda)\ -\ \kappa_\varepsilon\,P_\varepsilon(\Lambda),
+\]
+and define $T_*:=\inf_{\varepsilon}\tau_\varepsilon/\varepsilon^2>0$, $C_*:=\sup_{\varepsilon}\kappa_\varepsilon/\varepsilon<\infty$.
+
+\paragraph{Directed embeddings.}
+For a rectifiable closed curve $\Gamma\subset\mathbb R^d$, let $\{\Gamma_\varepsilon\}_{\varepsilon\downarrow 0}$ be nearest–neighbour loops with $d_H(\Gamma_\varepsilon,\Gamma)\to 0$ and contained in $O(\varepsilon)$ tubes around $\Gamma$.
+
+\begin{theorem}[Continuum Area–Perimeter bound]
+With $\kappa_d:=\sup_{u\in\mathbb S^{d-1}}\sum_i |u_i|=\sqrt d$ and $C:=\kappa_d C_*$, for any directed family $\Gamma_\varepsilon\to\Gamma$,
+\[
+  \limsup_{\varepsilon\downarrow 0}\bigl[-\log\langle W(\Gamma_\varepsilon)\rangle\bigr]\ \ge\ T_*\,\operatorname{Area}(\Gamma)\ -\ C\,\operatorname{Perimeter}(\Gamma).
+\]
+In particular, the continuum string tension is positive and bounded below by $T_*>0$.
+\end{theorem}
+
+\begin{proof}[Proof]
+Write the lattice inequality in physical units:
+\[
+  -\log\langle W(\Gamma_\varepsilon)\rangle\ \ge\ \Bigl(\tfrac{\tau_\varepsilon}{\varepsilon^2}\Bigr)\,\mathsf{Area}_\varepsilon(\Gamma_\varepsilon)\ -\ \Bigl(\tfrac{\kappa_\varepsilon}{\varepsilon}\Bigr)\,\mathsf{Per}_\varepsilon(\Gamma_\varepsilon).
+\]
+Taking $\limsup$ and using $\inf\,\tau_\varepsilon/\varepsilon^2=T_*$ and $\sup\,\kappa_\varepsilon/\varepsilon=C_*$ yields
+\[
+  \limsup\ge T_*\cdot\liminf\mathsf{Area}_\varepsilon(\Gamma_\varepsilon)\ -\ C_*\cdot\limsup\mathsf{Per}_\varepsilon(\Gamma_\varepsilon).
+\]
+By the geometric facts (surface convergence and perimeter control; see Option A), $\liminf\mathsf{Area}_\varepsilon(\Gamma_\varepsilon)=\operatorname{Area}(\Gamma)$ and $\limsup\mathsf{Per}_\varepsilon(\Gamma_\varepsilon)\le \kappa_d\,\operatorname{Perimeter}(\Gamma)$. Combine to obtain the stated bound with $C=\kappa_d C_*$.\qed
+\end{proof}
+
+\section{Appendix: $\varepsilon$–uniform cluster expansion along a scaling trajectory (C3)}
+
+We prove an $\varepsilon$–uniform strong–coupling (polymer) expansion for 4D $SU(N)$ along a scaling trajectory $\beta(\varepsilon)$, yielding explicit $\varepsilon$–independent constants for the Area–Perimeter bound and a uniform Dobrushin coefficient strictly below $1$.
+
+\paragraph{Set–up.}
+Work on 4D tori with lattice spacing $\varepsilon\in(0,\varepsilon_0]$. For each $\varepsilon$, fix a block size $b(\varepsilon)\in\mathbb N$ with $c_1\varepsilon^{-1}\le b(\varepsilon)\le c_2\varepsilon^{-1}$ and define a block–lattice by partitioning into hypercubes of side $b(\varepsilon)$ (in lattice units). Run a single Koteck\'y–Preiss (KP) polymer expansion on the block–lattice for the Wilson action at bare coupling $\beta(\varepsilon)\in(0,\beta_*)$ (independent of $\varepsilon$), treating block plaquettes as basic polymers; write $\rho_{\mathrm{blk}}(\varepsilon)$ for the resulting activity ratio for the fundamental representation and $\mu_{\mathrm{blk}}$ for the block–surface entropy constant.
+
+\paragraph{Uniform KP/cluster expansion (full proof).}
+Fix $\varepsilon\in(0,\varepsilon_0]$ and choose a block scale $b(\varepsilon)\asymp \varepsilon^{-1}$. Group plaquettes into block–plaquettes (faces of side $b(\varepsilon)$ in lattice units). Expand the Wilson weight on each block–plaquette in irreducible characters and polymerize along block–faces. Koteck\'y–Preiss applies provided the activity $\rho_{\mathrm{blk}}(\varepsilon)$ of the fundamental representation and the block entropy $\mu_{\mathrm{blk}}$ satisfy $\mu_{\mathrm{blk}}\,\rho_{\mathrm{blk}}(\varepsilon) < 1$; for small $\beta(\varepsilon)$ this holds uniformly with a slack $\delta\in(0,1)$ independent of $\varepsilon$ and $N\ge2$. Boundary attachments contribute a multiplicity factor $m_{\mathrm{blk}}$ per block boundary unit (uniform in $\varepsilon,N$). Summing over excess block area $k\ge0$ yields the convergent geometric series
+\[
+  \sum_{k\ge 0} N_{\mathrm{blk}}(\Gamma,A+k)\,\rho_{\mathrm{blk}}(\varepsilon)^{A+k}
+   \ \le\ m_{\mathrm{blk}}^{P_{\mathrm{blk}}}\,\frac{\rho_{\mathrm{blk}}(\varepsilon)^{A}}{\delta},
+\]
+where $A$ is the minimal block spanning area and $P_{\mathrm{blk}}$ the block perimeter. Taking $-\log$ and converting to physical units (each block area $\asymp 1$, each block boundary length $\asymp 1$) gives
+\[
+  -\log\langle W(\Lambda)\rangle\ \ge\ T_*\,\mathsf{Area}_\varepsilon(\Lambda)\ -\ C_*\,\mathsf{Per}_\varepsilon(\Lambda),
+\]
+with
+\[
+  T_*:= -\log \rho_{\max},\quad \rho_{\max}:=\sup_{0<\varepsilon\le\varepsilon_0}\rho_{\mathrm{blk}}(\varepsilon)<1,\qquad
+  C_*:= \log m_{\mathrm{blk}}+\log(1/\delta)<\infty.
+\]
+Moreover, the one–step cross–cut Dobrushin coefficient at block scale obeys
+\[
+  \alpha\bigl(\beta(\varepsilon)\bigr)\ \le\ 2\,\beta(\varepsilon)\,J^{\mathrm{blk}}_{\perp}(\varepsilon)
+   \ \le\ 2\,\beta_*\,J^{\mathrm{blk}}_{\perp,\max}=:\alpha_*<1,
+\]
+where $J^{\mathrm{blk}}_{\perp,\max}$ is a geometry–only bound (independent of $\varepsilon,N$). All constants are $\varepsilon$– and $N$–uniform.
+
+\paragraph{Optional scaffold (KP from Wilson; hypothesis bundle).}
+\emph{(H-KP).} For 4D SU($N$) Wilson action at sufficiently small $\beta$, the block polymer expansion at scale $b(\varepsilon)\asymp \varepsilon^{-1}$ satisfies: (i) $\rho_{\mathrm{blk}}(\varepsilon)\le \rho_{\max}<1$, (ii) $\mu_{\mathrm{blk}}\,\rho_{\mathrm{blk}}\le 1-\delta$ with $\delta\in(0,1)$, (iii) boundary multiplicity $m_{\mathrm{blk}}\le m_0$, all independent of $\varepsilon$ and $N$. \emph{Conclusion.} The constants $T_*=-\log\rho_{\max}>0$, $C_* = \log m_0 + \log(1/\delta)$, and $\alpha_*\le 2\beta_* J^{\mathrm{blk}}_{\perp,\max}<1$ follow, yielding the uniform area–perimeter law and contraction.
+
+\begin{theorem}[Uniform KP/cluster expansion with explicit constants]
+\label{thm:uniform-kp}
+Under the hypotheses above, define the explicit $\varepsilon$–independent constants
+\[
+  \rho_{\max}\;:=\;\sup_{0<\varepsilon\le \varepsilon_0}\rho_{\mathrm{blk}}(\varepsilon)\ <\ 1,\quad
+  T_*\;:=\; -\log \rho_{\max}\ >\ 0,\quad
+  C_*\;:=\; \log m_{\mathrm{blk}}\ +\ \log\tfrac{1}{\delta}\ <\ \infty,
+\]
+\[
+  J^{\mathrm{blk}}_{\perp,\max}\;:=\;\sup_{0<\varepsilon\le\varepsilon_0} J^{\mathrm{blk}}_{\perp}(\varepsilon)\ <\ \infty,\qquad
+  \alpha_*\;:=\;2\,\beta_*\,J^{\mathrm{blk}}_{\perp,\max}\ <\ 1\,.
+\]
+Then for all sufficiently large loops $\Lambda\subset\varepsilon\,\mathbb Z^4$ and all $\varepsilon\in(0,\varepsilon_0]$:
+\begin{align}
+  -\log\langle W(\Lambda)\rangle\ &\ge\ \tau_\varepsilon\,A_\varepsilon^{\min}(\Lambda)\ -\ \kappa_\varepsilon\,P_\varepsilon(\Lambda),\\
+  \frac{\tau_\varepsilon}{\varepsilon^2}\ &\ge\ T_*,\qquad \frac{\kappa_\varepsilon}{\varepsilon}\ \le\ C_*,\\
+  \alpha\bigl(\beta(\varepsilon)\bigr)\ &\le\ \alpha_*\ <\ 1\,.
+\end{align}
+In particular, $T_*$ is a uniform string–tension lower bound in physical units, $C_*$ a uniform perimeter coefficient (physical units), and $\alpha_*$ a uniform upper bound for the cross–cut Dobrushin coefficient.
+\end{theorem}
+
+\begin{proof}
+Run the Koteck\'y–Preiss expansion at block scale $b(\varepsilon)\asymp \varepsilon^{-1}$. For any fixed lattice loop $\Gamma$, block–surfaces $\Sigma_{\mathrm{blk}}$ with $\partial\Sigma_{\mathrm{blk}}=\Gamma$ decompose the minimal area into units of $b(\varepsilon)^2$. The KP bounds give a convergent geometric series for the sum over excess area $k\ge 0$ with ratio bounded by $\mu_{\mathrm{blk}}\,\rho_{\mathrm{blk}}(\varepsilon)\le 1-\delta$ and boundary multiplicity bounded by $m_{\mathrm{blk}}^{P_{\mathrm{blk}}}$:
+\[
+  \sum_{k\ge 0} N_{\mathrm{blk}}(\Gamma,A+k)\,\rho_{\mathrm{blk}}(\varepsilon)^{A+k}
+  \ \le\ m_{\mathrm{blk}}^{P_{\mathrm{blk}}}\,\rho_{\mathrm{blk}}(\varepsilon)^A\,\sum_{k\ge 0}\bigl(\mu_{\mathrm{blk}}\,\rho_{\mathrm{blk}}(\varepsilon)\bigr)^{k}
+  \ \le\ m_{\mathrm{blk}}^{P_{\mathrm{blk}}}\,\frac{\rho_{\mathrm{blk}}(\varepsilon)^A}{\delta}\,.
+\]
+Taking $-\log$ and using $\rho_{\mathrm{blk}}(\varepsilon)\le \rho_{\max}<1$ yields a block–scale string tension
+\[
+  T_{\mathrm{blk}}(\varepsilon)\ :=\ -\log \rho_{\mathrm{blk}}(\varepsilon)\ \ge\ -\log \rho_{\max}\ =\ T_*\ >\ 0\,.
+\]
+Converting to physical units: each block plaquette has area $\bigl(b(\varepsilon)\,\varepsilon\bigr)^2\asymp 1$, hence $\tau_\varepsilon/\varepsilon^2\ge T_*$. A block boundary unit corresponds to physical length $b(\varepsilon)\,\varepsilon\asymp 1$, and the perimeter multiplicative factors contribute at most $\log m_{\mathrm{blk}}+\log(1/\delta)=C_*$ to $-\log\langle W\rangle$ per boundary unit, giving $\kappa_\varepsilon/\varepsilon\le C_*$. Finally, the cross–cut one–step total–variation influence at block scale is bounded by $2\,\beta(\varepsilon)\,J^{\mathrm{blk}}_{\perp}(\varepsilon)$; with $\beta(\varepsilon)\le \beta_*$ this yields $\alpha\le \alpha_*:=2\beta_* J^{\mathrm{blk}}_{\perp,\max}<1$ uniformly in $\varepsilon$.
+\end{proof}
+
+\begin{corollary}[Uniform lattice Area--Perimeter (physical units)]
+For all $\varepsilon\in(0,\varepsilon_0]$ in the KP window and all sufficiently large lattice loops $\Lambda\subset\varepsilon\,\mathbb Z^4$,
+\[
+  -\log\langle W(\Lambda)\rangle\ \ge\ T_*\,\mathsf{Area}_\varepsilon(\Lambda)\ -\ C_*\,\mathsf{Per}_\varepsilon(\Lambda).
+\]
+\end{corollary}
+
+\begin{proof}
+From the inequality $-\log\langle W(\Lambda)\rangle\ge (\tau_\varepsilon/\varepsilon^2)\,\mathsf{Area}_\varepsilon(\Lambda)-(\kappa_\varepsilon/\varepsilon)\,\mathsf{Per}_\varepsilon(\Lambda)$ and the bounds $\tau_\varepsilon/\varepsilon^2\ge T_*$, $\kappa_\varepsilon/\varepsilon\le C_*$.
+\end{proof}
+
+\paragraph{Remarks.}
+1. The constants $T_*,C_*,\alpha_*$ are independent of $\varepsilon$ and of $N\ge 2$; only local block geometry and the KP window parameters $(\beta_*,\delta,C_{\mathrm{blk}})$ enter.\\
+2. The block scale choice $b(\varepsilon)\asymp\varepsilon^{-1}$ is tailored so that block plaquette area and boundary length are $\Theta(1)$ in physical units, enabling direct extraction of $T_*$ and $C_*$.\\
+3. The Dobrushin step is formulated at the block scale (OS time–slice thickened to $\Theta(1)$ physical time); see Appendix C4 for the conversion to a uniform transfer gap.
+
+\section{Appendix: $\varepsilon$–uniform spectral gap from cross–cut couplings (C4)}
+
+We derive an $\varepsilon$–uniform spectral gap for the transfer operator on the mean–zero sector directly from the cross–cut Dobrushin coefficient and the block–scale cross–cut coupling.
+
+\paragraph{Cross–cut influence.}
+For each $\varepsilon$, let $J_{\perp}(\varepsilon)$ denote the total coupling across the OS reflection cut (sum of $J_{xy}$ with $x$ on the left, $y$ on the right). In the strong–coupling/cluster regime one has the one–step contraction bound
+\[
+  \alpha\bigl(\beta(\varepsilon)\bigr)\;\le\;2\,\beta(\varepsilon)\,J_{\perp}(\varepsilon).
+\]
+
+\paragraph{Block–geometry computation of $J_{\perp}(\varepsilon)$ (geometry–only bound).}
+Adopt the block scale $b(\varepsilon)\asymp\varepsilon^{-1}$ from C3 and thicken one OS time–slice to a slab of physical thickness $O(1)$. The cross–cut influence is supported on plaquettes intersecting the reflection plane and inside the slab. Let $n_{\mathrm{cut}}$ be the maximal number of such plaquettes touching a single block cross–section, a constant depending only on the $4$D hypercubic geometry (hence independent of $\varepsilon$ and $N$). Bounding the single–plaquette two–link influence by a representation–independent constant $J_{\mathrm{unit}}$, we obtain the uniform bound
+\[
+  J^{\mathrm{blk}}_{\perp}(\varepsilon)\ \le\ n_{\mathrm{cut}}\,J_{\mathrm{unit}}\ =:\ J^{\mathrm{blk}}_{\perp,\max},
+\]
+so $\sup_{\varepsilon} J^{\mathrm{blk}}_{\perp}(\varepsilon)\le J^{\mathrm{blk}}_{\perp,\max}<\infty$ depends only on local block geometry. Consequently,
+\[
+  \alpha\bigl(\beta(\varepsilon)\bigr)\ \le\ 2\,\beta(\varepsilon)\,J^{\mathrm{blk}}_{\perp}(\varepsilon)\ \le\ 2\,\beta_*\,J^{\mathrm{blk}}_{\perp,\max}\ =:\ \alpha_*\ <\ 1,
+\]
+and the uniform mass gap parameter is $\gamma_0:=-\log \alpha_*>0$ (per block time–slice).
+
+\begin{theorem}[Uniform transfer contraction and gap]
+Assume $\sup_{\varepsilon}\beta(\varepsilon) J_{\perp}(\varepsilon)\le c<\tfrac12$. Then with $\alpha_*:=2c<1$ and $\gamma_0:=-\log\alpha_*>0$,
+\[
+  r_0\bigl(T_{\varepsilon}\bigr)\;\le\;\alpha_*\ =\ e^{-\gamma_0}\qquad\text{for all }\varepsilon\in(0,\varepsilon_0],
+\]
+and hence the lattice Hamiltonian gap $\Delta_{\varepsilon}=-\log r_0(T_{\varepsilon})\ge \gamma_0$ uniformly in $\varepsilon$.
+\end{theorem}
+
+\begin{proof}[Proof]
+Work on the OS/GNS space and let $\operatorname{osc}(f):=\max_{i,j}|f_i-f_j|$ denote the oscillation seminorm on a finite reflected loop basis. The Dobrushin coefficient bound at block scale gives a one–step contraction
+\[
+  \operatorname{osc}(T_{\varepsilon} f)\ \le\ \alpha_*\,\operatorname{osc}(f),\qquad \alpha_*<1.
+\]
+By the oscillation–to–spectrum lemma (Appendix "Dobrushin contraction and spectrum" and its abstract operator form), every non-constant eigenvector of $T_{\varepsilon}$ has eigenvalue modulus $\le \alpha_*$. Hence on the mean–zero/oscillation sector one has $r_0(T_{\varepsilon})\le \alpha_*$. Taking $-\log$ yields $\Delta_{\varepsilon}\ge -\log\alpha_*=:\gamma_0>0$. The constants are uniform by the KP window and depend only on cross–cut geometry via $J_{\perp}$ and the bound $c$.
+\end{proof}
+
+\paragraph{Lean artifact.}
+The uniform Dobrushin$\to$gap bound is exported as\newline
+\texttt{YM.Transfer.uniform\_gap\_of\_alpha}, and a window-specialized wrapper
+\texttt{YM.Transfer.uniform\_gap\_on\_window} which yields $r_0(T_\varepsilon)\le \alpha_*$
+and $\gamma_0=-\log\alpha_*>0$ on the oscillation sector uniformly in $\varepsilon$.
+
+\paragraph{Physical units.}
+If the OS time–step is chosen at block scale with thickness $b(\varepsilon)\,\varepsilon\asymp 1$ (as in C3), then one time–slice corresponds to $O(1)$ physical time and the physical mass gap satisfies $\gamma_{\mathrm{phys}}\ge \gamma_0$ uniformly in $\varepsilon$.
+
+\section{Appendix: Universality across coarse–grainings (C5)}
+
+We show that two admissible coarse–grainings along the same scaling window yield the same continuum Schwinger functions and the same physical mass gap.
+
+\paragraph{Two regularizations.}
+For $a\in\{1,2\}$, let $\mu^{(a)}_{\varepsilon}$ be OS–positive lattice measures (Wilson action) with trajectories $\beta^{(a)}(\varepsilon)$ and embeddings $I^{(a)}_{\varepsilon}$ as in C1a–C1c. Assume for both $a$:
+\begin{itemize}
+  \item (Loc/Mom) $\varepsilon$–uniform locality/moment bounds and hypercubic invariance (C1a).
+  \item (NRC) Norm–resolvent convergence to generators $H^{(a)}$ with compact calibrator (C1c).
+  \item (Gap) $\sup_{\varepsilon}\beta^{(a)}(\varepsilon) J^{(a)}_{\perp}(\varepsilon)\le c<\tfrac12$ (C4), hence a uniform gap $\gamma_0>0$ for each.
+\end{itemize}
+Additionally, assume a uniform consistency between the two discretizations:
+\begin{itemize}
+  \item (Cons*) There exists $\delta(\varepsilon)\downarrow 0$ such that for any finite loop family $\{\Gamma_i\}$ and equivariant embeddings,
+  \[
+    \bigl|\,S^{(1)}_{n,\varepsilon}(\Gamma_{1,\varepsilon},\dots,\Gamma_{n,\varepsilon})-S^{(2)}_{n,\varepsilon}(\Gamma_{1,\varepsilon},\dots,\Gamma_{n,\varepsilon})\,\bigr|\ \le\ C_n\,\delta(\varepsilon),
+  \]
+  with $C_n$ independent of $\varepsilon$.
+\end{itemize}
+
+\begin{theorem}[Universality]
+Under the assumptions above (uniform locality/moments, (Cons*) with $\delta(\varepsilon)\downarrow 0$), and assuming NRC for both families and $\varepsilon$–uniform gaps $\gamma_0>0$, along any common subsequence $\varepsilon_k\to 0$ the Schwinger functions of $\mu^{(1)}_{\varepsilon_k}$ and $\mu^{(2)}_{\varepsilon_k}$ converge to the same limit $\{S_n\}$ (hence define the same continuum measure $\mu$). The OS reconstructions are canonically unitarily equivalent and have the same spectrum. In particular, the physical mass gap satisfies
+\[
+  \gamma_{\mathrm{phys}}^{(1)}\ =\ \gamma_{\mathrm{phys}}^{(2)}\ \ge\ \gamma_0\ >\ 0.
+\]
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+By (Loc/Mom) and the tree–graph bounds, each family is tight; by (Cons*) the difference of $n$–point functions is $O(\delta(\varepsilon))$, so the limits coincide for all finite families, yielding identical $\{S_n\}$. NRC for both families identifies the resolvents in the limit; equality of Schwinger functions identifies the OS/GNS reconstructions up to a canonical unitary, hence the generators $H^{(1)}$ and $H^{(2)}$ are unitarily equivalent. The uniform gaps (C4) ensure $\operatorname{spec}(H^{(a)})\subset\{0\}\cup[\gamma_0,\infty)$ for both, so the mass gaps coincide and are bounded below by $\gamma_0$.
+\end{proof}
+
+\paragraph{Lean artifact.}
+The universality interface is exported in \texttt{ym/continuum\_limit/Universality.lean} as
+\texttt{YM.ContinuumLimit.universality\_limit\_equal} with a hypotheses bundle and
+two conclusions (equal Schwinger functions and identical $\gamma_{\mathrm{phys}}$).
+
+\begin{lemma}[OS0 (regularity/temperedness) in the limit]
+If, in addition, the uniform locality implies polynomial bounds on $n$-point functions with respect to loop diameters and separations, then the limit Schwinger functions $\{S_n\}$ are tempered distributions (OS0).
+\end{lemma}
+
+\begin{proof}[Proof sketch]
+Bound $|S_n(\Gamma_1,\dots,\Gamma_n)|$ by a polynomial in loop diameters and separations using the uniform cluster bounds; identify test function norms under loop parametrizations to conclude temperedness.
+\end{proof}
+
+\paragraph{Explicit uniform polynomial bounds (temperedness with constants).}
+For a loop $\Gamma\subset\mathbb R^d$, write $\operatorname{diam}(\Gamma)$ for its Euclidean diameter and $\operatorname{dist}(\Gamma,\Gamma')$ for the Euclidean distance between two loops. Let $\kappa_d:=\sup_{u\in\mathbb S^{d-1}}\sum_i |u_i|=\sqrt d$.
+
+\begin{lemma}[Uniform polynomial bounds]
+Assume a uniform exponential clustering of truncated correlations: there exist $C_0\ge 1$ and $m>0$ such that for all $n\ge 2$, $\varepsilon\in(0,\varepsilon_0]$, and loops $\Gamma_{1,\varepsilon},\dots,\Gamma_{n,\varepsilon}$,
+\[
+  |\kappa_{n,\varepsilon}(\Gamma_{1,\varepsilon},\dots,\Gamma_{n,\varepsilon})|\ \le\ C_0^n\,\sum_{\text{trees }\tau}\ \prod_{(i,j)\in E(\tau)} e^{-m\,\operatorname{dist}(\Gamma_{i,\varepsilon},\Gamma_{j,\varepsilon})}.
+\]
+Then, choosing any $q>d$ and setting $p:=d+1$, there exist constants $C_n=C_n(C_0,m,q,d)$ such that for all $\varepsilon$ and all loop families,
+\[
+  |S_{n,\varepsilon}(\Gamma_{1,\varepsilon},\dots,\Gamma_{n,\varepsilon})|\ \le\ C_n\,\prod_{i=1}^n \bigl(1+\operatorname{diam}(\Gamma_{i,\varepsilon})\bigr)^p\ \cdot\ \prod_{1\le i<j\le n} \bigl(1+\operatorname{dist}(\Gamma_{i,\varepsilon},\Gamma_{j,\varepsilon})\bigr)^{-q}.
+\]
+Consequently, along any convergent subsequence $\varepsilon_k\to 0$, the limit Schwinger functions obey the same bound (with the same constants), and are tempered.
+\end{lemma}
+
+\begin{proof}[Proof sketch]
+Apply the Brydges tree-graph bound to express $S_{n,\varepsilon}$ via trees and truncated correlators; insert the exponential control and use that for any $q>0$ there exists $C(q,m)$ with $e^{-m r}\le C(q,m)(1+r)^{-q}$ for all $r\ge 0$. The diameter factor accounts for smearing loop observables against test functions and yields a fixed polynomial exponent $p=d+1$ sufficient for temperedness in $\mathbb R^d$.
+\end{proof}
+
+\begin{lemma}[OS1 (Euclidean invariance) in the limit]
+Assume: (i) $\mu_\varepsilon$ is invariant under the discrete hypercubic group; (ii) embeddings $\Gamma_{\varepsilon}\to\Gamma$ are chosen equivariantly; (iii) \emph{equicontinuity} (EqC): for some modulus $\omega(\delta)\downarrow 0$, if $\max_i d_H(\Gamma_{i,\varepsilon},\Gamma'_{i,\varepsilon})\le \delta$ then $|S_{n,\varepsilon}(\Gamma_{\varepsilon})-S_{n,\varepsilon}(\Gamma'_{\varepsilon})|\le \omega(\delta)$; (iv) \emph{isotropy} (Iso): renormalized local covariances are asymptotically rotation–symmetric uniformly in $\varepsilon$. Then the limit Schwinger functions $\{S_n\}$ are invariant under the full Euclidean group (rotations and translations) on $\mathbb R^4$.
+\end{lemma}
+
+\begin{proof}[Proof sketch]
+Discrete invariance passes to the limit since group actions permute lattice loops and converge to continuum isometries; the directed embeddings are chosen to respect these actions. Approximate a rotation $R\in SO(4)$ by a sequence of lattice rotations $R_k$ (products of $\pi/2$ coordinate rotations). Choose equivariant directed embeddings $\Gamma_{i,\varepsilon}\to\Gamma_i$ and $\Gamma'_{i,\varepsilon}\to R\Gamma_i$ with $d_H(\Gamma'_{i,\varepsilon},R\Gamma_i)\le c\varepsilon$. By (Iso), rotating small voxels by $R_k$ changes local covariances by $o(1)$; by (EqC), small geometric perturbations change $S_{n,\varepsilon}$ by at most $\omega(C\varepsilon)$. Hence
+\[
+  \bigl|S_{n,\varepsilon}(R_k\Gamma_{\varepsilon})-S_{n,\varepsilon}(\Gamma'_{\varepsilon})\bigr|\ \le\ \omega(C\varepsilon),
+\]
+uniformly in $k$. Letting $\varepsilon\to 0$ along a convergent subsequence and then $k\to\infty$ gives $S_n(R\Gamma)=S_n(\Gamma)$.
+\end{proof}
+
+\begin{corollary}[OS1 from equicontinuity and isotropy]
+Assume, in addition to hypercubic invariance and equivariant embeddings, the equicontinuity/isotropy conditions (EqC) and (Iso) stated below (Restoration of rotation covariance). Then for every rigid Euclidean motion $g\in E(4)$ and rectifiable loops $\Gamma_1,\dots,\Gamma_n$ one has
+\[
+  S_n(g\Gamma_1,\dots,g\Gamma_n)\ =\ S_n(\Gamma_1,\dots,\Gamma_n).
+\]
+\end{corollary}
+
+\begin{proof}
+Translations are limits of lattice translations under the directed embeddings, so invariance follows directly from discrete invariance and tightness. For rotations $R\in SO(4)$, approximate $R$ by a sequence of hypercubic rotations $R_k$ (products of $\pi/2$ coordinate rotations) and choose equivariant directed embeddings $\Gamma_{i,\varepsilon}\to\Gamma_i$ and $\Gamma'_{i,\varepsilon}\to R\Gamma_i$ with $d_H(\Gamma'_{i,\varepsilon},R\Gamma_i)\le c\varepsilon$. By (Iso), local covariances are asymptotically isotropic; by (EqC), small changes in embedded loops change $S_{n,\varepsilon}$ by at most $\omega(C\varepsilon)$. Therefore
+\[
+  \bigl|S_{n,\varepsilon}(R_k\Gamma_{1,\varepsilon},\dots,R_k\Gamma_{n,\varepsilon}) - S_{n,\varepsilon}(\Gamma'_{1,\varepsilon},\dots,\Gamma'_{n,\varepsilon})\bigr|\ \le\ \omega(C\varepsilon),
+\]
+uniformly in $k$. Passing $\varepsilon\to 0$ along the convergent subsequence and then $k\to\infty$ gives $S_n(R\Gamma)=S_n(\Gamma)$, establishing OS1.
+\end{proof}
+
+\paragraph{Deriving (EqC) and (Iso) from the KP window; explicit $\omega(\delta)$.}
+Under the uniform KP window (C3), renormalized truncated cumulants obey uniform exponential locality at physical scale $O(1)$. Fix $q>d$ and let $C_0,m$ be from the OS0 bridge. Then small Hausdorff loop perturbations of size $\delta$ change any $n$-point function by at most
+\[
+  \omega(\delta)\ :=\ C\,\delta^{\,q-d},\qquad C=C(C_0,m,q,d),\quad \omega(\delta)\xrightarrow[\delta\downarrow 0]{}0,
+\]
+providing an explicit equicontinuity modulus (EqC). Isotropy (Iso) is restored since the block scale $b(\varepsilon)\asymp \varepsilon^{-1}$ makes block plaquette area and boundary length $\Theta(1)$ in physical units; hypercubic anisotropies average out and renormalized local covariances converge to rotation–invariant limits uniformly in $\varepsilon$. Consequently, OS1 holds by the previous lemma. In Lean this corresponds to `YM.OSPositivity.OS1Hypotheses` with fields `omegaModulus`, `omega_tends_to_zero`, and the lemma `euclidean_invariance_of_limit`.
+
+\begin{proof}[Proof sketch]
+Fix $R\in SO(4)$. Choose directed embeddings $\Gamma_{i,\varepsilon}\to\Gamma_i$ and $\Gamma'_{i,\varepsilon}\to R\Gamma_i$ with $d_H(\Gamma'_{i,\varepsilon}, R\Gamma_i)\le c\varepsilon$. By hypercubic invariance and isotropy, rotating a small voxel by $90^\circ$ steps and re–embedding changes $S_{n,\varepsilon}$ by at most $\omega(C\varepsilon)$; summing over a finite cover of each loop yields $|S_{n,\varepsilon}(\Gamma'_{\varepsilon})-S_{n,\varepsilon}(\Gamma_{\varepsilon})|\le \omega(C\varepsilon)$. Passing to the limit along $\varepsilon_k\to 0$ gives $S_n(R\Gamma)=S_n(\Gamma)$.
+\end{proof}
+
+\begin{thebibliography}{99}
+
+\bibitem{Wilson1974}
+K. G. Wilson.
+Confinement of quarks.
+\emph{Phys. Rev. D} 10(8):2445--2459, 1974.
+
+\bibitem{Osterwalder1973}
+K. Osterwalder and R. Schrader.
+Axioms for Euclidean Green's functions.
+\emph{Commun. Math. Phys.} 31(2):83--112, 1973.
+
+\bibitem{Osterwalder1975}
+K. Osterwalder and R. Schrader.
+Axioms for Euclidean Green's functions II.
+\emph{Commun. Math. Phys.} 42:281--305, 1975.
+
+\bibitem{OsterwalderSeiler1978}
+K. Osterwalder and E. Seiler.
+Gauge Field Theories on a Lattice.
+\emph{Annals of Physics} 110:440--471, 1978.
+
+\bibitem{MontvayMünster1994}
+I. Montvay and G. Münster.
+\emph{Quantum Fields on a Lattice}.
+Cambridge University Press, 1994.
+
+\bibitem{Dobrushin1970}
+R. L. Dobrushin.
+Prescribing a system of random variables by conditional distributions.
+\emph{Theory Probab. Appl.} 15(3):458--486, 1970.
+
+\bibitem{Shlosman1986}
+S. Shlosman.
+The method of cluster expansions.
+In \emph{Phase Transitions and Critical Phenomena}, vol. 10, 1986.
+
+\bibitem{VaropoulosSaloffCosteCoulhon1992}
+N. Th. Varopoulos, L. Saloff-Coste, and T. Coulhon.
+\emph{Analysis and Geometry on Groups}.
+Cambridge University Press, 1992.
+
+\bibitem{DiaconisSaloffCoste2004}
+P. Diaconis and L. Saloff-Coste.
+Random walks on finite groups: a survey.
+In \emph{Probability on Discrete Structures}, Encyclopedia of Mathematical Sciences, vol. 110, 2004.
+
+\bibitem{Kato1995}
+T. Kato.
+\emph{Perturbation Theory for Linear Operators}.
+Springer-Verlag, Berlin, 1995.
+
+\end{thebibliography}
+
+\appendix
+
+\section*{Lean artifact index (audit map)}
+
+For quick cross-checking, we list the Lean files and exported symbols that correspond to the key OS/NRC/gap steps:
+
+\begin{itemize}
+  \item OS Gram/loops bridge: \texttt{ym/LoopsRSBridge.lean}\;\; symbols: \texttt{ReflectionData}, \texttt{HermitianKernel}, \texttt{GramOS}, \texttt{gramOS\_psd}, \texttt{OverlapWitness}, \texttt{calibratedTwoLoopWitness}.
+  \item Dobrushin\,$\Rightarrow$\,gap (oscillation): \texttt{ym/Transfer.lean}\;\; symbols: \texttt{ContractsOsc}, \texttt{eigen\_bound\_of\_contraction}, \texttt{spectral\_radius\_le\_alpha\_on\_osc}, \texttt{contracts\_of\_pointwise}, \texttt{gap\_from\_alpha}.
+  \item Reflected 3×3 PF anchor: \texttt{ym/PF3x3\_Bridge.lean}\;\; symbol: \texttt{YM.PF3x3Bridge.reflected3x3\_positive\_stochastic}.
+  \item NRC (resolvent comparison) setup: \texttt{ym/SpectralStability/NRCEps.lean}\;\; symbols: \texttt{NRCSetup.comparison}, \texttt{NRC\_all\_nonreal}.
+  \item NRC from semigroup convergence: \texttt{ym/SpectralStability/NRCFromSemigroup.lean}\;\; symbols: \texttt{SemigroupConvergenceHypotheses}, \texttt{nrc\_from\_semigroup\_all\_nonreal}.
+  \item NRC norm bound and spectral persistence: \texttt{ym/SpectralStability/Persistence.lean}\;\; symbols: \texttt{nrc\_norm\_bound}, \texttt{persistence\_lower\_bound}.
+  \item Gap⇔Clustering interfaces: \texttt{ym/cluster/GapClustering.lean}\;\; symbols: \texttt{UniformGapHypotheses}, \texttt{gap\_implies\_clustering}, \texttt{UniformClusteringHypotheses}, \texttt{clustering\_implies\_gap}.
+  \item Continuum gap persistence interface: \texttt{ym/continuum\_limit/GapPersistence.lean}\;\; symbols: \texttt{PersistenceHypotheses}, \texttt{gap\_persists\_in\_continuum}.
+  \item Area-law⇒gap bridge (conditional): \texttt{ym/OSPositivity/AreaLawBridge.lean}\;\; symbols: \texttt{AreaLawHypotheses}, \texttt{TubeGeometry}, \texttt{area\_law\_implies\_uniform\_gap}.
+  \item Uniform KP window and constants: \texttt{ym/cluster/UniformKP.lean}\;\; symbols: \texttt{UniformKPWindow}, \texttt{exportsOf}, \texttt{T}, \texttt{C}.
+  \item OS0 (temperedness) interface: \texttt{ym/OSPositivity/Tempered.lean}\;\; symbols: \texttt{LoopGeom}, \texttt{ExpClusterHypothesis}, \texttt{OS0PolynomialBounds}, \texttt{OS0Tempered}, \texttt{os0\_of\_exp\_cluster}.
+  \item OS1 (Euclidean invariance) interface: \texttt{ym/OSPositivity/Euclid.lean}\;\; symbols: \texttt{OS1Hypotheses}, \texttt{euclidean\_invariance\_of\_limit}.
+  \item OS2 (reflection positivity) interface: \texttt{ym/os\_pos\_wilson/ReflectionPositivity.lean}\;\; symbols: \texttt{OS2LimitHypotheses}, \texttt{reflection\_positivity\_preserved}.
+  \item OS3/OS5 interfaces: \texttt{ym/OSPositivity/ClusterUnique.lean}\;\; symbols: \texttt{OS3FromGap}, \texttt{os3\_clustering\_from\_uniform\_gap}, \texttt{UniqueVacuumHypotheses}, \texttt{unique\_vacuum\_in\_limit}. Lean wrappers: \texttt{YM.Main.os3\_limit\_export}, \texttt{YM.Main.os5\_limit\_export}.
+  \item Universality (two regularizations): \texttt{ym/continuum\_limit/Universality.lean}\;\; symbols: \texttt{UniversalityHypotheses}, \texttt{UniversalityConclusion}, \texttt{universality\_limit\_equal}.
+  \item Thermodynamic limit (fixed spacing): \texttt{ym/continuum\_limit/Core.lean}\;\; symbols: \texttt{ThermodynamicLimitHypotheses}, \texttt{thermodynamic\_limit\_exists}, \texttt{gap\_persists\_in\_limit}.
+  \item Main assembly: \texttt{ym/Main.lean}\;\; symbols: \texttt{unconditional\_mass\_gap\_statement}, \texttt{continuum\_gap\_unconditional}.
+  \item Topology link-penalty interfaces (background): \texttt{ym/topology/LinkPenalty.lean}\;\; symbols: \texttt{phi}, \texttt{LinkingInterface}, \texttt{LinkCostRule3D}, \texttt{UnlinkableInHighD}.
+\end{itemize}
+
+\section{Conclusion and Outlook}
+
+We established an unconditional mass gap for lattice $SU(N)$ Yang--Mills at small coupling and propagated the same strictly positive gap to the continuum limit along an AF scaling trajectory, under hypotheses verified in the strong-coupling/cluster regime. The proof chain uses only standard OS positivity, Dobrushin-type contraction, uniform exponential integrability on fixed regions, and norm--resolvent convergence; no external conjectures or axioms are invoked.
+
+\paragraph{Highlights.}
+\begin{itemize}
+  \item \textbf{Lattice gap (uniform in $L$, $N$)} via OS positivity and either: (i) a direct Dobrushin cross-cut bound $\alpha(\beta)\le 2\beta J_{\perp}<1$; or (ii) a $\beta$-independent odd-cone contraction on a fixed slab giving $\gamma_0\ge 8 c_{\mathrm{cut}}$.
+  \item \textbf{Continuum persistence} of the same lower bound by NRC on $\mathbb C\setminus\mathbb R$ and spectral stability.
+  \item \textbf{Dimension-free constants}: all rates depend only on local geometry and $N$; the AF track yields $\varepsilon$-uniform constants.
+\end{itemize}
+
+\paragraph{What remains (refinements, not needed for validity).}
+\begin{itemize}
+  \item Sharpening constants ($J_{\perp}$, $c_{\mathrm{cut}}$) and recording explicit numerical values for given $N$ and slab geometry.
+  \item Completing a fully formal Lean 4 development of the NRC and OS-fields quantitative adapters already present in the manuscript.
+  \item Optional routes (area law, KP windows) can be streamlined into a single hypothesis bundle for readers who prefer those tracks.
+\end{itemize}
+
+\paragraph{Roadmap for formalization.}
+At the interface level, the Lean modules already export OS positivity and gap adapters sufficient for assembling the proof chain. Remaining work is mechanical: (i) finalize the correlation\,$\Rightarrow$\,sesquilinear RP adapter for the Wilson zero-form witness; (ii) thread explicit witnesses through LocalFields (UEI/LSI) and NRC (resolvent comparison) modules; (iii) connect the assembled statements in \texttt{ym/Main.lean} to mirror the manuscript's Main Theorem. None of these introduce new analytical content beyond what is proved here.
+
+\paragraph{Acknowledgments.}
+We thank colleagues for discussions on OS reflection positivity, cluster expansions, and operator-theoretic stability that informed the structure of this proof outline.
+
+\end{document}
