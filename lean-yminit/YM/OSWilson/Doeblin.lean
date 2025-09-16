@@ -119,11 +119,32 @@ structure ProductLowerBoundOut where
 
 def product_lower_bound_spec (P : ProductLowerBoundParams) (O : ProductLowerBoundOut) : Prop := True
 
+/-- Minimal synthesis of Doeblin lower bound from components. -/
+def build_product_lower_bound (P : ProductLowerBoundParams) : ProductLowerBoundOut :=
+  -- Placeholder κ0 via c_geo*(α_ref*c_*)^{m_cut}; values substituted later.
+  { kappa0 := P.factor.c_geo * Float.pow (P.refresh.alpha_ref * P.conv.c_star) (Nat.cast P.factor.m_cut) }
+
 /-! Doeblin lower bound κ0 formula. -/
 structure DoeblinLowerBound where
   kappa0 : Float
 
 def doeblin_lower_bound_spec (D : DoeblinLowerBound) : Prop := True
+
+/-- Assemble a DoeblinLowerBound from ProductLowerBoundOut. -/
+def synthesize_doeblin_from_product (O : ProductLowerBoundOut) : DoeblinLowerBound :=
+  { kappa0 := O.kappa0 }
+
+/-- Trivial accept lemmas for the synthesized outputs (spec placeholders). -/
+theorem build_product_lower_bound_satisfies (P : ProductLowerBoundParams) :
+  let O := build_product_lower_bound P
+  product_lower_bound_spec P O :=
+by
+  intros; trivial
+
+theorem synthesize_doeblin_from_product_satisfies (O : ProductLowerBoundOut) :
+  doeblin_lower_bound_spec (synthesize_doeblin_from_product O) :=
+by
+  trivial
 
 /-! OddConeContraction: convex split with heat-kernel contraction.
 Provenance: EMR-c L1292–L1331. ρ = (1 − θ_* e^{−λ1 t0})^{1/2}, θ_*=κ0. -/
