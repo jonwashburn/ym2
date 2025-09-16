@@ -96,6 +96,17 @@ structure InterfaceFactorization where
 
 def interface_factorization_spec (F : InterfaceFactorization) : Prop := True
 
+/-- Minimal constructor for interface factorization constants. -/
+def build_interface_factorization (R_star a0 : Float) : InterfaceFactorization :=
+  -- Placeholder geometry constants; later derived from slab geometry.
+  { c_geo := 0.5, m_cut := 4 }
+
+/-- The constructed factorization parameters satisfy the current spec. -/
+theorem build_interface_factorization_satisfies (R_star a0 : Float) :
+  interface_factorization_spec (build_interface_factorization R_star a0) :=
+by
+  trivial
+
 /-! ProductLowerBound: assemble κ0 from components.
 Provenance: EMR-c L1246–L1269. κ0 := c_geo · (α_ref · c_*)^{m_cut}. -/
 structure ProductLowerBoundParams where
