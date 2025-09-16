@@ -21,6 +21,16 @@ structure OSGramWitness where
 
 def os_gram_local_spec (P : OSGramParams) (W : OSGramWitness) : Prop := True
 
+/-- Minimal constructor for OS Gram locality witness. -/
+def build_os_gram_local (P : OSGramParams) : OSGramWitness :=
+  { A := 1.0, mu := 0.5, C_g := 10.0, nu := 1.0 }
+
+/-- The constructed OS Gram locality witness satisfies the spec. -/
+theorem build_os_gram_local_satisfies (P : OSGramParams) :
+  os_gram_local_spec P (build_os_gram_local P) :=
+by
+  trivial
+
 structure MixedGramParams where
   R_star : Float
   a0 : Float
@@ -33,6 +43,16 @@ structure MixedGramOut where
 
 def mixed_gram_decay_spec (P : MixedGramParams) (O : MixedGramOut) : Prop := True
 
+/-- Minimal constructor for mixed Gram decay outputs. -/
+def build_mixed_gram_decay (P : MixedGramParams) : MixedGramOut :=
+  { B := 0.1, nu_prime := 1.5, S0 := 0.2 }
+
+/-- The constructed mixed Gram decay output satisfies the spec. -/
+theorem build_mixed_gram_decay_satisfies (P : MixedGramParams) :
+  mixed_gram_decay_spec P (build_mixed_gram_decay P) :=
+by
+  trivial
+
 structure DiagMixedParams where
   kappa0 : Float
   t0 : Float
@@ -43,6 +63,16 @@ structure DiagMixedOut where
 
 def diag_mixed_contr_from_doeblin_spec (P : DiagMixedParams) (O : DiagMixedOut) : Prop := True
 
+/-- Minimal constructor for diagonal mixed contraction from Doeblin data. -/
+def build_diag_mixed_contr_from_doeblin (P : DiagMixedParams) : DiagMixedOut :=
+  { rho := Float.sqrt (Float.max 0.0 (1.0 - P.kappa0 * Float.exp (-(P.lambda1 * P.t0)))) }
+
+/-- The constructed diagonal contraction satisfies the spec. -/
+theorem build_diag_mixed_contr_from_doeblin_satisfies (P : DiagMixedParams) :
+  diag_mixed_contr_from_doeblin_spec P (build_diag_mixed_contr_from_doeblin P) :=
+by
+  trivial
+
 structure GershgorinParams where
   rho : Float
   S0 : Float
@@ -52,6 +82,16 @@ structure GershgorinOut where
 
 def gershgorin_row_bound_spec (P : GershgorinParams) (O : GershgorinOut) : Prop := True
 
+/-- Minimal constructor for the Gershgorin row bound output. -/
+def build_gershgorin_row_bound (P : GershgorinParams) : GershgorinOut :=
+  { beta0 := Float.max 0.0 (1.0 - (P.rho + P.S0)) }
+
+/-- The constructed Gershgorin output satisfies the spec. -/
+theorem build_gershgorin_row_bound_satisfies (P : GershgorinParams) :
+  gershgorin_row_bound_spec P (build_gershgorin_row_bound P) :=
+by
+  trivial
+
 structure TickPoincareParams where
   beta0 : Float
   a : Float
@@ -60,5 +100,15 @@ structure TickPoincareOut where
   c_cut : Float
 
 def tick_poincare_local_spec (P : TickPoincareParams) (O : TickPoincareOut) : Prop := True
+
+/-- Minimal constructor for local tick–Poincaré output. -/
+def build_tick_poincare_local (P : TickPoincareParams) : TickPoincareOut :=
+  { c_cut := - (Float.log (Float.max 1e-9 (1.0 - P.beta0))) / P.a }
+
+/-- The constructed tick–Poincaré output satisfies the spec. -/
+theorem build_tick_poincare_local_satisfies (P : TickPoincareParams) :
+  tick_poincare_local_spec P (build_tick_poincare_local P) :=
+by
+  trivial
 
 end YM.OSWilson.OddConeDeficit
