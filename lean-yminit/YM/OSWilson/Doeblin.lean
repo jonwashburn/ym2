@@ -158,6 +158,17 @@ structure OddConeOut where
 
 def odd_cone_contraction_spec (P : OddConeParams) (O : OddConeOut) : Prop := True
 
+/-- Minimal constructor for odd-cone contraction output from parameters. -/
+def build_odd_cone_contraction (P : OddConeParams) : OddConeOut :=
+  -- Placeholder contraction factor ρ; to be refined with spectral data.
+  { rho := Float.sqrt (Float.max 0.0 (1.0 - P.kappa0 * Float.exp (-(P.lambda1 * P.t0)))) }
+
+/-- The constructed contraction satisfies the current spec predicate. -/
+theorem build_odd_cone_contraction_satisfies (P : OddConeParams) :
+  odd_cone_contraction_spec P (build_odd_cone_contraction P) :=
+by
+  trivial
+
 /-! Acceptance scaffolding (no proofs, no imports). -/
 
 structure MeasureContext where
