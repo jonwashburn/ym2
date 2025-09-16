@@ -17,6 +17,16 @@ structure EmbeddingWitness where
 
 def embedding_isometry_spec (P : EmbeddingParams) (W : EmbeddingWitness) : Prop := True
 
+/-- Minimal constructor for an embedding isometry witness. -/
+def build_embedding_isometry (P : EmbeddingParams) : EmbeddingWitness :=
+  { is_isometry := true }
+
+/-- The constructed embedding witness satisfies the current spec. -/
+theorem build_embedding_isometry_satisfies (P : EmbeddingParams) :
+  embedding_isometry_spec P (build_embedding_isometry P) :=
+by
+  trivial
+
 structure GraphDefectParams where
   a : Float
   bound_const : Float
