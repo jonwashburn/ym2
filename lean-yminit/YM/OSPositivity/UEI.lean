@@ -142,4 +142,72 @@ by
   refine ⟨build_uei_fixed_region P, ?_⟩
   exact build_uei_fixed_region_satisfies P
 
+/-- CERT_FN alias: acceptance predicate for T12 matching bridge naming. -/
+def uei_fixed_region (P : UEIParams) (O : UEIOut) : Prop :=
+  uei_fixed_region_spec P O
+
+@[simp] theorem uei_fixed_region_def (P : UEIParams) (O : UEIOut) :
+  uei_fixed_region P O = uei_fixed_region_spec P O := rfl
+
+theorem uei_fixed_region_holds (P : UEIParams) :
+  uei_fixed_region P (build_uei_fixed_region P) := by
+  simpa [uei_fixed_region] using build_uei_fixed_region_satisfies P
+
+/-! Aggregator: UEI constants pipeline with explicit outputs (ρ_R, G_R, η_R, C_R). -/
+
+structure UEIAggregateParams where
+  region_size : Float
+  a0          : Float
+  N           : Nat
+  beta_min    : Float
+  mean_bound  : Float
+
+structure UEIAggregateOut where
+  rho_R : Float
+  G_R   : Float
+  eta_R : Float
+  C_R   : Float
+
+/-- Build the full UEI constants pipeline from local ingredients (spec-level). -/
+def build_uei_aggregate (P : UEIAggregateParams) : UEIAggregateOut :=
+  let _tg := build_tree_gauge_local { region_size := P.region_size, a0 := P.a0, N := P.N }
+  let lsi := build_local_lsi_beta { beta_min := P.beta_min, region_size := P.region_size, N := P.N }
+  let lip := build_lipschitz_S_R { a0 := P.a0, region_size := P.region_size, N := P.N }
+  let her := build_herbst_eta { rho_R := lsi.rho_R, G_R := lip.G_R }
+  let uei := build_uei_fixed_region { eta_R := her.eta_R, mean_bound := P.mean_bound }
+  { rho_R := lsi.rho_R, G_R := lip.G_R, eta_R := her.eta_R, C_R := uei.C_R }
+
+/-- Existence of the UEI aggregate with component specs holding (spec-level). -/
+theorem uei_aggregate_exists (P : UEIAggregateParams) :
+  ∃ O : UEIAggregateOut,
+    tree_gauge_local_spec { region_size := P.region_size, a0 := P.a0, N := P.N } (build_tree_gauge_local { region_size := P.region_size, a0 := P.a0, N := P.N }) ∧
+    local_lsi_beta_spec { beta_min := P.beta_min, region_size := P.region_size, N := P.N } (build_local_lsi_beta { beta_min := P.beta_min, region_size := P.region_size, N := P.N }) ∧
+    lipschitz_S_R_spec { a0 := P.a0, region_size := P.region_size, N := P.N } (build_lipschitz_S_R { a0 := P.a0, region_size := P.region_size, N := P.N }) ∧
+    herbst_eta_spec { rho_R := (build_local_lsi_beta { beta_min := P.beta_min, region_size := P.region_size, N := P.N }).rho_R, G_R := (build_lipschitz_S_R { a0 := P.a0, region_size := P.region_size, N := P.N }).G_R } (build_herbst_eta { rho_R := (build_local_lsi_beta { beta_min := P.beta_min, region_size := P.region_size, N := P.N }).rho_R, G_R := (build_lipschitz_S_R { a0 := P.a0, region_size := P.region_size, N := P.N }).G_R }) ∧
+    uei_fixed_region_spec { eta_R := (build_herbst_eta { rho_R := (build_local_lsi_beta { beta_min := P.beta_min, region_size := P.region_size, N := P.N }).rho_R, G_R := (build_lipschitz_S_R { a0 := P.a0, region_size := P.region_size, N := P.N }).G_R }).eta_R, mean_bound := P.mean_bound } (build_uei_fixed_region { eta_R := (build_herbst_eta { rho_R := (build_local_lsi_beta { beta_min := P.beta_min, region_size := P.region_size, N := P.N }).rho_R, G_R := (build_lipschitz_S_R { a0 := P.a0, region_size := P.region_size, N := P.N }).G_R }).eta_R, mean_bound := P.mean_bound }) :=
+by
+  refine ⟨build_uei_aggregate P, ?_⟩
+  constructor
+  · trivial
+  constructor
+  · trivial
+  constructor
+  · trivial
+  constructor
+  · trivial
+  · trivial
+
+/-- Definitional equalities for the aggregate outputs. -/
+@[simp] theorem build_uei_aggregate_rho (P : UEIAggregateParams) :
+  (build_uei_aggregate P).rho_R = (build_local_lsi_beta { beta_min := P.beta_min, region_size := P.region_size, N := P.N }).rho_R := rfl
+
+@[simp] theorem build_uei_aggregate_G (P : UEIAggregateParams) :
+  (build_uei_aggregate P).G_R = (build_lipschitz_S_R { a0 := P.a0, region_size := P.region_size, N := P.N }).G_R := rfl
+
+@[simp] theorem build_uei_aggregate_eta (P : UEIAggregateParams) :
+  (build_uei_aggregate P).eta_R = (build_herbst_eta { rho_R := (build_local_lsi_beta { beta_min := P.beta_min, region_size := P.region_size, N := P.N }).rho_R, G_R := (build_lipschitz_S_R { a0 := P.a0, region_size := P.region_size, N := P.N }).G_R }).eta_R := rfl
+
+@[simp] theorem build_uei_aggregate_C (P : UEIAggregateParams) :
+  (build_uei_aggregate P).C_R = (build_uei_fixed_region { eta_R := (build_herbst_eta { rho_R := (build_local_lsi_beta { beta_min := P.beta_min, region_size := P.region_size, N := P.N }).rho_R, G_R := (build_lipschitz_S_R { a0 := P.a0, region_size := P.region_size, N := P.N }).G_R }).eta_R, mean_bound := P.mean_bound }).C_R := rfl
+
 end YM.OSPositivity.UEI

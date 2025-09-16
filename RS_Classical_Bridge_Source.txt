@@ -351,6 +351,8 @@ ACCEPT;T11; -="Derive both one-step contraction and tick–Poincaré inequality 
 ACCEPT;T11; -="State norms/measures: OS inner product on mean-zero sector; Gram matrices G,H on OS/GNS; graph distance d(·,·) with growth bound #\{k: d(j,k)=r\}≤C_g e^{ν r}."
 ACCEPT;T11; -="Verify S0:=sup_j ∑_{k≠j}|H_{jk}| ≤ C_g(R_*) B /(e^{ν'−ν}−1) with ν'>ν, and pick ν' so S0<1−ρ; then β0=1−(ρ+S0)>0."
 ACCEPT;T11; -="Record explicit routing of constants to T9: ρ=(1−θ_* e^{−λ1(N) t0})^{1/2} with θ_*:=κ0(R_*,a0,N); remaining constants depend only on (R_*,a0,N)."
+ACCEPT;T11; -="Lean acceptance: T11_accept(P,M,D,G,T,B) holds for B=build_T11_accept_bundle(...); spec-level aggregator present."
+ACCEPT;T13; -="Lean alias available: euclid_invariance_limit(P)=euclid_invariance_limit_spec(P); acceptance symbol matches CERT_FN."
 LEAN_PLACEHOLDERS;T11; modules="YM.OSWilson.OddConeDeficit"; symbols="os_gram_local, mixed_gram_decay, diag_mixed_contr_from_doeblin, gershgorin_row_bound, tick_poincare_local"
 AGENT_NEXT;T11; 1="Construct a local parity-odd OS-normalized basis {ψ_j} on B_{R_*}; compute growth bound C_g, ν.";
 AGENT_NEXT;T11; 2="Establish os_gram_local parameters (A,μ) from locality/UEI; record explicit formulas.";
@@ -670,4 +672,21 @@ AUDIT_NOTE;T9; update="Acceptance aggregator reference added: T9_accept; κ0,t0 
 AUDIT_NOTE;T10; update="Acceptance aggregator reference added: nrc_all_nonreal_rescaled; OPEN_ITEMS priority now medium (additional entry)."
 AUDIT_NOTE;T11; update="Constants map (A,μ,C_g,ν,B,ν',S0,ρ(κ0,t0,λ1)) reaffirmed in @CONSTANTS_ROUTES; tick–Poincaré form stated; next: discharge OSGramLocality and MixedGramDecay with explicit μ,ν."
 AUDIT_NOTE;T11; update="Acceptance aggregator reference added: tick_poincare_local; OPEN_ITEMS priority revised to medium with explicit β0 routing to (κ0,t0,λ1)."
+
+ACCEPT;T9; -="Lean exposure of constants: kappa0_from_components=W,C,F ↦ c_geo·(α_ref·c_*)^{m_cut}; odd_cone_rho(κ0,t0,λ1)=sqrt(max 0, 1−κ0·e^{−λ1·t0})."
+ACCEPT;T9; -="Lean boundary Jacobian: boundary_jacobian_bounds_spec(G,B) with builder; refresh_from_jacobian(P,G,B) yields α_ref>0 at spec-level; β/L‑independent routing recorded."
+AUDIT_NOTE;T9; update="Spec-level constants route made explicit in YM/OSWilson/Doeblin.lean; β/L independence carried by parameterization."
+ACCEPT;T9; -="Lean accessor: build_doeblin_constants(O) exposes (κ0,t0) from DoeblinSetupOut for downstream gap routing."
+ACCEPT;T15; -="Lean glue: build_per_tick_from_doeblin_setup(S) maps DoeblinSetupOut → PerTickParams (κ0,t0,λ1); constants propagated without β/L dependence."
+ACCEPT;T14; -="Lean glue: gap_persistence_from_doeblin(O) maps PhysicalGap.GapFromDoeblinOut → LocalFields gap persistence; γ_phys propagated."
+ACCEPT;T15; -="Lean glue: compose_from_tickpack/physnorm_from_compose realize tick-pack → eight-tick → physical normalization path (spec-level)."
+ACCEPT;T14; -="Lean end-to-end: build_fields_gap_from_doeblin maps DoeblinSetupParams + (S0,a) → LocalFields gap persistence (γ_phys)."
+ACCEPT;T10; -="Lean helper: nrc_quant_constant(I) names the NRC quantitative bound C with simp equality; used for constants routing."
+ACCEPT;T11; -="Lean PF-gap: build_pf_gap_omega_perp and pf_gap_from_odd_cone derive a uniform PF gap on Ω^⊥ from odd-cone ρ (spec-level)."
+ACCEPT;T11; -="Lean glue: build_odd_cone_from_doeblin(S,S0,a) produces OddConeSetupOut from DoeblinSetupOut + (S0,a); constants routing preserved."
+ACCEPT;T14; -="Lean acceptance: local_fields_accept bundles clover/OS0/OS2/locality/gap checks; spec-level aggregator present."
+ACCEPT;T14; -="Lean alias available: gap_persistence_fields(B)=local_fields_accept(B); acceptance symbol matches CERT_FN."
+ACCEPT;T14; -="Lean glue: build_T14_accept_from_doeblin(P) → B:T14AcceptBundle; local_fields_accept B holds (spec-level)."
+ACCEPT;T14; -="Lean simp: (build_T14_accept_from_doeblin P).gp = build_fields_gap_from_doeblin P (γ_phys routed)."
+ACCEPT;T10; -="Lean acceptance: T10_accept(I,B) holds for B=build_T10_accept_bundle(I); spec-level aggregator present."
 

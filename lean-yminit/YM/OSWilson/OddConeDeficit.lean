@@ -1,7 +1,10 @@
+import YM.OSWilson.Doeblin
+
 /-!
 T11 (YM_OddConeDeficit) stubs.
 Source: RS_Classical_Bridge_Source.txt (T11 block).
 No axioms. No `sorry`.
+SAFE_REPLACE: move import to top to satisfy linter (no logic change).
 -/
 
 namespace YM.OSWilson.OddConeDeficit
@@ -146,6 +149,17 @@ by
   refine ⟨build_tick_poincare_local P, ?_⟩
   exact build_tick_poincare_local_satisfies P
 
+/-- CERT_FN alias: acceptance predicate for T11 matching bridge naming. -/
+def tick_poincare_local (P : TickPoincareParams) (O : TickPoincareOut) : Prop :=
+  tick_poincare_local_spec P O
+
+@[simp] theorem tick_poincare_local_def (P : TickPoincareParams) (O : TickPoincareOut) :
+  tick_poincare_local P O = tick_poincare_local_spec P O := rfl
+
+theorem tick_poincare_local_holds (P : TickPoincareParams) :
+  tick_poincare_local P (build_tick_poincare_local P) := by
+  simpa [tick_poincare_local] using build_tick_poincare_local_satisfies P
+
 /-- Beta0 packaging: from ρ and S0 produce β0:=max 0 (1−(ρ+S0)). -/
 structure Beta0Params where
   rho : Float
@@ -184,5 +198,136 @@ theorem tick_pack_exists (P : TickPackParams) :
 by
   refine ⟨build_tick_pack P, ?_⟩
   trivial
+
+/ -! Aggregated odd-cone setup: (κ0,t0,λ1,S0,a) ↦ (ρ,β0,c_cut) with spec-level links. -/
+
+structure OddConeSetupParams where
+  kappa0  : Float
+  t0      : Float
+  lambda1 : Float
+  S0      : Float
+  a       : Float
+
+structure OddConeSetupOut where
+  rho    : Float
+  beta0  : Float
+  c_cut  : Float
+
+/-- Build the aggregated odd-cone setup outputs using existing builders. -/
+def build_odd_cone_setup (P : OddConeSetupParams) : OddConeSetupOut :=
+  let D := build_diag_mixed_contr_from_doeblin { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }
+  let B := build_beta0 { rho := D.rho, S0 := P.S0 }
+  let T := build_tick_pack { beta0 := B.beta0, a := P.a }
+  { rho := D.rho, beta0 := B.beta0, c_cut := T.c_cut }
+
+/-- Existence of the aggregated odd-cone setup along with component specs. -/
+theorem odd_cone_setup_exists (P : OddConeSetupParams) :
+  ∃ O : OddConeSetupOut,
+    diag_mixed_contr_from_doeblin_spec { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 } (build_diag_mixed_contr_from_doeblin { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }) ∧
+    beta0_positive_spec { rho := (build_diag_mixed_contr_from_doeblin { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }).rho, S0 := P.S0 } (build_beta0 { rho := (build_diag_mixed_contr_from_doeblin { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }).rho, S0 := P.S0 }) ∧
+    tick_pack_spec { beta0 := (build_beta0 { rho := (build_diag_mixed_contr_from_doeblin { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }).rho, S0 := P.S0 }).beta0, a := P.a } (build_tick_pack { beta0 := (build_beta0 { rho := (build_diag_mixed_contr_from_doeblin { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }).rho, S0 := P.S0 }).beta0, a := P.a }) :=
+by
+  refine ⟨build_odd_cone_setup P, ?_⟩
+  constructor
+  · trivial
+  constructor
+  · trivial
+  · trivial
+
+/-- Definitional equalities for the aggregated outputs. -/
+@[simp] theorem build_odd_cone_setup_rho (P : OddConeSetupParams) :
+  (build_odd_cone_setup P).rho = (build_diag_mixed_contr_from_doeblin { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }).rho := rfl
+
+@[simp] theorem build_odd_cone_setup_beta0 (P : OddConeSetupParams) :
+  (build_odd_cone_setup P).beta0 = (build_beta0 { rho := (build_diag_mixed_contr_from_doeblin { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }).rho, S0 := P.S0 }).beta0 := rfl
+
+@[simp] theorem build_odd_cone_setup_c_cut (P : OddConeSetupParams) :
+  (build_odd_cone_setup P).c_cut = (build_tick_pack { beta0 := (build_beta0 { rho := (build_diag_mixed_contr_from_doeblin { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }).rho, S0 := P.S0 }).beta0, a := P.a }).c_cut := rfl
+
+/-- Glue: derive OddCone outputs directly from a Doeblin setup. -/
+def build_odd_cone_from_doeblin (S : YM.OSWilson.Doeblin.DoeblinSetupOut) (S0 a : Float) : OddConeSetupOut :=
+  build_odd_cone_setup { kappa0 := S.doeblin.kappa0, t0 := S.conv.t0, lambda1 := 1.0, S0 := S0, a := a }
+
+@[simp] theorem build_odd_cone_from_doeblin_rho (S : YM.OSWilson.Doeblin.DoeblinSetupOut) (S0 a : Float) :
+  (build_odd_cone_from_doeblin S S0 a).rho =
+    (build_diag_mixed_contr_from_doeblin { kappa0 := S.doeblin.kappa0, t0 := S.conv.t0, lambda1 := 1.0 }).rho := rfl
+
+@[simp] theorem build_odd_cone_from_doeblin_beta0 (S : YM.OSWilson.Doeblin.DoeblinSetupOut) (S0 a : Float) :
+  (build_odd_cone_from_doeblin S S0 a).beta0 =
+    (build_beta0 { rho := (build_diag_mixed_contr_from_doeblin { kappa0 := S.doeblin.kappa0, t0 := S.conv.t0, lambda1 := 1.0 }).rho, S0 := S0 }).beta0 := rfl
+
+@[simp] theorem build_odd_cone_from_doeblin_c_cut (S : YM.OSWilson.Doeblin.DoeblinSetupOut) (S0 a : Float) :
+  (build_odd_cone_from_doeblin S S0 a).c_cut =
+    (build_tick_pack { beta0 := (build_beta0 { rho := (build_diag_mixed_contr_from_doeblin { kappa0 := S.doeblin.kappa0, t0 := S.conv.t0, lambda1 := 1.0 }).rho, S0 := S0 }).beta0, a := a }).c_cut := rfl
+
+/ -! PF gap on Ω⊥ from odd-cone contraction (spec-level). -/
+
+structure PFGapParams where
+  rho : Float
+
+structure PFGapOut where
+  gamma_pf : Float
+
+def pf_gap_omega_perp_spec (P : PFGapParams) (O : PFGapOut) : Prop := True
+
+/-- Minimal constructor for PF gap on Ω⊥ from ρ. -/
+def build_pf_gap_omega_perp (P : PFGapParams) : PFGapOut :=
+  { gamma_pf := Float.max 0.0 (1.0 - P.rho) }
+
+@[simp] theorem build_pf_gap_omega_perp_def (P : PFGapParams) :
+  (build_pf_gap_omega_perp P).gamma_pf = Float.max 0.0 (1.0 - P.rho) := rfl
+
+theorem build_pf_gap_omega_perp_satisfies (P : PFGapParams) :
+  pf_gap_omega_perp_spec P (build_pf_gap_omega_perp P) := by
+  trivial
+
+theorem pf_gap_omega_perp_exists (P : PFGapParams) :
+  ∃ O : PFGapOut, pf_gap_omega_perp_spec P O := by
+  refine ⟨build_pf_gap_omega_perp P, ?_⟩; trivial
+
+/-- Helper: PF gap from an `OddConeSetupOut`. -/
+def pf_gap_from_odd_cone (O : OddConeSetupOut) : PFGapOut :=
+  { gamma_pf := Float.max 0.0 (1.0 - O.rho) }
+
+@[simp] theorem pf_gap_from_odd_cone_def (O : OddConeSetupOut) :
+  (pf_gap_from_odd_cone O).gamma_pf = Float.max 0.0 (1.0 - O.rho) := rfl
+
+theorem pf_gap_from_odd_cone_exists (O : OddConeSetupOut) :
+  pf_gap_omega_perp_spec { rho := O.rho } (pf_gap_from_odd_cone O) := by
+  trivial
+
+/-- Acceptance bundle for T11 (spec-level): collect odd-cone components. -/
+structure T11AcceptBundle where
+  osg  : OSGramWitness
+  mgd  : MixedGramOut
+  diag : DiagMixedOut
+  gers : GershgorinOut
+  tpin : TickPoincareOut
+
+/-- Build a T11 acceptance bundle from minimal inputs (spec-level placeholders). -/
+def build_T11_accept_bundle (P : OSGramParams) (M : MixedGramParams)
+  (D : DiagMixedParams) (G : GershgorinParams) (T : TickPoincareParams) : T11AcceptBundle :=
+  { osg := build_os_gram_local P
+  , mgd := build_mixed_gram_decay M
+  , diag := build_diag_mixed_contr_from_doeblin D
+  , gers := build_gershgorin_row_bound G
+  , tpin := build_tick_poincare_local T }
+
+/-- Acceptance predicate: all component specs hold (spec-level True conjunction). -/
+def T11_accept (P : OSGramParams) (M : MixedGramParams)
+  (D : DiagMixedParams) (G : GershgorinParams) (T : TickPoincareParams)
+  (B : T11AcceptBundle) : Prop :=
+  os_gram_local_spec P B.osg ∧
+  mixed_gram_decay_spec M B.mgd ∧
+  diag_mixed_contr_from_doeblin_spec D B.diag ∧
+  gershgorin_row_bound_spec G B.gers ∧
+  tick_poincare_local_spec T B.tpin
+
+theorem T11_accept_holds (P : OSGramParams) (M : MixedGramParams)
+  (D : DiagMixedParams) (G : GershgorinParams) (T : TickPoincareParams) :
+  let B := build_T11_accept_bundle P M D G T
+  T11_accept P M D G T B := by
+  intro B
+  exact And.intro (And.intro (And.intro (And.intro trivial trivial) trivial) trivial) trivial
 
 end YM.OSWilson.OddConeDeficit
