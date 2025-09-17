@@ -1,17 +1,1 @@
-{"synthetic": false,
- "outputs": "18444419511922674780",
- "log":
- [{"message":
-   ".> /Users/jonathanwashburn/.elan/toolchains/leanprover--lean4---v4.23.0/bin/clang -c -o /Volumes/T9/Cursor-Active/yang-mills-written/lean-yminit/.lake/build/ir/Main.c.o.export /Volumes/T9/Cursor-Active/yang-mills-written/lean-yminit/.lake/build/ir/Main.c -I /Users/jonathanwashburn/.elan/toolchains/leanprover--lean4---v4.23.0/include -fstack-clash-protection -fwrapv -fvisibility=hidden -Wno-unused-command-line-argument --sysroot /Users/jonathanwashburn/.elan/toolchains/leanprover--lean4---v4.23.0 -nostdinc -isystem /Users/jonathanwashburn/.elan/toolchains/leanprover--lean4---v4.23.0/include/clang -O3 -DNDEBUG -DLEAN_EXPORTING",
-   "level": "trace"}],
- "inputs":
- [["Main:c",
-   [["/Volumes/T9/Cursor-Active/yang-mills-written/lean-yminit/.lake/build/ir/Main.c",
-     "10796264597211603231"],
-    ["Lean 4.23.0, commit 50aaf682e9b74ab92880292a25c68baa1cc81c87",
-     "5786258275165720599"]]],
-  ["Lean 4.23.0, commit 50aaf682e9b74ab92880292a25c68baa1cc81c87",
-   "5786258275165720599"],
-  ["traceArgs: #[-O3, -DNDEBUG, -DLEAN_EXPORTING]", "13974588697068907418"],
-  ["arm64-apple-darwin23.6.0", "17616366027971700708"]],
- "depHash": "5266225221112890698"}
+18001028231402888320

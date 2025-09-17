@@ -1,16 +1,1 @@
-{"synthetic": false,
- "outputs": "1657373722448249644",
- "log":
- [{"message":
-   ".> MACOSX_DEPLOYMENT_TARGET=99.0 /Users/jonathanwashburn/.elan/toolchains/leanprover--lean4---v4.23.0/bin/clang -o /Volumes/T9/Cursor-Active/yang-mills-written/lean-yminit/.lake/build/bin/ym /Volumes/T9/Cursor-Active/yang-mills-written/lean-yminit/.lake/build/ir/Main.c.o.export -L /Users/jonathanwashburn/.elan/toolchains/leanprover--lean4---v4.23.0/lib/lean --sysroot /Users/jonathanwashburn/.elan/toolchains/leanprover--lean4---v4.23.0 -L /Users/jonathanwashburn/.elan/toolchains/leanprover--lean4---v4.23.0/lib -L /Users/jonathanwashburn/.elan/toolchains/leanprover--lean4---v4.23.0/lib/libc -fuse-ld=lld -lleancpp -lInit -lStd -lLean -lleanrt -lc++ -lLake -lgmp -luv",
-   "level": "trace"}],
- "inputs":
- [["linkObjs",
-   [["/Volumes/T9/Cursor-Active/yang-mills-written/lean-yminit/.lake/build/ir/Main.c.o.export",
-     "18444419511922674780"]]],
-  ["linkLibs", "1723"],
-  ["Lean 4.23.0, commit 50aaf682e9b74ab92880292a25c68baa1cc81c87",
-   "5786258275165720599"],
-  ["traceArgs: #[]", "1723"],
-  ["arm64-apple-darwin23.6.0", "17616366027971700708"]],
- "depHash": "15265202536607587439"}
+5879651793979348289

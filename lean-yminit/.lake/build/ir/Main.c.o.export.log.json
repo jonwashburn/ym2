@@ -1,0 +1,3 @@
+[{"message":
+  ".> /Users/jonathanwashburn/.elan/toolchains/leanprover--lean4---v4.8.0-rc1/bin/leanc -c -o ././.lake/build/ir/Main.c.o.export ././.lake/build/ir/Main.c -O3 -DNDEBUG -DLEAN_EXPORTING",
+  "level": "trace"}]

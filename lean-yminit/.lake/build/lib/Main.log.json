@@ -1,0 +1,3 @@
+[{"message":
+  ".> LEAN_PATH=././.lake/packages/std/.lake/build/lib:././.lake/packages/Qq/.lake/build/lib:././.lake/packages/aesop/.lake/build/lib:././.lake/packages/proofwidgets/.lake/build/lib:././.lake/packages/Cli/.lake/build/lib:././.lake/packages/importGraph/.lake/build/lib:././.lake/packages/mathlib/.lake/build/lib:././.lake/build/lib DYLD_LIBRARY_PATH=././.lake/build/lib /Users/jonathanwashburn/.elan/toolchains/leanprover--lean4---v4.8.0-rc1/bin/lean ././././Main.lean -R ./././. -o ././.lake/build/lib/Main.olean -i ././.lake/build/lib/Main.ilean -c ././.lake/build/ir/Main.c --json",
+  "level": "trace"}]

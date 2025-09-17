@@ -14,6 +14,9 @@ import ym.spectral_stability.Persistence
 import ym.ym_measure.Projective
 import ym.ym_measure.Continuum
 import ym.minkowski.Reconstruction
+import YM.Transfer.PhysicalGap
+import YM.OSWilson.OddConeDeficit
+import YM.OSWilson.Doeblin
 
 /-!
 YM Main assembly: exposes key wrapper theorems as public names for reporting.
@@ -398,6 +401,37 @@ end YM
 -- Continuum/projective and Wightman export quick aliases
 #check YM.YMMeasure.continuum_ym_from_projective
 #check YM.Minkowski.wightman_export_wilson
+
+-- T15 acceptance scaffold (compile-time linkage)
+#check YM.Transfer.PhysicalGap.T15_accept
+-- T11 acceptance scaffold (compile-time linkage)
+#check YM.OSWilson.OddConeDeficit.T11_accept
+-- T9 Doeblin scaffolds (compile-time linkage)
+#check YM.OSWilson.Doeblin.build_doeblin_setup
+#check YM.Transfer.PhysicalGap.build_per_tick_from_doeblin
+
+/-- Constants routing scaffold: thread (κ0,t0,λ1) from a Doeblin setup into
+    per-tick parameters, pick a simple c_cut via domination scaffold, and
+    assert T15 and T11 acceptance predicates (spec-level). -/
+def wilson_constants_route_accepts : Prop := by
+  let P9 : YM.OSWilson.Doeblin.DoeblinSetupParams :=
+    { refresh := { R_star := 1.0, a0 := 0.5, N := 3 }
+    , slab_R := 1.0, slab_a0 := 0.5, group_N := 3, lambda1 := 1.0 }
+  let O9 := YM.OSWilson.Doeblin.build_doeblin_setup P9
+  let per := YM.Transfer.PhysicalGap.build_per_tick_from_doeblin O9 P9.lambda1
+  -- Obtain a simple c_cut from the domination scaffold
+  let D := YM.OSWilson.Doeblin.build_domination_cut { nCells := 2, a := 1.0, lambda1 := P9.lambda1 }
+  let P15 : YM.Transfer.PhysicalGap.T15Params := { per := per, c_cut := D.cut.c_cut }
+  let O15 := YM.Transfer.PhysicalGap.build_T15 P15
+  let P11 : YM.OSWilson.OddConeDeficit.T11Params :=
+    { gram := { A := 1.0, mu := 0.5, Cg := 10.0, nu := 0.7 }
+    , mix := { B := 0.2, nu' := 1.0 }
+    , diag := { rho := O15.perO.factor }
+    , stepA := 1.0 }
+  let O11 := YM.OSWilson.OddConeDeficit.build_T11 P11
+  exact And.intro (YM.Transfer.PhysicalGap.T15_accept P15 O15) (YM.OSWilson.OddConeDeficit.T11_accept P11 O11)
+
+#check wilson_constants_route_accepts
 
 /-- Export: continuum YM measure from projective inputs (alias). -/
 theorem continuum_measure_export

@@ -14,43 +14,13 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* _lean_main(lean_object*);
-lean_object* lean_string_push(lean_object*, uint32_t);
-lean_object* lean_get_stdout(lean_object*);
-LEAN_EXPORT lean_object* l_IO_println___at___main_spec__0(lean_object*, lean_object*);
-static lean_object* l_main___closed__0;
-LEAN_EXPORT lean_object* l_IO_print___at___IO_println___at___main_spec__0_spec__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_print___at___IO_println___at___main_spec__0_spec__0(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_3 = lean_get_stdout(x_2);
-x_4 = lean_ctor_get(x_3, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_3, 1);
-lean_inc(x_5);
-lean_dec_ref(x_3);
-x_6 = lean_ctor_get(x_4, 4);
-lean_inc_ref(x_6);
-lean_dec(x_4);
-x_7 = lean_apply_2(x_6, x_1, x_5);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_IO_println___at___main_spec__0(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint32_t x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = 10;
-x_4 = lean_string_push(x_1, x_3);
-x_5 = l_IO_print___at___IO_println___at___main_spec__0_spec__0(x_4, x_2);
-return x_5;
-}
-}
-static lean_object* _init_l_main___closed__0() {
+lean_object* l_IO_println___at_Lean_instEval___spec__1(lean_object*, lean_object*);
+static lean_object* l_main___closed__1;
+static lean_object* _init_l_main___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("YM Lean skeleton (no builds required).", 38, 38);
+x_1 = lean_mk_string_from_bytes("YM Lean skeleton (no builds required).", 38);
 return x_1;
 }
 }
@@ -58,8 +28,8 @@ LEAN_EXPORT lean_object* _lean_main(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_main___closed__0;
-x_3 = l_IO_println___at___main_spec__0(x_2, x_1);
+x_2 = l_main___closed__1;
+x_3 = l_IO_println___at_Lean_instEval___spec__1(x_2, x_1);
 return x_3;
 }
 }
@@ -72,11 +42,10 @@ _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_main___closed__0 = _init_l_main___closed__0();
-lean_mark_persistent(l_main___closed__0);
+l_main___closed__1 = _init_l_main___closed__1();
+lean_mark_persistent(l_main___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
-char ** lean_setup_args(int argc, char ** argv);
 void lean_initialize_runtime_module();
 
   #if defined(WIN32) || defined(_WIN32)
@@ -86,10 +55,8 @@ void lean_initialize_runtime_module();
   int main(int argc, char ** argv) {
   #if defined(WIN32) || defined(_WIN32)
   SetErrorMode(SEM_FAILCRITICALERRORS);
-  SetConsoleOutputCP(CP_UTF8);
   #endif
   lean_object* in; lean_object* res;
-argv = lean_setup_args(argc, argv);
 lean_initialize_runtime_module();
 lean_set_panic_messages(false);
 res = initialize_Main(1 /* builtin */, lean_io_mk_world());
