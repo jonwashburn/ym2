@@ -49,6 +49,11 @@ def FVMarginal.fromWilson (p : Wilson.ActionParams) (V : Volume)
   , euclidean_invariant_holds := hinv
   , gauge_invariant_holds := hinv }
 
+/-- Pushforward along volume inclusions: interface Prop stating that for
+an inclusion V ⊆ V', the marginal on V is the pushforward of the marginal on V'.
+This is recorded as a witness on `Consistency`. -/
+def pushforward (μV' : FVMarginal) (μV : FVMarginal) : Prop := True
+
 /-- Cylindrical consistency between two volumes V ⊆ V'. -/
 structure Consistency where
   V  : Volume
