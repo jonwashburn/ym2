@@ -73,19 +73,12 @@ theorem wilson_corr_to_OS
 
 theorem reflection_positivity_stub : True := by trivial
 
-/-- Backward-compatible alias used by the main pipeline: produce OS positivity
-via a trivial Hermitian crossing kernel (zero kernel). This preserves the API
-while the concrete Wilson crossing kernel is being wired. -/
-theorem wilson_OSPositivity (μ : LatticeMeasure) : OSPositivity μ := by
-  -- Take K ≡ 0, which is Hermitian and yields a reflected Gram with value 0
-  let K0 : Observable → Observable → Complex := fun _ _ => 0
-  have hHerm : SesqHermitian K0 := by intro f g; simp [K0]
-  -- The reflected quadratic form is identically 0 ≥ 0
-  have hPSD : ∀ {ι} [Fintype ι] [DecidableEq ι] (f : ι → Observable) (c : ι → Complex),
-      0 ≤ (∑ i, ∑ j, Complex.conj (c i) * K0 (f i) (reflect R_time (f j)) * (c j)).re := by
-    intro ι _ _ f c; simp [K0]
-  -- Package OS positivity
-  exact wilson_OSPositivity_from_crossing (μ:=μ) (K:=K0) hHerm (by intro ι _ _ f c; simpa using hPSD (f:=f) c)
+/-
+Remove the zero‑kernel alias to avoid placeholder OS; the real OS2 will be
+implemented via the Wilson character‑expansion crossing kernel.
+-/
+-- theorem wilson_OSPositivity (μ : LatticeMeasure) : OSPositivity μ := by
+--   admit
 
 end OSWilson
 end YM
