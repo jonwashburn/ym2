@@ -357,6 +357,15 @@ Then for every $z\in\mathbb C\setminus\mathbb R$,
 \]
 Moreover, the convergence is uniform on compact subsets of $\mathbb{C} \setminus \mathbb{R}$.
 \end{theorem}
+
+\paragraph{Lean linkage (NRC/persistence).}
+The operator–theoretic chain is mirrored in the Lean development:
+\begin{itemize}
+  \item \textbf{Short-time semigroup comparison/core}: embeddings and local cores correspond to `YM.NRC.ShortTime_wilson`.
+  \item \textbf{Calibrator and resolvents on $\mathbb C\setminus\mathbb R$}: the fixed nonreal resolvent bound and bootstrap are packaged by `YM.NRC.Calibrator_wilson` and `YM.NRC.norm_resolvent_convergence_wilson`.
+  \item \textbf{Gap persistence}: the passage from lattice open gap to continuum is exported by `YM.spectrum_gap_persists` (via `YM.spectral_stability.Persistence`).
+  \item \textbf{Main hook}: these assemble in `ym/Main.lean` through `continuum_mass_gap_export` and `continuum_gap_unconditional_from_cut_and_nrc`.
+\end{itemize}
 \begin{proof}
 \emph{Step 1: Laplace representation for $\Re z > 0$.} For $w$ with $\Re w > 0$, the resolvent admits the representation
 \[
