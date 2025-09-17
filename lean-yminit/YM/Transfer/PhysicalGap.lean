@@ -243,20 +243,15 @@ theorem continuum_from_doeblin_exists (P : GapFromDoeblinParams) :
 @[simp] theorem build_gap_from_doeblin_gamma (P : GapFromDoeblinParams) :
   (build_gap_from_doeblin P).gamma_phys = (build_gap_from_doeblin P).c_cut := rfl
 
-/-- CERT_FN alias: acceptance predicate for T15 matching bridge naming. -/
-def continuum_gap_persistence (P : ContinuumPersistParams) : Prop :=
-  continuum_gap_persistence_spec P
-
-@[simp] theorem continuum_gap_persistence_def (P : ContinuumPersistParams) :
-  continuum_gap_persistence P = continuum_gap_persistence_spec P := rfl
+-- Purged alias: use the canonical `continuum_gap_persistence_spec` directly.
 
 theorem continuum_gap_persistence_holds (P : ContinuumPersistParams) :
-  continuum_gap_persistence P := by
-  simpa [continuum_gap_persistence] using continuum_gap_persistence_exists P
+  continuum_gap_persistence_spec P := by
+  simpa using continuum_gap_persistence_exists P
 
 theorem continuum_gap_persistence_from_doeblin (P : GapFromDoeblinParams) :
-  continuum_gap_persistence (to_continuum_params (build_gap_from_doeblin P)) := by
-  simpa [continuum_gap_persistence] using continuum_from_doeblin_exists P
+  continuum_gap_persistence_spec (to_continuum_params (build_gap_from_doeblin P)) := by
+  simpa using continuum_from_doeblin_exists P
 
 / -! Glue: obtain per-tick contraction parameters directly from DoeblinSetupOut. -/
 
@@ -320,5 +315,53 @@ theorem T15_accept_holds (pt : PerTickParams) (cmp : ComposeParams)
   T15_accept B := by
   intro B
   exact And.intro (And.intro (And.intro (And.intro (And.intro rfl rfl) rfl) rfl) rfl) (And.intro rfl rfl)
+
+/-- Top export: γ_cut(G,a) = 8 · c_cut_from_refresh(a, θ, t0, λ1) (spec-level). -/
+def gamma_cut_from_refresh (a θStar t0 lambda1 : Float) : Float :=
+  (YM.OSWilson.Doeblin.build_cut_export a θStar t0 lambda1).gamma_c
+
+def gamma_cut_from_refresh_spec (a θStar t0 lambda1 : Float) : Prop :=
+  gamma_cut_from_refresh a θStar t0 lambda1 = (YM.OSWilson.Doeblin.build_cut_export a θStar t0 lambda1).gamma_c
+
+theorem gamma_cut_from_refresh_holds (a θStar t0 lambda1 : Float) :
+  gamma_cut_from_refresh_spec a θStar t0 lambda1 := by
+  rfl
+
+/-- Top export from a WilsonGibbsInterface (spec-level). -/
+def gamma_cut_from_interface (I : YM.OSWilson.Doeblin.WilsonGibbsInterface) : Float :=
+  (YM.OSWilson.Doeblin.export_from_interface I).gamma_c
+
+def gamma_cut_from_interface_spec (I : YM.OSWilson.Doeblin.WilsonGibbsInterface) : Prop :=
+  gamma_cut_from_interface I = (YM.OSWilson.Doeblin.export_from_interface I).gamma_c
+
+theorem gamma_cut_from_interface_holds (I : YM.OSWilson.Doeblin.WilsonGibbsInterface) :
+  gamma_cut_from_interface_spec I := rfl
+
+/-- Best-of-two integration: select max{γ_cut, γ_α} (spec-level). -/
+structure BestOfTwo where
+  gamma_alpha : Float
+  gamma_cut   : Float
+
+def best_of_two (B : BestOfTwo) : Float :=
+  Float.max B.gamma_alpha B.gamma_cut
+
+def best_of_two_spec (B : BestOfTwo) : Prop :=
+  best_of_two B = Float.max B.gamma_alpha B.gamma_cut
+
+theorem best_of_two_holds (B : BestOfTwo) : best_of_two_spec B := rfl
+
+/-- PF gap export from routes: choose max{γ_α, γ_cut(interface)} (spec-level). -/
+structure GapRoutes where
+  gamma_alpha : Float
+  iface       : YM.OSWilson.Doeblin.WilsonGibbsInterface
+
+def export_gamma_from_routes (R : GapRoutes) : Float :=
+  Float.max R.gamma_alpha (gamma_cut_from_interface R.iface)
+
+def export_gamma_from_routes_spec (R : GapRoutes) : Prop :=
+  export_gamma_from_routes R = Float.max R.gamma_alpha (gamma_cut_from_interface R.iface)
+
+theorem export_gamma_from_routes_holds (R : GapRoutes) :
+  export_gamma_from_routes_spec R := rfl
 
 end YM.Transfer.PhysicalGap

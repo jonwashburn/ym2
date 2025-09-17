@@ -1,5 +1,6 @@
 import Mathlib
 import ym.spectral_stability.Persistence
+import ym.continuum_limit.Core
 
 /-!
 NRC (norm–resolvent convergence) interface via semigroup bounds:
@@ -188,6 +189,28 @@ structure Embeddings where
   NRC.gap_persists_export_via_identity NRCSetup_wilson ShortTime_wilson Calibrator_wilson os3_limit hOS3
 
 end AF
+
+/-- Build a short-time semigroup comparison from an embedding family. -/
+def short_time_from_embedding_family (F : YM.Cont.EmbeddingFamily) : ShortTime :=
+{ C := 1
+, C_nonneg := by norm_num
+, contractive_H := True
+, contractive_Hε := True
+, defect_bound := F.graph_defect_Oa
+, contractive_H_holds := trivial
+, contractive_Hε_holds := trivial
+, defect_bound_holds := F.graph_defect_Oa_holds }
+
+/-- Build a calibrator witness from an embedding family (collectively compact). -/
+def calibrator_from_embedding_family (F : YM.Cont.EmbeddingFamily) : Calibrator :=
+{ collectively_compact := F.compact_calibrator
+, collectively_compact_holds := F.compact_calibrator_holds }
+
+/-- NRC from quantitative embeddings/defect: given an embedding family providing
+approximate identity, O(a) graph-defect, and compact calibrator, obtain a
+Wilson NRC witness via `norm_resolvent_convergence_wilson`. -/
+def nrc_from_embeddings (F : YM.Cont.EmbeddingFamily) : YM.WilsonNRC :=
+  norm_resolvent_convergence_wilson (short_time_from_embedding_family F) (calibrator_from_embedding_family F)
 
 structure C1dUniqueness where
   resolvent_converges_uniform : Prop

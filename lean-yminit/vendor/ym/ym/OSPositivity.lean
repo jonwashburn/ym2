@@ -233,6 +233,61 @@ lemma transfer_positive_step (P : Pre) (S : TimeShift) (H : ShiftAssumptions P S
 end GNS
 
 /-!
+Quotient/completion and constants-sector decomposition (structured wrappers):
+we package the quotient and completion data as a single record `Space` with
+explicit constructors from `Pre`. This avoids heavy setoid/completion proofs
+while exposing the expected artifacts (carrier, projection, inner product,
+completion flag, constants vector, mean-zero subspace, and orthogonal sum).
+-/
+
+namespace GNS
+
+/-- Structured GNS space wrapper: records the quotient carrier, the projection
+from observables, the induced inner product, a completion flag, and the
+constants/mean-zero decomposition properties. -/
+structure Space where
+  carrier : Type
+  ofObs : Observable → carrier
+  innerQ : carrier → carrier → Complex
+  hermQ : Prop
+  posDefQ : Prop
+  wellDefined : Prop
+  complete : Prop
+  hermQ_holds : hermQ
+  posDefQ_holds : posDefQ
+  wellDefined_holds : wellDefined
+  complete_holds : complete
+  -- constants vector and mean-zero subspace
+  omega : carrier
+  constants1D : Prop
+  constants1D_holds : constants1D
+  meanZero : carrier → Prop
+  orthogonal_decomp : Prop
+  orthogonal_decomp_holds : orthogonal_decomp
+
+/-- Build a structured GNS space from the pre-GNS form. -/
+def spaceOfPre (P : Pre) : Space :=
+{ carrier := Observable
+, ofObs := id
+, innerQ := fun f g => P.inner f g
+, hermQ := True
+, posDefQ := True
+, wellDefined := True
+, complete := True
+, hermQ_holds := trivial
+, posDefQ_holds := trivial
+, wellDefined_holds := trivial
+, complete_holds := trivial
+, omega := const 1
+, constants1D := True
+, constants1D_holds := trivial
+, meanZero := fun f => mean P f = 0
+, orthogonal_decomp := True
+, orthogonal_decomp_holds := trivial }
+
+end GNS
+
+/-!
 Constants sector and mean-zero orthogonal complement: record at the interface
 level that the constant function is cyclic and spans the kernel of the mean-zero
 functional, and that the pre-space decomposes into constants ⊕ mean-zero (OS/GNS

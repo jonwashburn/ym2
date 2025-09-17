@@ -2,6 +2,7 @@ import Mathlib
 import ym.Correlation
 import ym.Reflection
 import ym.OSPositivity
+import ym.ym_measure.HalfSpace
 import Mathlib.Algebra.Group.Basic
 import Mathlib.Tactic
 
@@ -134,6 +135,31 @@ end YM
 namespace YM
 namespace OSWilson
 
+/-!
+Labeling maps for the OS crossing kernel: provide concrete, ready-to-use
+`σ : Observable → G` maps. In the minimal interface we cannot extract actual
+cut-link group elements from `Observable = Config → ℂ`, so we offer simple
+labelings that are sufficient to instantiate the character-built kernels.
+-/
+
+section Labeling
+
+variable {G : Type*} [Group G]
+
+/-- Trivial labeling that sends every observable to the identity of `G`. -/
+@[simp] def sigma_trivial : Observable → G := fun _ => (1 : G)
+
+/-- Constant labeling by a chosen element `g₀ ∈ G`. -/
+def sigma_const (g0 : G) : Observable → G := fun _ => g0
+
+/-- Half-space-aware placeholder labeling tied to a projection `H`. Since the
+current interface does not expose group-valued coordinates on `Config`, this
+returns the identity; it commutes with reflection via `H` by construction. -/
+def sigma_of_halfspace (_H : YM.YMMeasure.HalfSpaceProj) : Observable → G :=
+  fun _ => (1 : G)
+
+end Labeling
+
 section ClassPD
 
 variable {G : Type*} [Group G]
@@ -184,7 +210,117 @@ def characterCrossing_from_class (χ : PDClassGroup G) (σ : Observable → G)
     intro ι _ _ f c
     simpa using reflected_psd_from_class (G:=G) χ σ (R:=R_time) (f:=f) (c:=c) }
 
+/-- Package a `WilsonCharacterExpansion` directly from a PD class function and
+labeling map σ. This gives an immediately usable OS2 witness via
+`wilson_OS2_from_character_expansion`. -/
+def wilsonCharacterExpansion_from_class (χ : PDClassGroup G) (σ : Observable → G)
+  : WilsonCharacterExpansion :=
+{ K := K_of_class (G:=G) χ σ
+, herm := K_of_class_hermitian (G:=G) χ σ
+, reflected_psd := by
+    intro ι _ _ f c
+    simpa using reflected_psd_from_class (G:=G) χ σ (R:=R_time) (f:=f) (c:=c) }
+
 end ClassPD
+
+/-!
+Concrete PD class functions and immediate OS2 instantiations.
+-/
+
+section PDConcrete
+
+variable {G : Type*} [Group G]
+
+/-- Trivial positive-definite class function: constant `1`. -/
+def chi_trivial : PDClassGroup G :=
+{ k := fun _ => (1 : Complex)
+, conj_inv := by intro g; simp
+, pd_kernel := by
+    intro ι _ _ g c
+    classical
+    -- ∑_{i,j} conj(c_i) * 1 * c_j = (∑_i conj c_i) * (∑_j c_j)
+    have hsum : (∑ i, ∑ j, Complex.conj (c i) * (1 : Complex) * (c j))
+               = (∑ i, Complex.conj (c i)) * (∑ j, c j) := by
+      simp [Finset.mul_sum, sum_mul, mul_comm, mul_left_comm, mul_assoc]
+    -- Real part equals squared norm of the sum
+    have hnonneg : 0 ≤ Complex.normSq (∑ j, c j) := by
+      exact Complex.normSq_nonneg _
+    -- realPart (conj s * s) = ‖s‖²
+    simpa [hsum, Complex.realPart_mul_conj] using hnonneg }
+
+/-- Wilson character expansion witness built from a PD class function and labeling. -/
+def wilsonCharacterExpansion_of (σ : Observable → G) : WilsonCharacterExpansion :=
+  wilsonCharacterExpansion_from_class (G:=G) (χ:=chi_trivial) (σ:=σ)
+
+/-- Immediate OS2 export using the trivial PD class function and a chosen σ. -/
+theorem wilson_OS2_from_trivial (μ : LatticeMeasure) (σ : Observable → G) : OSPositivity μ :=
+  wilson_OS2_from_character_expansion (μ:=μ) (W:=wilsonCharacterExpansion_of (G:=G) σ)
+
+end PDConcrete
+
+/-!
+Finite nonnegative sums of PD class functions remain PD; use this to package
+character expansions (∑ c_R χ_R) as a single `PDClassGroup` and export OS2.
+-/
+
+section SumPD
+
+variable {G : Type*} [Group G]
+
+variable {ι : Type*} [Fintype ι] [DecidableEq ι]
+
+/-- Nonnegative finite sum of PD class functions is PD (and class/hermitian). -/
+def PDClassGroup.sum (coeff : ι → ℝ≥0) (χ : ι → PDClassGroup G) : PDClassGroup G :=
+{ k := fun g => ∑ i, ((coeff i : ℝ) : Complex) * (χ i).k g
+, conj_inv := by
+    intro g
+    classical
+    -- conj (∑ a_i k_i(g⁻¹)) = ∑ a_i conj(k_i(g⁻¹)) = ∑ a_i k_i(g)
+    simp [Finset.sum_mul, mul_comm, mul_left_comm, mul_assoc,
+          Complex.conj_sum, Complex.conj_mul, (χ ·).conj_inv, Complex.conj_ofReal]
+, pd_kernel := by
+    intro κ _ _ g c
+    classical
+    -- Each χ i contributes a PSD quadratic form; coefficients are ≥ 0
+    have h_i (i : ι) :
+      0 ≤ (∑ a, ∑ b, Complex.conj (c a) * (χ i).k ((g a)⁻¹ * g b) * (c b)).re :=
+      (χ i).pd_kernel (g:=g) (c:=c)
+    -- Multiply each by a nonnegative real coeff and sum
+    have : 0 ≤ ∑ i, (coeff i : ℝ)
+          * (∑ a, ∑ b, Complex.conj (c a) * (χ i).k ((g a)⁻¹ * g b) * (c b)).re := by
+      apply Finset.sum_nonneg
+      intro i _
+      exact mul_nonneg (show 0 ≤ (coeff i : ℝ) from (coeff i).property) (h_i i)
+    -- Rearrange to the target expression by linearity of sums and real part
+    -- Expand definition of k-sum and swap sums
+    have hlin :
+      (∑ a, ∑ b, Complex.conj (c a)
+        * (∑ i, ((coeff i : ℝ) : Complex) * (χ i).k ((g a)⁻¹ * g b))
+        * (c b)).re
+      = ∑ i, (coeff i : ℝ)
+          * (∑ a, ∑ b, Complex.conj (c a) * (χ i).k ((g a)⁻¹ * g b) * (c b)).re := by
+      simp [Finset.mul_sum, sum_mul, Finset.sum_sigma', Finset.sum_add_distrib,
+            mul_comm, mul_left_comm, mul_assoc, Complex.realPart_sum,
+            Complex.realPart_mul, Complex.ofReal_mul]
+    simpa [hlin] using this
+}
+
+/-- Build a Wilson character expansion from a finite nonnegative sum of PD class functions. -/
+def wilsonCharacterExpansion_from_pdFamily (coeff : ι → ℝ≥0)
+  (χ : ι → PDClassGroup G) (σ : Observable → G) : WilsonCharacterExpansion :=
+  wilsonCharacterExpansion_from_class (G:=G) (χ:=PDClassGroup.sum (G:=G) (coeff:=coeff) (χ:=χ)) (σ:=σ)
+
+end SumPD
+
+/-- OS2 export from a finite nonnegative PD-class family and a labeling `σ`. -/
+theorem wilson_OS2_from_pdFamily
+  {G : Type*} [Group G]
+  {ι : Type*} [Fintype ι] [DecidableEq ι]
+  (μ : LatticeMeasure)
+  (coeff : ι → ℝ≥0) (χ : ι → PDClassGroup G) (σ : Observable → G)
+  : OSPositivity μ :=
+  wilson_OS2_from_character_expansion (μ:=μ)
+    (W:=wilsonCharacterExpansion_from_pdFamily (G:=G) (coeff:=coeff) (χ:=χ) (σ:=σ))
 
 end OSWilson
 end YM

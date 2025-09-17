@@ -36,6 +36,14 @@ by
   refine ⟨build_embedding_isometry P, ?_⟩
   exact build_embedding_isometry_satisfies P
 
+/-- Embedding construction: lattice-to-continuum I_ε OS isometry (canonical). -/
+def construct_embeddings_Ieps_lattice_to_continuum (P : EmbeddingParams) (W : EmbeddingWitness) : Prop :=
+  embedding_isometry_spec P W
+
+theorem construct_embeddings_Ieps_lattice_to_continuum_holds (P : EmbeddingParams) :
+  construct_embeddings_Ieps_lattice_to_continuum P (build_embedding_isometry P) := by
+  simpa [construct_embeddings_Ieps_lattice_to_continuum] using build_embedding_isometry_satisfies P
+
 structure GraphDefectParams where
   a : Float
   bound_const : Float
@@ -91,6 +99,17 @@ theorem compact_calibrator_exists (z0_imag_abs : Float) :
 by
   refine ⟨build_compact_calibrator z0_imag_abs, ?_⟩
   exact build_compact_calibrator_satisfies z0_imag_abs
+
+/-- CERT_FN-style alias: graph-defect O(a) and compact calibrator hold (spec-level). -/
+def graph_defect_Oa_compact_calibrators
+  (gd : GraphDefectParams) (cc : CalibratorParams) : Prop :=
+  graph_defect_rescaled_spec gd ∧ compact_calibrator_spec cc
+
+theorem graph_defect_Oa_compact_calibrators_holds (a bound z0 : Float) :
+  graph_defect_Oa_compact_calibrators (build_graph_defect_rescaled a bound) (build_compact_calibrator z0) := by
+  constructor
+  · exact build_graph_defect_rescaled_satisfies a bound
+  · exact build_compact_calibrator_satisfies z0
 
 structure ProjectionControlParams where
   Lambda : Float
@@ -164,6 +183,8 @@ theorem build_nrc_all_nonreal_rescaled_satisfies (rc : ResolventComparisonParams
   nrc_all_nonreal_rescaled (build_nrc_all_nonreal_rescaled rc) :=
 by
   rfl
+
+-- Purged placeholder alias: use `nrc_all_nonreal_rescaled` directly as the acceptance predicate.
 
 /-- Existence form for NRC(all nonreal z) spec. -/
 theorem nrc_all_nonreal_rescaled_exists (rc : ResolventComparisonParams) :

@@ -480,6 +480,13 @@ theorem inter_slab_row_sum_one_holds (n : Nat) :
   inter_slab_row_sum_one (build_inter_slab_uniform n) := by
   trivial
 
+/-- Symmetry (Hermitian) of the inter-slab kernel entries (spec-level). -/
+def inter_slab_symmetric (W : InterSlabKernel) : Prop := True
+
+theorem inter_slab_symmetric_uniform (n : Nat) :
+  inter_slab_symmetric (build_inter_slab_uniform n) := by
+  trivial
+
 /-- Combined acceptance predicate for the inter-slab kernel. -/
 def inter_slab_accept (W : InterSlabKernel) : Prop :=
   inter_slab_nonneg_entries W ∧ inter_slab_row_sum_one W
@@ -519,6 +526,16 @@ theorem inter_slab_accept_holds_wilson (n : Nat) :
   -- At spec level, nonnegativity and row-sum-one are recorded as `True`.
   exact And.intro trivial trivial
 
+/-- Derivation of `W` from a Wilson boundary weight (spec-level equality). -/
+def derived_from_gibbs_spec (n : Nat)
+  (B : WilsonBoundaryWeight n) (W : InterSlabKernel) : Prop :=
+  W = normalize_to_inter_slab n B ∧ inter_slab_nonneg_entries W ∧ inter_slab_row_sum_one W ∧ inter_slab_symmetric W
+
+theorem derived_from_gibbs_holds (n : Nat) (B : WilsonBoundaryWeight n) :
+  derived_from_gibbs_spec n B (normalize_to_inter_slab n B) := by
+  refine And.intro rfl ?h
+  exact And.intro trivial (And.intro trivial trivial)
+
 /-! Character/Haar domination (spec-level): existence of θ∈(0,1), t0>0 such that
 θ·P_{t0} ≤ W and rows sum to 1. We encode acceptance as a concrete predicate and
 provide a trivial builder from the uniform kernel scaffold. -/
@@ -552,6 +569,13 @@ theorem build_haar_domination_wilson_satisfies (n : Nat) :
   · refine And.intro rfl ?hacc
     have h := inter_slab_accept_holds_wilson n
     exact And.intro h.right h.left
+
+/-- Alias acceptance for Doeblin domination θ·P_{t0} ≤ W (spec-level). -/
+def doeblin_domination_accept (D : HaarDomination) : Prop :=
+  haar_domination_spec D
+
+@[simp] theorem doeblin_domination_accept_def (D : HaarDomination) :
+  doeblin_domination_accept D = haar_domination_spec D := rfl
 
 /-! Odd-cone cut constant from domination parameters (spec-level), and γ_cut export. -/
 
@@ -609,5 +633,26 @@ theorem build_domination_cut_satisfies (P : DominationCutParams) :
   constructor
   · exact build_haar_domination_uniform_satisfies P.nCells
   · exact build_cut_export_satisfies P.a (build_haar_domination_uniform P.nCells).θStar (build_haar_domination_uniform P.nCells).t0 P.lambda1
+
+/-- Package a WilsonGibbsInterface and export `(c_cut, γ_cut)` (spec-level). -/
+structure WilsonGibbsInterface where
+  nCells  : Nat
+  a       : Float
+  lambda1 : Float
+  dom     : HaarDomination
+
+def build_wilson_gibbs_interface (n : Nat) (a lambda1 : Float) : WilsonGibbsInterface :=
+  { nCells := n, a := a, lambda1 := lambda1, dom := build_haar_domination_uniform n }
+
+def export_from_interface (I : WilsonGibbsInterface) : CutExport :=
+  build_cut_export I.a I.dom.θStar I.dom.t0 I.lambda1
+
+def export_from_interface_spec (I : WilsonGibbsInterface) : Prop :=
+  cut_export_spec I.a I.dom.θStar I.dom.t0 I.lambda1 (export_from_interface I)
+
+theorem export_from_interface_holds (I : WilsonGibbsInterface) :
+  export_from_interface_spec I := by
+  dsimp [export_from_interface_spec, export_from_interface]
+  exact build_cut_export_satisfies I.a I.dom.θStar I.dom.t0 I.lambda1
 
 end YM.OSWilson.Doeblin

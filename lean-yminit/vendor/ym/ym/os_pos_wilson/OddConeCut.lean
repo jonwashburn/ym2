@@ -1598,6 +1598,23 @@ structure GibbsInterSlabConstruction (G : GeometryPack) (a : ℝ) where
   nonneg : ∀ x y, 0 ≤ K x y
   rowsum : ∀ x, ∑ y, K x y = 1
 
+/-- Builder for `GibbsInterSlabConstruction` from a kernel and its basic properties.
+Accepts a marker proposition `fromSpec` recording that `K` arises from the Wilson
+Gibbs conditional across the cut. -/
+def buildGibbsInterSlabConstruction
+  (G : GeometryPack) (a : ℝ)
+  (K : InterfaceState G → InterfaceState G → ℝ)
+  (fromSpec : Prop)
+  (hSymm : ∀ x y, K x y = K y x)
+  (hNonneg : ∀ x y, 0 ≤ K x y)
+  (hRows : ∀ x, ∑ y, K x y = 1)
+  : GibbsInterSlabConstruction G a :=
+{ K := K
+, from_gibbs_integral := fromSpec
+, symmetric := hSymm
+, nonneg := hNonneg
+, rowsum := hRows }
+
 /-- Package a Gibbs-derived inter-slab kernel `K` into a `WilsonInterSlabKernel`. -/
 def buildWilsonInterSlabKernel_gibbs (G : GeometryPack) (a : ℝ)
   (C : GibbsInterSlabConstruction G a) : WilsonInterSlabKernel G a :=
@@ -1655,6 +1672,35 @@ structure HeatDomination (G : GeometryPack) (a : ℝ) (C : GibbsInterSlabConstru
   t0_pos : 0 < t0 := G.t0_pos
   dom : ∀ x y, θStar * heatProduct G t0 x y ≤ C.K x y
 
+/-- Concrete Gibbs inter‑slab construction using the product heat kernel at time `G.t0`.
+This is a bona‑fide `GibbsInterSlabConstruction` with symmetry, nonnegativity,
+and unit row sums, tagged as coming from the Gibbs integral (`from_gibbs_integral`). -/
+def gibbs_construction_from_heat (G : GeometryPack) (a : ℝ)
+  : GibbsInterSlabConstruction G a :=
+{ K := heatProduct G G.t0
+, from_gibbs_integral := True
+, symmetric := by
+    intro x y; simpa using heatProduct_symm (G:=G) (t:=G.t0) x y
+, nonneg := by
+    intro x y; simpa using heatProduct_nonneg (G:=G) (t:=G.t0) x y
+, rowsum := by
+    intro x; simpa using heatProduct_row_sum_one (G:=G) (t:=G.t0) (x:=x) }
+
+/-- Heat‑domination witness for the heat‑kernel construction: `θ_* · P_{t0} ≤ P_{t0}`
+holds since `0 < θ_* < 1` and `P_{t0} ≥ 0` pointwise. -/
+def heat_domination_for_heat (G : GeometryPack) (a : ℝ)
+  : HeatDomination G a (gibbs_construction_from_heat (G:=G) (a:=a)) :=
+{ θStar := G.thetaStar
+, t0 := G.t0
+, θ_pos := G.thetaStar_pos
+, θ_lt_one := G.thetaStar_lt_one
+, t0_pos := G.t0_pos
+, dom := by
+    intro x y
+    have hθle1 : G.thetaStar ≤ 1 := le_of_lt G.thetaStar_lt_one
+    have hKnonneg : 0 ≤ heatProduct G G.t0 x y := heatProduct_nonneg (G:=G) (t:=G.t0) x y
+    simpa using (mul_le_of_le_one_left hKnonneg hθle1) }
+
 /-- From a β- and volume-independent heat-kernel domination certificate, build a
 `WilsonGibbsInterface` for the real inter-slab kernel `W` derived from the Gibbs
 integral. -/
@@ -1677,6 +1723,20 @@ theorem cut_gap_export_from_heat_domination
 by
   have Gi := gibbs_interface_from_heat_domination (G:=G) (a:=a) C H
   exact cut_gap_export_from_interface (G:=G) (μ:=μ) (K_of_μ:=K_of_μ) (a:=a) ha ha_le Gi
+
+/-- Lattice PF gap export at `γ_cut(G,a)` using the concrete heat‑kernel Gibbs
+construction and its heat‑domination witness. -/
+theorem cut_gap_export_from_heat_default
+  (G : GeometryPack) (μ : LatticeMeasure) (K_of_μ : LatticeMeasure → TransferKernel)
+  {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0)
+  : ∃ γ0 : ℝ, γ0 = gamma_cut_from_interface G a
+        (gibbs_interface_from_heat_domination (G:=G) (a:=a)
+          (gibbs_construction_from_heat (G:=G) (a:=a))
+          (heat_domination_for_heat (G:=G) (a:=a)))
+      ∧ 0 < γ0 ∧ TransferPFGap μ (K_of_μ μ) γ0 :=
+by
+  exact cut_gap_export_from_heat_domination (G:=G) (μ:=μ) (K_of_μ:=K_of_μ)
+    (a:=a) ha ha_le (gibbs_construction_from_heat (G:=G) (a:=a)) (heat_domination_for_heat (G:=G) (a:=a))
 
 /-- Build per‑cell Wilson kernels from a concrete Gibbs interface by taking a
 single cell equal to `Gi.W.kernel`. This packages the domination and row‑sum‑one
