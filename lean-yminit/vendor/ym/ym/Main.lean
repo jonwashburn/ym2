@@ -99,9 +99,8 @@ theorem unconditional_mass_gap : ∃ γ0 : ℝ, 0 < γ0 ∧ MassGapCont γ0 := b
     rcases YM.OSWilson.wilson_pf_gap_select_best_from_pack G ap Jperp hJ (β:=β) hβ hSmall K_of_μ μ ha ha_le with ⟨γ0, _hEq, hpos, hpf⟩
     exact ⟨γ0, hpos, hpf⟩
   rcases hBest with ⟨γ0, hγpos, hPF⟩
-  -- OS2 (Wilson) and lattice mass gap via OS→PF composition
-  have hOS : OSPositivity μ := YM.OSWilson.wilson_OSPositivity μ
-  have hGap : MassGap μ γ0 := lattice_mass_gap_export (μ:=μ) (K:=(K_of_μ μ)) (γ:=γ0) hOS hPF
+  -- Lattice mass gap from the PF witness
+  have hGap : MassGap μ γ0 := ⟨K_of_μ μ, hPF⟩
   have hPers : GapPersists γ0 := gap_persists_via_Lipschitz (γ:=γ0) hγpos
   exact ⟨γ0, hγpos, continuum_mass_gap_export hGap hPers⟩
 
@@ -150,9 +149,8 @@ theorem unconditional_mass_gap_real_export : ∃ γ : ℝ, 0 < γ ∧ MassGapCon
     rcases YM.OSWilson.wilson_pf_gap_select_best_from_pack G ap Jperp hJ (β:=β) hβ hSmall K_of_μ μ ha ha_le with ⟨γ0, _hEq, hpos, hpf⟩
     exact ⟨γ0, hpos, hpf⟩
   rcases hBest with ⟨γ0, hγpos, hPF⟩
-  -- OS2 (Wilson) and lattice mass gap via OS→PF composition
-  have hOS : OSPositivity μ := YM.OSWilson.wilson_OSPositivity μ
-  have hGap : MassGap μ γ0 := lattice_mass_gap_export (μ:=μ) (K:=(K_of_μ μ)) (γ:=γ0) hOS hPF
+  -- Lattice mass gap from the PF witness
+  have hGap : MassGap μ γ0 := ⟨K_of_μ μ, hPF⟩
   have hPers : GapPersists γ0 := gap_persists_via_Lipschitz (γ:=γ0) hγpos
   exact ⟨γ0, hγpos, continuum_mass_gap_export hGap hPers⟩
 
@@ -212,17 +210,14 @@ theorem wilson_os2_lattice_gap_from_best_of_two
   (K_of_μ : LatticeMeasure → TransferKernel) (μ : LatticeMeasure)
   {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0)
   : ∃ γ0 : ℝ, 0 < γ0 ∧ MassGap μ γ0 := by
-  -- OS2 witness packaged into OSPositivity μ
-  have hOS : OSPositivity μ := YM.OSWilson.wilson_OSPositivity μ
   -- PF gap from best-of-two selector
   have hBest := YM.OSWilson.wilson_pf_gap_select_best_from_pack (G:=G)
     (ap:=ap) (Jperp:=Jperp) (hJ:=hJ)
     (β:=β) (hβ:=hβ) (hSmall:=hSmall)
     (K_of_μ:=K_of_μ) (μ:=μ) (a:=a) (ha:=ha) (ha_le:=ha_le)
   rcases hBest with ⟨γ0, _hEq, hpos, hpf⟩
-  -- Conclude lattice mass gap using the OS bridge
-  exact ⟨γ0, hpos,
-    lattice_mass_gap_export (μ:=μ) (K:=(K_of_μ μ)) (γ:=γ0) hOS hpf⟩
+  -- Conclude lattice mass gap directly from PF gap
+  exact ⟨γ0, hpos, ⟨K_of_μ μ, hpf⟩⟩
 
 /-- Wilson route bridge point (A3): after selecting the best-of-two PF gap,
     if we additionally have a uniform mean-zero contraction hypothesis at
