@@ -1888,6 +1888,25 @@ by
   · simpa using (gamma_cut_from_gibbs_cells_pos (G:=G) (a:=a) ha Gi)
   · exact hgap
 
+/-- PF gap at the explicit `γ_cut(G,a)` from the concrete heat‑kernel Gibbs witness. -/
+theorem cut_gap_export_from_heat_witness
+  (G : GeometryPack) (μ : LatticeMeasure) (K_of_μ : LatticeMeasure → TransferKernel)
+  {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0)
+  (hCut : 0 < numCut G)
+  : ∃ γ0 : ℝ, γ0 = 8 * c_cut G a ∧ 0 < γ0 ∧ TransferPFGap μ (K_of_μ μ) γ0 :=
+by
+  -- Build the concrete per‑cell witness using the heat kernel
+  let Gi := gibbs_cells_heat (G:=G) (a:=a) hCut
+  -- Export PF gap at the explicit gamma for Gi
+  have h := cut_gap_export_from_gibbs_cells (G:=G) (μ:=μ) (K_of_μ:=K_of_μ) (a:=a) ha ha_le Gi
+  rcases h with ⟨γ0, hEq, hpos, hPF⟩
+  -- Show equality with 8 · c_cut(G,a)
+  have : gamma_cut_from_gibbs_cells G a Gi = 8 * c_cut G a := by
+    unfold gamma_cut_from_gibbs_cells c_cut
+    rfl
+  refine ⟨8 * c_cut G a, ?eq, hpos, hPF⟩
+  simpa [this] using hEq
+
 /-- Wilson inter-slab kernel (interface scaffold): use the abstract interface
 kernel `interfaceKernel G a` (row-stochastic, symmetric by definition). This
 serves as a minimal placeholder for the true Wilson inter-slab kernel. -/
