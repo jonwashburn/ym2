@@ -104,6 +104,25 @@ theorem unconditional_mass_gap : ∃ γ0 : ℝ, 0 < γ0 ∧ MassGapCont γ0 := b
   have hPers : GapPersists γ0 := gap_persists_via_Lipschitz (γ:=γ0) hγpos
   exact ⟨γ0, hγpos, continuum_mass_gap_export hGap hPers⟩
 
+/-- Continuum gap from a concrete heat‑kernel per‑cell witness: for any `a∈(0,a0]`
+and positive number of cut cells, export a PF gap at `γ_cut(G,a) = 8·c_cut(G,a)`
+and persist it to the continuum. -/
+theorem continuum_gap_from_heat_witness
+  (G : YM.OSWilson.GeometryPack) (μ : LatticeMeasure)
+  (K_of_μ : LatticeMeasure → TransferKernel)
+  {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0)
+  (hCut : 0 < YM.OSWilson.numCut G)
+  : ∃ γ0 : ℝ, γ0 = 8 * (YM.OSWilson.c_cut G a) ∧ 0 < γ0 ∧ MassGapCont γ0 :=
+by
+  -- PF gap at explicit γ_cut from the heat‑kernel per‑cell witness
+  have hPF := YM.OSWilson.cut_gap_export_from_heat_witness (G:=G) (μ:=μ) (K_of_μ:=K_of_μ)
+    (a:=a) ha ha_le hCut
+  rcases hPF with ⟨γ0, hEq, hpos, hGap⟩
+  -- Lattice mass gap and persistence to the continuum
+  have hMass : MassGap μ γ0 := ⟨K_of_μ μ, hGap⟩
+  have hPers : GapPersists γ0 := gap_persists_via_Lipschitz (γ:=γ0) hpos
+  exact ⟨γ0, hEq, hpos, continuum_mass_gap_export hMass hPers⟩
+
 /-- Real export variant: use the Wilson route (no PF3×3 shortcuts). -/
 theorem unconditional_mass_gap_real_export : ∃ γ : ℝ, 0 < γ ∧ MassGapCont γ := by
   -- Use the same Wilson geometry and best‑of‑two PF‑gap selector as in `unconditional_mass_gap`
