@@ -386,10 +386,8 @@ by
     YM.OSWilson.wilson_pf_gap_from_gibbs_cells (G:=G) (μ:=μ) (K_of_μ:=K_of_μ)
       (a:=a) ha ha_le Gi
   rcases hPF with ⟨γ0, hpos, hgap⟩
-  -- OS positivity for Wilson (interface adapter)
-  have hOS : OSPositivity μ := YM.OSWilson.wilson_OSPositivity μ
-  -- Lattice mass gap and persistence
-  have hMG : MassGap μ γ0 := lattice_mass_gap_export (μ:=μ) (K:=(K_of_μ μ)) (γ:=γ0) hOS hgap
+  -- Lattice mass gap from PF gap (no OS required for the lattice-level predicate)
+  have hMG : MassGap μ γ0 := ⟨K_of_μ μ, hgap⟩
   have hPers : GapPersists γ0 := gap_persists_via_Lipschitz (γ:=γ0) hpos
   exact ⟨γ0, hpos, continuum_mass_gap_export hMG hPers⟩
 
