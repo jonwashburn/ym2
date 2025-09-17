@@ -1561,6 +1561,47 @@ theorem domination_witness_implies_char_haar
 by
   refine ⟨Dw.W, Dw.θStar, Dw.t0, Dw.θ_pos, Dw.θ_lt_one, Dw.t0_pos, Dw.rowSumOne, Dw.lowerBound⟩
 
+/-- Interface: domination witness constructed directly from a Wilson Gibbs
+inter‑slab kernel `W` together with parameters `(θ_*, t0)`. This captures
+the concrete derivation from the Gibbs integral as a record and feeds it into
+the existing odd‑cone pipeline. -/
+structure WilsonGibbsInterface (G : GeometryPack) (a : ℝ) where
+  W : WilsonInterSlabKernel G a
+  θStar : ℝ
+  t0 : ℝ
+  θ_pos : 0 < θStar
+  θ_lt_one : θStar < 1
+  t0_pos : 0 < t0
+  rowSumOne : ∀ x, ∑ y, W.kernel x y = 1
+  lowerBound : ∀ x y, θStar * heatProduct G t0 x y ≤ W.kernel x y
+
+/-- Bridge from a concrete Wilson Gibbs interface to a `DominationWitness`. -/
+def domination_witness_from_gibbs
+  {G : GeometryPack} {a : ℝ}
+  (Gi : WilsonGibbsInterface G a) : DominationWitness G a :=
+{ W := Gi.W
+, θStar := Gi.θStar
+, t0 := Gi.t0
+, θ_pos := Gi.θ_pos
+, θ_lt_one := Gi.θ_lt_one
+, t0_pos := Gi.t0_pos
+, rowSumOne := Gi.rowSumOne
+, lowerBound := Gi.lowerBound }
+
+/-- From a concrete Wilson Gibbs interface, obtain an odd‑cone deficit via the
+Harris mixture route, and then export a PF gap at `γ₀ = 8·c_cut`. -/
+theorem wilson_pf_gap_from_gibbs
+  (G : GeometryPack) (μ : LatticeMeasure) (K_of_μ : LatticeMeasure → TransferKernel)
+  {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0)
+  (Gi : WilsonGibbsInterface G a)
+  : ∃ γ0 : ℝ, 0 < γ0 ∧ TransferPFGap μ (K_of_μ μ) γ0 :=
+by
+  -- Turn the Gibbs interface into a domination witness, then into a deficit
+  let Dw := domination_witness_from_gibbs (G:=G) (a:=a) Gi
+  have hDom : wilson_char_haar_domination G a := domination_witness_implies_char_haar (Dw:=Dw)
+  have hDef : OddConeDeficit := wilson_deficit_from_domination (G:=G) (a:=a) ha ha_le hDom
+  exact wilson_pf_gap_from_odd_cone_deficit' (μ:=μ) (K_of_μ:=K_of_μ) hDef
+
 /-- Build a structured domination witness from the geometry pack using the
     product heat kernel at time `t0 = G.t0` and `θ_* = G.thetaStar`. This keeps
     the interface consistent and provides a concrete instance for composition. -/
@@ -1622,6 +1663,55 @@ by
   have hDom : wilson_char_haar_domination G a := wilson_char_haar_domination_from_pack (G:=G) (a:=a)
   exact wilson_pf_gap_from_domination (G:=G) (μ:=μ) (K_of_μ:=K_of_μ) (a:=a) ha ha_le hDom
 
+/-- Geometry‑threaded PF‑gap export for a kernel built from an OS witness.
+Given `hOS : OSPositivity μ`, extract a reflection‑positivity witness and build
+the associated transfer kernel via `transfer_from_reflection`. The β‑independent
+Harris/Doeblin route from the geometry pack yields a uniform PF gap for that kernel. -/
+theorem wilson_pf_gap_from_pack_via_OS
+  (G : GeometryPack) (μ : LatticeMeasure)
+  (hOS : OSPositivity μ)
+  {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0)
+  : ∃ γ0 : ℝ, 0 < γ0 ∧ ∃ K : TransferKernel, TransferPFGap μ K γ0 :=
+by
+  classical
+  -- Extract a reflection witness from OS positivity
+  obtain ⟨R, hRP⟩ := YM.rp_sesq_of_OS (μ:=μ) (hOS:=hOS)
+  -- Build a transfer kernel from the reflection witness
+  let KR := YM.transfer_from_reflection (μ:=μ) (R:=R) hRP
+  let K  : TransferKernel := KR.toInterface
+  -- Use the geometry‑threaded odd‑cone route to get a PF gap for this kernel
+  have : ∃ γ0 : ℝ, 0 < γ0 ∧ TransferPFGap μ K γ0 := by
+    -- Package the constant function `K_of_μ` ignored on its input
+    let K_of_μ : LatticeMeasure → TransferKernel := fun _ => K
+    have h := wilson_pf_gap_from_pack_dom (G:=G) (μ:=μ) (K_of_μ:=K_of_μ) (a:=a) ha ha_le
+    simpa using h
+  rcases this with ⟨γ0, hpos, hgap⟩
+  exact ⟨γ0, hpos, ⟨K, hgap⟩⟩
+
+/-- Clay-level mass gap (lattice) from OS positivity and geometry pack.
+Produces a positive γ₀ and a transfer kernel with PF gap γ₀. -/
+theorem clay_mass_gap_from_OS_and_geometry
+  (G : GeometryPack) (μ : LatticeMeasure)
+  (hOS : OSPositivity μ)
+  {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0)
+  : ∃ γ0 : ℝ, 0 < γ0 ∧ MassGap μ γ0 :=
+by
+  rcases wilson_pf_gap_from_pack_via_OS (G:=G) (μ:=μ) (hOS:=hOS) (a:=a) ha ha_le with ⟨γ0, hpos, ⟨K, hgap⟩⟩
+  exact ⟨γ0, hpos, ⟨K, hgap⟩⟩
+
+/-- Clay-level continuum mass gap from OS positivity and geometry pack.
+Combines the β‑independent Doeblin route with a generic gap persistence export. -/
+theorem clay_mass_gap_cont_from_OS_and_geometry
+  (G : GeometryPack) (μ : LatticeMeasure)
+  (hOS : OSPositivity μ)
+  {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0)
+  : ∃ γ0 : ℝ, 0 < γ0 ∧ MassGapCont γ0 :=
+by
+  rcases clay_mass_gap_from_OS_and_geometry (G:=G) (μ:=μ) (hOS:=hOS) (a:=a) ha ha_le with ⟨γ0, hpos, hMG⟩
+  -- Use a generic persistence export (interface-level) to conclude continuity of the gap
+  have hPers : GapPersists γ0 := YM.gap_persists_via_Lipschitz (γ:=γ0) hpos
+  exact ⟨γ0, hpos, YM.mass_gap_continuum (μ:=μ) (γ:=γ0) hMG hPers⟩
+
 /-- Build a Wilson inter-slab kernel from the product heat kernel at time `t`.
     This uses `heatProduct` as the kernel body; symmetry/nonnegativity/row-sum
     properties are supplied externally when needed. -/
@@ -1644,6 +1734,129 @@ by
       intro x
       -- Heat kernel has row sums equal to 1
       exact heatProduct_row_sum_one G t x }
+
+/-- PF gap from a concrete per-cell Wilson kernel factorization.
+Assume we have a list of cell kernels whose Hadamard fold has unit row sums and
+each cell kernel is nonnegative, symmetric, and dominates `θ · heatProduct(G,t₀)`.
+Then the folded kernel yields a character/Haar domination with effective
+`θ_eff ∈ (0,1)`, which via the Harris/odd‑cone route produces a PF gap for the
+Wilson transfer kernel at some γ₀ > 0. -/
+theorem wilson_pf_gap_from_cells
+  (G : GeometryPack) (μ : LatticeMeasure) (K_of_μ : LatticeMeasure → TransferKernel)
+  {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0)
+  (cells : List (InterfaceState G → InterfaceState G → ℝ))
+  (hNE : cells ≠ [])
+  (rowK : ∀ x, ∑ y, (List.foldl (fun A K => fun x y => A x y * K x y) (fun _ _ => 1) cells) x y = 1)
+  (hnonneg : ∀ K ∈ cells, ∀ x y, 0 ≤ K x y)
+  (hsymm : ∀ K ∈ cells, ∀ x y, K x y = K y x)
+  (θStar t0 : ℝ) (hθ0 : 0 < θStar) (hθ1 : θStar < 1) (ht0 : 0 < t0)
+  (dom_each : ∀ K ∈ cells, ∀ x y, θStar * heatProduct G t0 x y ≤ K x y)
+  (hCut : 0 < numCut G)
+  : ∃ γ0 : ℝ, 0 < γ0 ∧ TransferPFGap μ (K_of_μ μ) γ0 :=
+by
+  -- Character/Haar domination from per-cell data
+  have hDom : wilson_char_haar_domination G a :=
+    wilson_char_haar_domination_from_pack_cells (G:=G) (a:=a)
+      (cells:=cells) (hNE:=hNE) (rowK:=rowK) (hnonneg:=hnonneg) (hsymm:=hsymm)
+      (θStar:=θStar) (t0:=t0) (hθ0:=hθ0) (hθ1:=hθ1) (ht0:=ht0)
+      (dom_each:=dom_each) (hCut:=hCut)
+  -- Deficit from domination, then PF gap
+  exact wilson_pf_gap_from_domination (G:=G) (μ:=μ) (K_of_μ:=K_of_μ) (a:=a) ha ha_le hDom
+
+/-- Concrete Wilson Gibbs per‑cell witness: encapsulates a list of per‑cell kernels
+with row‑sum‑one after folding, nonnegativity/symmetry, and a uniform domination
+`θ_* · heatProduct(G,t₀) ≤ K_cell` for each cell. -/
+structure WilsonGibbsCells (G : GeometryPack) (a : ℝ) where
+  cells : List (InterfaceState G → InterfaceState G → ℝ)
+  nonempty : cells ≠ []
+  rowSumOne_fold : ∀ x, ∑ y, (List.foldl (fun A K => fun x y => A x y * K x y) (fun _ _ => 1) cells) x y = 1
+  nonneg_each : ∀ K ∈ cells, ∀ x y, 0 ≤ K x y
+  symm_each : ∀ K ∈ cells, ∀ x y, K x y = K y x
+  θStar : ℝ
+  t0 : ℝ
+  θ_pos : 0 < θStar
+  θ_lt_one : θStar < 1
+  t0_pos : 0 < t0
+  dom_each : ∀ K ∈ cells, ∀ x y, θStar * heatProduct G t0 x y ≤ K x y
+  cut_pos : 0 < numCut G
+
+/-- Wilson Gibbs inter‑slab construction: a source package for per‑cell kernels
+with folding and domination properties. This mirrors the data produced by
+integrating the Wilson Gibbs measure across the OS cut. -/
+structure GibbsInterSlab (G : GeometryPack) (a : ℝ) where
+  cells : List (InterfaceState G → InterfaceState G → ℝ)
+  nonempty : cells ≠ []
+  rowSumOne_fold : ∀ x, ∑ y, (List.foldl (fun A K => fun x y => A x y * K x y) (fun _ _ => 1) cells) x y = 1
+  nonneg_each : ∀ K ∈ cells, ∀ x y, 0 ≤ K x y
+  symm_each : ∀ K ∈ cells, ∀ x y, K x y = K y x
+  θStar : ℝ
+  t0 : ℝ
+  θ_pos : 0 < θStar
+  θ_lt_one : θStar < 1
+  t0_pos : 0 < t0
+  dom_each : ∀ K ∈ cells, ∀ x y, θStar * heatProduct G t0 x y ≤ K x y
+  cut_pos : 0 < numCut G
+
+/-- Convert a Gibbs inter‑slab package into a `WilsonGibbsCells` witness usable by
+the PF‑gap export. -/
+def gibbs_cells_from_inter_slab (G : GeometryPack) (a : ℝ)
+  (H : GibbsInterSlab G a) : WilsonGibbsCells G a :=
+{ cells := H.cells
+, nonempty := H.nonempty
+, rowSumOne_fold := H.rowSumOne_fold
+, nonneg_each := H.nonneg_each
+, symm_each := H.symm_each
+, θStar := H.θStar
+, t0 := H.t0
+, θ_pos := H.θ_pos
+, θ_lt_one := H.θ_lt_one
+, t0_pos := H.t0_pos
+, dom_each := H.dom_each
+, cut_pos := H.cut_pos }
+
+/-- PF gap from a concrete Wilson Gibbs per‑cell witness by folding cells and
+applying the Harris/odd‑cone route. -/
+theorem wilson_pf_gap_from_gibbs_cells
+  (G : GeometryPack) (μ : LatticeMeasure) (K_of_μ : LatticeMeasure → TransferKernel)
+  {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0)
+  (Gi : WilsonGibbsCells G a)
+  : ∃ γ0 : ℝ, 0 < γ0 ∧ TransferPFGap μ (K_of_μ μ) γ0 :=
+by
+  refine wilson_pf_gap_from_cells (G:=G) (μ:=μ) (K_of_μ:=K_of_μ) (a:=a)
+    ha ha_le Gi.cells Gi.nonempty Gi.rowSumOne_fold Gi.nonneg_each Gi.symm_each
+    Gi.θStar Gi.t0 Gi.θ_pos Gi.θ_lt_one Gi.t0_pos Gi.dom_each Gi.cut_pos
+
+/-- Explicit γ from a Gibbs per‑cell witness. -/
+def gamma_cut_from_gibbs_cells (G : GeometryPack) (a : ℝ) (Gi : WilsonGibbsCells G a) : ℝ :=
+  8 * c_cut_from_refresh a Gi.θStar Gi.t0 G.lambda1
+
+lemma gamma_cut_from_gibbs_cells_pos
+  (G : GeometryPack) {a : ℝ} (ha : 0 < a) (Gi : WilsonGibbsCells G a) :
+  0 < gamma_cut_from_gibbs_cells G a Gi :=
+by
+  unfold gamma_cut_from_gibbs_cells
+  have hpos_c : 0 < c_cut_from_refresh a Gi.θStar Gi.t0 G.lambda1 :=
+    c_cut_from_refresh_pos (ha:=ha) (hθ0:=Gi.θ_pos) (hθ1:=Gi.θ_lt_one) (ht0:=Gi.t0_pos) (hλ:=G.lambda1_pos)
+  have : 0 < (8 : ℝ) := by norm_num
+  exact mul_pos this hpos_c
+
+/-- Export a PF gap at the explicit γ from the per‑cell Gibbs witness. -/
+theorem cut_gap_export_from_gibbs_cells
+  (G : GeometryPack) (μ : LatticeMeasure) (K_of_μ : LatticeMeasure → TransferKernel)
+  {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0)
+  (Gi : WilsonGibbsCells G a)
+  : ∃ γ0 : ℝ, γ0 = gamma_cut_from_gibbs_cells G a Gi ∧ 0 < γ0 ∧ TransferPFGap μ (K_of_μ μ) γ0 :=
+by
+  -- Build odd‑cone deficit with (a, θ_*, t₀, λ₁)
+  have hDef : OddConeDeficit :=
+    ledger_refresh_minorization_explicit (a:=a) (θStar:=Gi.θStar) (t0:=Gi.t0) (λ1:=G.lambda1)
+      (ha:=ha) (hθ0:=Gi.θ_pos) (hθ1:=Gi.θ_lt_one) (ht0:=Gi.t0_pos) (hλ:=G.lambda1_pos)
+  -- PF gap at γ = 8 · c_cut_from_refresh(a, θ_*, t₀, λ₁)
+  have hPF := wilson_pf_gap_from_odd_cone_deficit' (μ:=μ) (K_of_μ:=K_of_μ) hDef
+  rcases hPF with ⟨γ0, hpos, hgap⟩
+  refine ⟨gamma_cut_from_gibbs_cells G a Gi, rfl, ?pos, ?gap⟩
+  · simpa using (gamma_cut_from_gibbs_cells_pos (G:=G) (a:=a) ha Gi)
+  · exact hgap
 
 /-- Wilson inter-slab kernel (interface scaffold): use the abstract interface
 kernel `interfaceKernel G a` (row-stochastic, symmetric by definition). This

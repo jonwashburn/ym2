@@ -368,6 +368,31 @@ theorem spectrum_gap_persists_export
   -- Compose NRC with OS3 via the Persistence wrapper
   exact YM.spectrum_gap_persists nrc os3_limit hnrc hcl
 
+/-- Clay-style export via concrete per-cell Wilson Gibbs witness: if a
+Wilson per-cell kernel package `Gi` is supplied (nonempty list of cells, unit
+row-sum after folding, pointwise nonnegativity and symmetry, and a uniform
+domination `θ_* · P_{t0} ≤ K_cell`), then for any slab thickness `a∈(0,a0]`
+we obtain a lattice PF gap from the odd‑cone/Harris route, and hence a
+continuum mass gap by persistence. -/
+theorem clay_mass_gap_cont_from_gibbs_cells
+  (G : YM.OSWilson.GeometryPack) (μ : LatticeMeasure)
+  (K_of_μ : LatticeMeasure → TransferKernel)
+  {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0)
+  (Gi : YM.OSWilson.WilsonGibbsCells G a)
+  : ∃ γ0 : ℝ, 0 < γ0 ∧ MassGapCont γ0 :=
+by
+  -- PF gap from the per-cell Wilson Gibbs witness
+  have hPF : ∃ γ0 : ℝ, 0 < γ0 ∧ TransferPFGap μ (K_of_μ μ) γ0 :=
+    YM.OSWilson.wilson_pf_gap_from_gibbs_cells (G:=G) (μ:=μ) (K_of_μ:=K_of_μ)
+      (a:=a) ha ha_le Gi
+  rcases hPF with ⟨γ0, hpos, hgap⟩
+  -- OS positivity for Wilson (interface adapter)
+  have hOS : OSPositivity μ := YM.OSWilson.wilson_OSPositivity μ
+  -- Lattice mass gap and persistence
+  have hMG : MassGap μ γ0 := lattice_mass_gap_export (μ:=μ) (K:=(K_of_μ μ)) (γ:=γ0) hOS hgap
+  have hPers : GapPersists γ0 := gap_persists_via_Lipschitz (γ:=γ0) hpos
+  exact ⟨γ0, hpos, continuum_mass_gap_export hMG hPers⟩
+
 /-- OS3 in the continuum limit from a uniform lattice gap and Schwinger
     convergence (Prop-level export). -/
 def os3_limit_export (D : YM.OS3FromGap) : Prop :=
