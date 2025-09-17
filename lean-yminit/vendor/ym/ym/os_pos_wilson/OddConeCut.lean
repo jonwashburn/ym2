@@ -1588,6 +1588,64 @@ def domination_witness_from_gibbs
 , rowSumOne := Gi.rowSumOne
 , lowerBound := Gi.lowerBound }
 
+/-- Build per‑cell Wilson kernels from a concrete Gibbs interface by taking a
+single cell equal to `Gi.W.kernel`. This packages the domination and row‑sum‑one
+properties into a `WilsonGibbsCells` witness. Requires a positive number of cut
+cells to carry the geometry. -/
+def gibbs_cells_from_gibbs_interface
+  {G : GeometryPack} {a : ℝ}
+  (Gi : WilsonGibbsInterface G a) (hCut : 0 < numCut G) : WilsonGibbsCells G a :=
+{ cells := [Gi.W.kernel]
+, nonempty := by simp
+, rowSumOne_fold := by
+    intro x; simp [List.foldl, Gi.rowSumOne]
+, nonneg_each := by
+    intro K hmem x y
+    rcases List.mem_singleton.mp hmem with rfl
+    exact Gi.W.nonnegEntries x y
+, symm_each := by
+    intro K hmem x y
+    rcases List.mem_singleton.mp hmem with rfl
+    exact Gi.W.symmetric x y
+, θStar := Gi.θStar
+, t0 := Gi.t0
+, θ_pos := Gi.θ_pos
+, θ_lt_one := Gi.θ_lt_one
+, t0_pos := Gi.t0_pos
+, dom_each := by
+    intro K hmem x y
+    rcases List.mem_singleton.mp hmem with rfl
+    exact Gi.lowerBound x y
+, cut_pos := hCut }
+
+/-- Define the explicit `γ_cut` from a concrete Gibbs interface: `γ_cut = 8 ·
+  c_cut_from_refresh(a, θ_*, t₀, λ₁)`. -/
+def gamma_cut_from_interface (G : GeometryPack) (a : ℝ)
+  (Gi : WilsonGibbsInterface G a) : ℝ :=
+  8 * c_cut_from_refresh a Gi.θStar Gi.t0 G.lambda1
+
+/-- PF gap export at the explicit `γ_cut` built from a concrete Gibbs interface. -/
+theorem cut_gap_export_from_interface
+  (G : GeometryPack) (μ : LatticeMeasure) (K_of_μ : LatticeMeasure → TransferKernel)
+  {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0)
+  (Gi : WilsonGibbsInterface G a)
+  : ∃ γ0 : ℝ, γ0 = gamma_cut_from_interface G a Gi ∧ 0 < γ0 ∧ TransferPFGap μ (K_of_μ μ) γ0 :=
+by
+  -- Build the odd‑cone deficit with the explicit c_cut from (a, θ_*, t₀, λ₁)
+  have hDef : OddConeDeficit :=
+    ledger_refresh_minorization_explicit (a:=a) (θStar:=Gi.θStar) (t0:=Gi.t0) (λ1:=G.lambda1)
+      (ha:=ha) (hθ0:=Gi.θ_pos) (hθ1:=Gi.θ_lt_one) (ht0:=Gi.t0_pos) (hλ:=G.lambda1_pos)
+  -- Export PF gap at γ = 8 · c_cut_from_refresh(a, θ_*, t₀, λ₁)
+  have hPF := wilson_pf_gap_from_odd_cone_deficit' (μ:=μ) (K_of_μ:=K_of_μ) hDef
+  rcases hPF with ⟨γ0, hpos, hgap⟩
+  refine ⟨gamma_cut_from_interface G a Gi, rfl, ?pos, hgap⟩
+  -- positivity of γ_cut
+  have : 0 < c_cut_from_refresh a Gi.θStar Gi.t0 G.lambda1 :=
+    c_cut_from_refresh_pos (ha:=ha) (hθ0:=Gi.θ_pos) (hθ1:=Gi.θ_lt_one) (ht0:=Gi.t0_pos) (hλ:=G.lambda1_pos)
+  have : 0 < 8 * c_cut_from_refresh a Gi.θStar Gi.t0 G.lambda1 :=
+    mul_pos (by norm_num : 0 < (8 : ℝ)) this
+  simpa [gamma_cut_from_interface]
+
 /-- From a concrete Wilson Gibbs interface, obtain an odd‑cone deficit via the
 Harris mixture route, and then export a PF gap at `γ₀ = 8·c_cut`. -/
 theorem wilson_pf_gap_from_gibbs
@@ -1820,8 +1878,8 @@ def gibbs_cells_heat (G : GeometryPack) (a : ℝ)
   (hCut : 0 < numCut G) : WilsonGibbsCells G a :=
 { cells := [heatProduct G G.t0]
 , nonempty := by simp
-, rowSumOne_fold := by
-    intro x; simp [foldCellsKernel, List.foldl, heatProduct_row_sum_one]
+  , rowSumOne_fold := by
+    intro x; simp [List.foldl, heatProduct_row_sum_one]
 , nonneg_each := by
     intro K hmem x y
     rcases List.mem_singleton.mp hmem with rfl

@@ -42,5 +42,3 @@ This serves as a concrete, reflection‑stable algebra to build OS witnesses. -/
 
 end YMMeasure
 end YM
-
-
