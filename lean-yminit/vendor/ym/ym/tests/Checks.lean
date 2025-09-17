@@ -15,3 +15,7 @@ Quick verification checks (build-time smoke tests).
 
 #check YM.YMMeasure.continuum_ym_from_projective
 #check YM.Minkowski.wightman_export_wilson
+
+-- Additional acceptance link checks
+#check YM.Transfer.PhysicalGap.T15_accept
+#check YM.OSWilson.OddConeDeficit.T11_accept

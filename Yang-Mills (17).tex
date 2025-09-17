@@ -430,6 +430,30 @@ There exist $t_0=t_0(N)>0$ and $\kappa_0=\kappa_0(R_*,a_0,N)>0$ such that for ev
 as measures on $(G^m,\pi^{\otimes m})$, where $p_{t_0}$ is the heat–kernel density on $G$ at time $t_0$ for a fixed bi–invariant metric.
 \end{proposition}
 
+\subsection*{Lean linkage: Wilson interface kernel and constants}
+For auditability, we record the correspondence between the mathematical objects above and their formal counterparts in the Lean development (module prefixes omitted when unambiguous):
+\begin{itemize}
+  \item \textbf{Geometry/constants pack:} `OSWilson.GeometryPack` carries $(R_*,a_0,N)$ together with $(\theta_*,t_0,\lambda_1)$ and positivity witnesses. This instantiates the slab and group data used throughout this section.
+  \item \textbf{Interface state and kernels:} the finite product carrier $G^m$ is modeled by `InterfaceState G`; the product heat kernel $P_{t_0}$ by `heatProduct G t0`; and the inter–slab kernel by `WilsonInterSlabKernel G a` with fields `symmetric`, `nonnegEntries`, and `rowSumOne`.
+  \item \textbf{Character/Haar domination:} Proposition~\ref{prop:doeblin-full} and Lemma~\ref{lem:beta-L-independent-minorization} correspond to the structured witness
+  \[
+    \texttt{DominationWitness\ G\ a}\ :\ \exists\,W,\ \theta_*\in(0,1),\ t_0>0,\quad W\ge \theta_* P_{t_0},\ \ \sum_y W(x,y)=1,
+  \]
+  constructed concretely by `wilson_char_haar_domination_from_pack` and packaged by `domination_witness_from_pack`.
+  \item \textbf{Convex split and contraction:} the decomposition $K_{\rm int}^{(a)}=\theta_* P_{t_0}+(1-\theta_*)\,\mathcal K_{\beta,a}$ is realized by `mixture_from_domination`; the one–step $L^2_0$ contraction
+  \[
+    \|K_{\rm int}^{(a)}\|_{L^2_0\to L^2_0}\ \le\ 1-\theta_* e^{-\lambda_1 t_0}
+  \]
+  appears as `odd_cone_deficit_from_refresh` and its corollaries.
+  \item \textbf{Explicit $c_{\rm cut}$ and $\gamma_{\rm cut}$:} the formula
+  \[
+    c_{\rm cut}(G,a)\ :=\ -\tfrac1a\,\log\big(1-\theta_* e^{-\lambda_1 t_0}\big),\qquad \gamma_{\rm cut}(G,a)\ :=\ 8\,c_{\rm cut}(G,a),
+  \]
+  is defined by `c_cut_from_refresh` and exported as `c_cut G a` and `gamma_cut G a` with positivity lemma `c_cut_pos`.
+  \item \textbf{Best–of–two selector and PF gap:} the small–$\beta$ branch and the odd–cone branch are combined by `wilson_pf_gap_select_best_from_pack`, yielding a PF gap $\gamma_0=\max\{\gamma_\alpha(\beta),\,\gamma_{\rm cut}\}$.
+  \item \textbf{Main pipeline hook:} the lattice/continuum exports assemble in `ym/Main.lean` via `unconditional_mass_gap` and `SU_N_YangMills_on_R4_has_mass_gap_via_Wilson_pipeline`, threading OS2, inter–slab domination, PF gap, and persistence.
+\end{itemize}
+
 \begin{lemma}[\boldmath$\beta$- and $L$-independence of the interface minorization]\label{lem:beta-L-independent-minorization}
 With $t_0=t_0(N)>0$ and $\kappa_0=\kappa_0(R_*,a_0,N)>0$ as in Proposition~\ref{prop:doeblin-full}, define $\theta_*:=\kappa_0$. Then for every $a\in(0,a_0]$, every volume $L$, and every $\beta\ge 0$,
 \[
