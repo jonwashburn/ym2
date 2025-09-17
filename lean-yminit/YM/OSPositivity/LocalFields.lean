@@ -416,4 +416,37 @@ theorem T14_accept_with_os1_from_vendor_setup_holds
   local_fields_accept_with_os1 (build_T14_accept_with_os1_from_vendor_setup D S S0 a) := by
   exact local_fields_accept_with_os1_holds (build_T14_accept_with_os1_from_vendor_setup D S S0 a)
 
+/ -! E1/E2/E3: Quantitative OS0, OS1 modulus, and OS2/OS3 acceptance wrappers. -/
+
+/-- Quantitative bundle collecting (OS0) clover-moment params, (OS1) modulus, and
+    (OS3) Doeblin→T15→T14 gap inputs. -/
+structure QuantBundle where
+  Q : MomentQuantParams
+  E : OS1Params
+  P : DoeblinToFieldsParams
+
+/-- E1. OS0 quantitative predicate (from clover moment constants). -/
+def OS0_quantitative (B : QuantBundle) : Prop :=
+  os0_transfer_spec (os0_from_moment_quant B.Q)
+
+theorem OS0_quantitative_holds (B : QuantBundle) : OS0_quantitative B := by
+  dsimp [OS0_quantitative]
+  exact os0_from_moment_quant_holds B.Q
+
+/-- E2. OS1 equicontinuity/isotropy predicate with explicit modulus container. -/
+def OS1_equicontinuity_isotropy (B : QuantBundle) : Prop := os1_euclid_spec B.E
+
+theorem OS1_equicontinuity_isotropy_holds (B : QuantBundle) : OS1_equicontinuity_isotropy B := by
+  dsimp [OS1_equicontinuity_isotropy]
+  exact os1_euclid_exists B.E
+
+/-- E3. OS2/OS3 quantitative acceptance: closure under limits and clustering from
+    the uniform gap routed through the Doeblin-driven physical gap. -/
+def OS2_OS3_quantitative (B : QuantBundle) : Prop :=
+  local_fields_accept_with_os1 (build_T14_accept_with_os1_from_quant B.Q B.P B.E)
+
+theorem OS2_OS3_quantitative_holds (B : QuantBundle) : OS2_OS3_quantitative B := by
+  dsimp [OS2_OS3_quantitative]
+  exact T14_accept_with_os1_from_quant_holds B.Q B.P B.E
+
 end YM.OSPositivity.LocalFields

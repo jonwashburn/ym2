@@ -12,3 +12,6 @@ Quick verification checks (build-time smoke tests).
 
 #check YM.unconditional_mass_gap_spectral_export_if_real_pf
 #print axioms YM.unconditional_mass_gap_spectral_export_if_real_pf
+
+#check YM.YMMeasure.continuum_ym_from_projective
+#check YM.Minkowski.wightman_export_wilson

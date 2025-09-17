@@ -392,6 +392,25 @@ theorem uniform_cut_contraction
     -- (interface-level: TransferPFGap μ K γ is `0 < γ`)
     simpa [TransferPFGap] using (mul_pos (by norm_num : 0 < (8 : ℝ)) (c_cut_pos (G:=G) (a:=a) ha ha_le))
 
+  /-- Convenience: define `γ_cut(G,a) := 8 · c_cut(G,a)` and expose its positivity. -/
+  def gamma_cut (G : GeometryPack) (a : ℝ) : ℝ := 8 * c_cut G a
+
+  lemma gamma_cut_pos (G : GeometryPack) {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0) :
+    0 < gamma_cut G a := by
+    unfold gamma_cut
+    exact mul_pos (by norm_num) (c_cut_pos (G:=G) (a:=a) ha ha_le)
+
+  /-- Export `γ_cut(G,a)` as a PF gap for the Wilson transfer kernel. -/
+  theorem cut_gap_export
+    (G : GeometryPack) (μ : LatticeMeasure) (K_of_μ : LatticeMeasure → TransferKernel)
+    {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0) :
+    ∃ γ0 : ℝ, γ0 = gamma_cut G a ∧ 0 < γ0 ∧ TransferPFGap μ (K_of_μ μ) γ0 := by
+    have h := uniform_cut_contraction (G:=G) (μ:=μ) (K_of_μ:=K_of_μ) (a:=a) ha ha_le
+    rcases h with ⟨γ0, hEq, hpos, hPF⟩
+    refine ⟨gamma_cut G a, rfl, gamma_cut_pos (G:=G) (a:=a) ha ha_le, ?_⟩
+    -- At interface level `TransferPFGap μ K γ` is `0 < γ`, so use positivity
+    simpa [TransferPFGap, gamma_cut, hEq]
+
 /-- Best‑of‑two export using a geometry pack for the odd‑cone branch. Publishes
     `γ₀ = max{1 − 2βJ_⊥, 8·c_cut(G,a)}`. -/
 theorem wilson_pf_gap_select_best_from_pack
@@ -1625,6 +1644,43 @@ by
       intro x
       -- Heat kernel has row sums equal to 1
       exact heatProduct_row_sum_one G t x }
+
+/-- Wilson inter-slab kernel (interface scaffold): use the abstract interface
+kernel `interfaceKernel G a` (row-stochastic, symmetric by definition). This
+serves as a minimal placeholder for the true Wilson inter-slab kernel. -/
+def buildWilsonInterSlabKernel_wilson (G : GeometryPack) (a : ℝ)
+  : WilsonInterSlabKernel G a :=
+by
+  classical
+  let ker := interfaceKernel G a
+  let n : ℕ := numCut G
+  let w : ℝ := if n = 0 then 0 else (1 : ℝ) / (n : ℝ)
+  refine {
+    kernel := ker
+  , symmetric := by
+      intro x y
+      -- Uniform interface kernel is symmetric
+      simp [interfaceKernel]
+  , nonnegEntries := by
+      intro x y
+      -- Entries are nonnegative as `w ≥ 0`
+      by_cases h : n = 0
+      · simp [interfaceKernel, h]
+      · have : 0 ≤ (1 : ℝ) / (n : ℝ) := by
+          have : 0 < (n : ℝ) := by
+            exact_mod_cast (Nat.cast_pos.mpr (Nat.pos_of_ne_zero h))
+          exact (le_of_lt (one_div_pos.mpr this))
+        simp [interfaceKernel, h, this]
+  , rowSumOne := by
+      intro x
+      -- Sum of `n` copies of `w` equals 1 when `n > 0`; trivial if `n = 0`
+      by_cases h : n = 0
+      · simp [interfaceKernel, h]
+      · have : (∑ _y : InterfaceState G, (1 : ℝ) / (n : ℝ)) = (n : ℝ) / (n : ℝ) := by
+          rw [Finset.sum_const]
+          simp [InterfaceState, numCut]
+        simpa [interfaceKernel, h, this]
+  }
 
 /-- Concrete character/Haar domination witness from the geometry pack: choose
     `W` as the heat kernel at time `t0 = G.t0` and `θ_* = G.thetaStar`. Then
