@@ -163,6 +163,27 @@ theorem unconditional_mass_gap_spectral_export_if_real_pf
   have hContSpec : MassGapContSpectral γ := continuum_mass_gap_spectral_export (μ:=μ) (γ:=γ) hGapReal hPers
   exact ⟨γ, hPers.2, hContSpec⟩
 
+/-- Wilson route with a uniform mean-zero contraction bridge: if after selecting
+    a PF gap we additionally have a uniform mean-zero contraction at factor `α`
+    on all finite matrix views for the OS transfer kernel, then the continuum
+    spectral mass gap holds at `γ = 1 − α`. This exposes a spectral export from
+    the Wilson pipeline under an explicit contraction hypothesis. -/
+theorem wilson_pipeline_yields_spectral_gap_if_uniform_contraction
+  : ∀ (G : YM.OSWilson.GeometryPack)
+      (K_of_μ : LatticeMeasure → TransferKernel) (μ : LatticeMeasure)
+      {α : ℝ},
+      YM.OSWilson.UniformContraction (K_of_μ μ) α →
+      GapPersists (1 - α) →
+      unconditional_mass_gap_spectral_statement := by
+  intro G K_of_μ μ α hContr hPers
+  -- From uniform contraction obtain a strong PF gap and then a kernel spectral gap
+  have hStrong := YM.OSWilson.pf_gap_strong_if_uniform_contraction (μ:=μ) (K:=(K_of_μ μ)) hContr
+  have hReal : TransferPFGapReal μ (K_of_μ μ) (1 - α) := hStrong
+  -- Conclude the continuum spectral export via the real→spectral bridge
+  have hSpec : MassGapContSpectral (1 - α) :=
+    continuum_mass_gap_spectral_export (μ:=μ) (γ:=1-α) ⟨K_of_μ μ, hReal⟩ hPers
+  exact ⟨1 - α, by have : α < 1 := (And.right (And.left hContr)); have : 0 < 1 - α := by linarith; exact this, hSpec⟩
+
 /-- Public statement alias used by docs/tests. -/
 def unconditional_mass_gap_statement : Prop :=
   ∃ γ : ℝ, 0 < γ ∧ MassGapCont γ

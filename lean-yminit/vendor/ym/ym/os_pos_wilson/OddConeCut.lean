@@ -1928,7 +1928,7 @@ theorem pf_gap_strong_if_uniform_contraction
     exact hcontr V hrow hpos f hsum M hM i)
 
 /-- From a strong PF gap, obtain a kernel-level uniform mean-zero spectral gap on
-    all finite matrix views. -/ 
+    all finite matrix views. -/
 theorem kernel_mz_gap_from_uniform_contraction
   (μ : LatticeMeasure) (K : TransferKernel) {α : ℝ}
   (h : UniformContraction K α) :
