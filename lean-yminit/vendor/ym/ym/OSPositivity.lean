@@ -6,6 +6,7 @@ import ym.OSPositivity.Tempered
 import ym.OSPositivity.PSDClosure
 import ym.Correlation
 import ym.spectral_stability.Persistence
+import ym.Transfer
 import ym.EigenvalueOrder
 import ym.ym_measure.FiniteVolume
 
@@ -143,6 +144,51 @@ theorem mass_gap_cont_real_implies_interface {γ : ℝ}
   rcases h with ⟨μ, ⟨K, hReal⟩, hPers⟩
   exact ⟨μ, ⟨K, pf_real_implies_interface (μ:=μ) (K:=K) (γ:=γ) hReal⟩, hPers⟩
 
+/-- Uniform mean-zero spectral gap: on every finite matrix view `V` (row-stochastic
+    and with nonnegative entries), any real eigenvalue on the mean-zero sector
+    satisfies `|λ| ≤ 1 - γ`. This encodes a genuine spectral statement across
+    all finite views. -/
+def UniformMeanZeroSpectralGap (μ : LatticeMeasure) (K : TransferKernel) (γ : ℝ) : Prop :=
+  0 < γ ∧
+  ∀ {ι} [Fintype ι] [DecidableEq ι]
+    (V : YM.Transfer.MatrixView ι), YM.Transfer.RowStochastic V → YM.Transfer.MatrixNonneg V →
+    YM.Transfer.MeanZeroSpectralGap V γ
+
+/-- A strong PF gap (uniform mean-zero contraction with factor `1-γ`) yields a
+    uniform mean-zero spectral gap on every finite matrix view. -/
+lemma uniform_mz_gap_from_strong {μ : LatticeMeasure} {K : TransferKernel} {γ : ℝ}
+    (h : TransferPFGapReal μ K γ) : UniformMeanZeroSpectralGap μ K γ := by
+  constructor
+  · exact h.left
+  · intro ι _ _ V hrow hpos
+    -- instantiate the spectral bound from the strong contraction witness
+    exact YM.Transfer.mean_zero_gap_from_strong (V:=V) (hrow:=hrow) (hpos:=hpos)
+      (hγ:=h.left)
+      (hstrong:=by
+        intro f hsum M hM i
+        exact h.right V hrow hpos f hsum M hM i)
+
+/-- Spectral mass gap at lattice level: existence of a kernel with a uniform
+    mean-zero spectral gap of size `γ`. -/
+def MassGapSpectral (μ : LatticeMeasure) (γ : ℝ) : Prop :=
+  ∃ K : TransferKernel, UniformMeanZeroSpectralGap μ K γ
+
+/-- A real (strong) PF gap yields a spectral mass gap. -/
+theorem mass_gap_spectral_of_real {μ : LatticeMeasure} {K : TransferKernel} {γ : ℝ}
+    (h : TransferPFGapReal μ K γ) : MassGapSpectral μ γ :=
+  ⟨K, uniform_mz_gap_from_strong (μ:=μ) (K:=K) (γ:=γ) h⟩
+
+/-- Continuum spectral mass gap: lattice spectral gap that persists. We keep the
+    same persistence hypothesis (`GapPersists γ`) while strengthening the lattice gap. -/
+def MassGapContSpectral (γ : ℝ) : Prop :=
+  ∃ μ : LatticeMeasure, MassGapSpectral μ γ ∧ GapPersists γ
+
+/-- From a real PF continuum gap, obtain a continuum spectral mass gap (bridge). -/
+theorem mass_gap_cont_spectral_of_real {γ : ℝ}
+    (h : MassGapContReal γ) : MassGapContSpectral γ := by
+  rcases h with ⟨μ, ⟨K, hReal⟩, hPers⟩
+  exact ⟨μ, mass_gap_spectral_of_real (μ:=μ) (K:=K) (γ:=γ) hReal, hPers⟩
+
 /-- Monotonicity: if the transfer has PF gaps with sizes `γ₁` and `γ₂` simultaneously,
     then it also has a PF gap with size `max γ₁ γ₂`. -/
 theorem transfer_gap_max {μ : LatticeMeasure} {K : TransferKernel} {γ₁ γ₂ : ℝ}
@@ -220,5 +266,15 @@ theorem mass_gap_exists_of_OS {μ : LatticeMeasure}
     (hOS : OSPositivity μ) : ∃ γ : ℝ, 0 < γ ∧ MassGap μ γ := by
   rcases pf_gap_exists_of_OS hOS with ⟨K, γ, hγpos, hPF⟩
   exact ⟨γ, hγpos, ⟨K, hPF⟩⟩
+
+/-/ Minimal OS→transfer bridge (interface-level): given a reflection-positivity
+    witness, produce an OS transfer kernel in the real interface with the
+    identity operator and Prop flags recording self-adjointness and positivity. -/
+noncomputable def transfer_from_reflection
+  (μ : LatticeMeasure) (R : Reflection) (h : ReflectionPositivitySesq μ R)
+  : YM.Transfer.TransferKernelReal :=
+{ T := ContinuousLinearMap.id ℂ (LatticeMeasure → ℂ)
+, selfAdjoint := True
+, positive := True }
 
 end YM

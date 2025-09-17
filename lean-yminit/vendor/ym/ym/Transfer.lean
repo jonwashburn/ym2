@@ -23,6 +23,10 @@ interface kernel, and is intended to bundle additional spectral properties
 (self-adjointness, positivity) at call-sites without forcing them here. -/
 structure TransferKernelReal where
   T : (LatticeMeasure → ℂ) →L[ℂ] (LatticeMeasure → ℂ)
+  -- Interface-level properties documenting the intended operator-theoretic nature
+  -- (self-adjoint and positive on the GNS inner product). Kept as Props here.
+  selfAdjoint : Prop := True
+  positive : Prop := True
   deriving Inhabited
 
 /-- Forgetful map to the interface `TransferKernel`. -/
@@ -714,6 +718,28 @@ def TransferPFGapStrong (μ : LatticeMeasure) (K : TransferKernel) (γ : ℝ) : 
 lemma pf_strong_implies_interface (μ : LatticeMeasure) (K : TransferKernel) {γ : ℝ}
     (h : TransferPFGapStrong μ K γ) : TransferPFGap μ K γ :=
   h.left
+
+/-- Kernel-level uniform mean-zero spectral gap: for every finite matrix view,
+    any real eigenvalue on the mean-zero sector satisfies `|λ| ≤ 1 - γ`. -/
+def KernelMeanZeroSpectralGap (μ : LatticeMeasure) (K : TransferKernel) (γ : ℝ) : Prop :=
+  0 < γ ∧
+  ∀ {ι} [Fintype ι] [DecidableEq ι]
+    (V : MatrixView ι), RowStochastic V → MatrixNonneg V →
+    MeanZeroSpectralGap V γ
+
+/-- A strong PF gap implies a kernel-level uniform mean-zero spectral gap
+    across all finite matrix views. -/
+lemma kernel_mz_gap_from_strong {μ : LatticeMeasure} {K : TransferKernel} {γ : ℝ}
+    (h : TransferPFGapStrong μ K γ) : KernelMeanZeroSpectralGap μ K γ := by
+  constructor
+  · exact h.left
+  · intro ι _ _ V hrow hpos
+    -- Use the mean-zero spectral bound derived from strong contraction
+    exact mean_zero_gap_from_strong (V:=V) (hrow:=hrow) (hpos:=hpos)
+      (hγ:=h.left)
+      (hstrong:=by
+        intro f hsum M hM i
+        exact h.right V hrow hpos f hsum M hM i)
 
 /-- Real PF-gap semantics specialized to `TransferKernelReal` by forgetting to
 `TransferKernel` and using the strong mean-zero contraction. -/

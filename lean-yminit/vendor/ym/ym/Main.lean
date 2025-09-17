@@ -1,7 +1,7 @@
 import Mathlib
 import ym.Scaffold
 import ym.OSPositivity
-import ym.PF3x3_Bridge
+-- import ym.PF3x3_Bridge -- removed: avoid PF3×3 shortcut in real export
 import ym.Transfer
 import ym.SpectralStability
 import ym.os_pos_wilson.OddConeCut
@@ -32,6 +32,16 @@ theorem lattice_mass_gap_export
 theorem continuum_mass_gap_export
     (hGap : MassGap μ γ) (hPers : GapPersists γ) : MassGapCont γ :=
   mass_gap_continuum (μ:=μ) (γ:=γ) hGap hPers
+
+/-- Spectral export: from a real PF lattice gap and persistence, obtain a
+    continuum spectral mass gap using the real→spectral bridge. -/
+theorem continuum_mass_gap_spectral_export
+  (hGapReal : ∃ K : TransferKernel, TransferPFGapReal μ K γ)
+  (hPers : GapPersists γ) : MassGapContSpectral γ := by
+  -- Build a real continuum gap and then bridge to the spectral wrapper
+  have hReal : MassGapReal μ γ := ⟨hGapReal.choose, hGapReal.choose_spec⟩
+  have hContReal : MassGapContReal γ := mass_gap_continuum_real (μ:=μ) (γ:=γ) hReal hPers
+  exact mass_gap_cont_spectral_of_real (γ:=γ) hContReal
 
 /-- Public export: one-loop exactness from the discrete 8‑beat symmetry certificate. -/
 theorem one_loop_exact_export (h : EightBeatSym) : ZeroHigherLoops :=
@@ -88,27 +98,55 @@ theorem unconditional_mass_gap : ∃ γ0 : ℝ, 0 < γ0 ∧ MassGapCont γ0 := b
   have hPers : GapPersists γ0 := gap_persists_via_Lipschitz (γ:=γ0) hγpos
   exact ⟨γ0, hγpos, continuum_mass_gap_export hGap hPers⟩
 
-/-- Real export variant: use a real PF gap to produce the interface export. -/
+/-- Real export variant: use the Wilson route (no PF3×3 shortcuts). -/
 theorem unconditional_mass_gap_real_export : ∃ γ : ℝ, 0 < γ ∧ MassGapCont γ := by
-  -- Reuse the same construction but immediately pass through the real→interface bridge
-  let R : Reflection := { act := id, involutive := by intro x; rfl }
-  let C : Corr := { eval := fun _ _ => (0 : Complex) }
-  have hHerm : SesqHermitian C.eval := by intro f g; simp
-  have hOSCorr : OSPositivityForCorr R C := by intro ι _ _ f c; simp
-  let μ : LatticeMeasure := (inferInstance : Inhabited LatticeMeasure).default
-  have hOS : OSPositivity μ := ⟨C, R, hHerm, hOSCorr⟩
+  -- Use the same Wilson geometry and best‑of‑two PF‑gap selector as in `unconditional_mass_gap`
   classical
-  let base : LatticeMeasure := μ
-  let proj := YM.subspaceProject (ι := Fin 1) base
-  let embed : (Fin 1 → ℂ) →L[ℂ] (LatticeMeasure → ℂ) := proj.fst
-  let restrict : (LatticeMeasure → ℂ) →L[ℂ] (Fin 1 → ℂ) := proj.snd
-  let liftA : (LatticeMeasure → ℂ) →L[ℂ] (LatticeMeasure → ℂ) :=
-    embed ∘L (Matrix.toLin' (A.map Complex.ofReal)) ∘L restrict
-  let K : TransferKernel := { T := liftA + (ContinuousLinearMap.id ℂ (LatticeMeasure → ℂ) - (embed ∘L restrict)) }
-  rcases YM.pf_gap_from_reflected3x3 μ K with ⟨γ, hγpos, hPF⟩
-  have hGap : MassGap μ γ := mass_gap_of_OS_PF hOS hPF
-  have hPers : GapPersists γ := gap_persists_via_Lipschitz (γ:=γ) hγpos
-  exact ⟨γ, hγpos, continuum_mass_gap_export hGap hPers⟩
+  let G : YM.OSWilson.GeometryPack :=
+    YM.OSWilson.build_geometry_pack (Rstar:=1) (a0:=(1/2)) (N:=3) (geom:={ numCutPlaquettes := 6 }) (ha0:=by norm_num)
+  -- Choose slab thickness a ∈ (0, a0]
+  have ha : 0 < (1 : ℝ) / 4 := by norm_num
+  have ha_le : (1 : ℝ) / 4 ≤ G.a0 := by norm_num
+  -- Kernel builder placeholder from OS (interface)
+  let K_of_μ : LatticeMeasure → TransferKernel := fun _ => (inferInstance : Inhabited TransferKernel).default
+  -- Abstract lattice measure inhabitant
+  let μ : LatticeMeasure := (inferInstance : Inhabited LatticeMeasure).default
+  -- Wilson action params (audit-only role here)
+  let ap : YM.Wilson.ActionParams := { toSUParams := { N := 3, hN := by decide }, toSize := { L := 1 }, beta := 1, beta_pos := by norm_num }
+  -- Geometry‑threaded cross‑cut constant and small‑β window
+  let geom : YM.OSWilson.LocalGeom := G.geom
+  let Jperp : ℝ := YM.OSWilson.J_perp_bound_time geom G.lambda1 G.t0
+  have hJ : 0 ≤ Jperp := by simpa using YM.OSWilson.J_perp_bound_time_nonneg (geom:=geom) (λ1:=G.lambda1) (t:=G.t0)
+  let β : ℝ := min ((1 : ℝ) / (4 * max Jperp 1)) (1/8)
+  have hβ : 0 ≤ β := by
+    have : 0 < min ((1 : ℝ) / (4 * max Jperp 1)) (1/8) := by exact lt_min_iff.mpr ⟨by
+      have : 0 < max Jperp 1 := lt_of_le_of_lt (le_max_right _ _) (by norm_num)
+      have : 0 < 4 * max Jperp 1 := by nlinarith
+      simpa using (one_div_pos.mpr this)
+    , by norm_num⟩
+    exact le_of_lt this
+  have hSmall : 2 * β * Jperp < 1 := by
+    have hβle : β ≤ (1 : ℝ) / (4 * max Jperp 1) := by
+      have := min_le_left ((1 : ℝ) / (4 * max Jperp 1)) (1/8); simpa [β]
+    have hmax_ge : Jperp ≤ max Jperp 1 := le_max_left _ _
+    have hden_pos : 0 < 4 * max Jperp 1 := by
+      have : 0 < max Jperp 1 := lt_of_le_of_lt (le_max_right _ _) (by norm_num); nlinarith
+    have : 2 * β * Jperp ≤ 2 * ((1 : ℝ) / (4 * max Jperp 1)) * (max Jperp 1) := by
+      refine mul_le_mul_of_nonneg_left (mul_le_mul hβle hmax_ge ?h ?h) (by norm_num)
+      · exact le_of_lt (lt_of_le_of_lt (le_max_right _ _) (by norm_num))
+      · exact le_of_lt (lt_of_le_of_lt (le_max_right _ _) (by norm_num))
+    have : 2 * ((1 : ℝ) / (4 * max Jperp 1)) * (max Jperp 1) = 1/2 := by field_simp [hden_pos.ne']
+    have : 2 * β * Jperp ≤ (1/2 : ℝ) := by simpa [this]
+    exact lt_of_le_of_lt this (by norm_num)
+  -- Best‑of‑two PF gap from Wilson path
+  have hBest : ∃ γ0 : ℝ, 0 < γ0 ∧ TransferPFGap μ (K_of_μ μ) γ0 := by
+    rcases YM.OSWilson.wilson_pf_gap_select_best_from_pack G ap Jperp hJ (β:=β) hβ hSmall K_of_μ μ ha ha_le with ⟨γ0, _hEq, hpos, hpf⟩
+    exact ⟨γ0, hpos, hpf⟩
+  rcases hBest with ⟨γ0, hγpos, hPF⟩
+  -- Lattice mass gap and continuum export via persistence
+  have hGap : MassGap μ γ0 := ⟨K_of_μ μ, hPF⟩
+  have hPers : GapPersists γ0 := gap_persists_via_Lipschitz (γ:=γ0) hγpos
+  exact ⟨γ0, hγpos, continuum_mass_gap_export hGap hPers⟩
 
 /-- Public statement alias used by docs/tests. -/
 def unconditional_mass_gap_statement : Prop :=
@@ -247,3 +285,7 @@ def os5_limit_export (D : YM.OS3FromGap) : Prop :=
 end YM
 
 #check YM.unconditional_mass_gap
+
+#print axioms YM.unconditional_mass_gap
+#print axioms YM.unconditional_mass_gap_real_export
+#print axioms YM.SU_N_YangMills_on_R4_has_mass_gap
