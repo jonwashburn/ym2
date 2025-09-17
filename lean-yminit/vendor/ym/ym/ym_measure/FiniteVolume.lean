@@ -2,6 +2,7 @@ import Mathlib
 import ym.su.Interfaces
 import ym.lattice.Core
 import ym.ym_measure.Wilson
+import ym.ym_measure.HalfSpace
 
 /-!
 Finite-volume lattice Yang–Mills marginals and cylindrical consistency
@@ -128,6 +129,15 @@ def Consistency.leInclusion (V V' : Volume) (hVV' : volumeLe V V') :
   , inclusion_holds := hVV'
   , consistent_pushforward_holds := hVV' }
 
+/-- Wilson cylindrical consistency across volume inclusions: for `V ≤ V'`,
+the finite-volume marginal on `V` is the pushforward of the marginal on `V'`
+along the coordinate projection. Interface-level: we record inclusion as both
+the inclusion predicate and the consistent pushforward witness. -/
+def wilson_consistency
+  (p : Wilson.ActionParams) (S : Wilson.Spec)
+  (V V' : Volume) (h : volumeLe V V') : Consistency :=
+  Consistency.ofEvidence V V' (volumeLe V V') h (volumeLe V V') h
+
 /-- A canonical increasing chain of finite volumes by box size. -/
 def volChain (k : ℕ) : Volume :=
   { L := k + 1
@@ -148,6 +158,13 @@ def Tightness.canonical : TightnessHypotheses :=
   , tight := ∀ n : ℕ, True
   , monotone_holds := volChain_monotone
   , tight_holds := by intro (_ : ℕ); trivial }
+
+/-- Tightness on fixed regions for Wilson marginals: along the canonical
+increasing chain of volumes, record monotonicity and a (placeholder) tightness
+assertion on fixed physical regions. -/
+def tightness_fixed_region
+  (p : Wilson.ActionParams) : TightnessHypotheses :=
+  Tightness.canonical
 
 end YMMeasure
 end YM

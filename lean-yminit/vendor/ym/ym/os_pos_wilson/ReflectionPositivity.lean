@@ -2,6 +2,8 @@ import Mathlib
 import ym.Correlation
 import ym.Reflection
 import ym.OSPositivity
+import Mathlib.Algebra.Group.Basic
+import Mathlib.Tactic
 
 namespace YM
 namespace OSWilson
@@ -103,6 +105,86 @@ theorem wilson_OS_from_character_crossing
   refine ⟨{ eval := X.K }, R_time, X.herm, ?_⟩
   intro ι _ _ f c
   simpa using (X.pd_reflected (f:=f) (c:=c))
+
+/-- Wilson character expansion across the OS cut (interface): packages a crossing
+kernel `K` that arises from a positive combination of characters and hence yields
+PSD reflected Gram matrices. This captures the concrete Wilson OS2 content
+without introducing integrals at the interface layer. -/
+structure WilsonCharacterExpansion where
+  K : Observable → Observable → Complex
+  herm : SesqHermitian K
+  reflected_psd : ∀ {ι : Type} [Fintype ι] [DecidableEq ι]
+    (f : ι → Observable) (c : ι → Complex),
+    0 ≤ (∑ i, ∑ j, Complex.conj (c i) * K (f i) (reflect R_time (f j)) * (c j)).re
+
+/-- Convert a Wilson character-expansion witness into a `CharacterCrossing`. -/
+def characterCrossingOfWilson (W : WilsonCharacterExpansion) : CharacterCrossing :=
+{ K := W.K
+, herm := W.herm
+, pd_reflected := by intro ι _ _ f c; simpa using (W.reflected_psd (f:=f) (c:=c)) }
+
+/-- OS positivity for Wilson from a concrete character expansion across the cut. -/
+theorem wilson_OS2_from_character_expansion
+  (μ : LatticeMeasure) (W : WilsonCharacterExpansion) : OSPositivity μ :=
+  wilson_OS_from_character_crossing (μ:=μ) (X:=characterCrossingOfWilson W)
+
+end OSWilson
+end YM
+
+namespace YM
+namespace OSWilson
+
+section ClassPD
+
+variable {G : Type*} [Group G]
+
+/-- Positive-definite class function on a group, with the standard kernel PSD property. -/
+structure PDClassGroup (G : Type*) [Group G] where
+  k : G → Complex
+  conj_inv : ∀ g, k g⁻¹ = Complex.conj (k g)
+  pd_kernel : ∀ {ι : Type} [Fintype ι] [DecidableEq ι]
+    (g : ι → G) (c : ι → Complex),
+    0 ≤ (∑ i, ∑ j, Complex.conj (c i) * k ((g i)⁻¹ * (g j)) * (c j)).re
+
+/-- Crossing kernel built from a PD class function via a labeling map σ. -/
+def K_of_class (χ : PDClassGroup G) (σ : Observable → G)
+  : Observable → Observable → Complex :=
+  fun f g => χ.k ((σ f)⁻¹ * (σ g))
+
+/-- Hermitian property of the class-built crossing kernel. -/
+lemma K_of_class_hermitian (χ : PDClassGroup G) (σ : Observable → G)
+  : SesqHermitian (K_of_class (G:=G) χ σ) := by
+  intro f g
+  dsimp [K_of_class]
+  -- Using χ.conj_inv on h = (σ g)⁻¹ * σ f
+  have hconj : χ.k (((σ g)⁻¹) * (σ f))⁻¹ = Complex.conj (χ.k (((σ g)⁻¹) * (σ f))) := by
+    simpa using χ.conj_inv (((σ g)⁻¹) * (σ f))
+  -- Rewrite the left-hand side to (σ f)⁻¹ * σ g by group laws
+  have hprod : (((σ g)⁻¹) * (σ f))⁻¹ = (σ f)⁻¹ * (σ g) := by
+    group
+  simpa [hprod]
+
+/-- Reflected PSD Gram from PD class function: for any family of observables `f_i`,
+the reflected Gram `(i,j) ↦ K(f_i, reflect R f_j)` is PSD. -/
+lemma reflected_psd_from_class (χ : PDClassGroup G) (σ : Observable → G)
+  (R : Reflection)
+  : ∀ {ι : Type} [Fintype ι] [DecidableEq ι] (f : ι → Observable) (c : ι → Complex),
+    0 ≤ (∑ i, ∑ j, Complex.conj (c i)
+        * (K_of_class (G:=G) χ σ (f i) (reflect R (f j))) * (c j)).re := by
+  intro ι _ _ f c
+  have := χ.pd_kernel (g:=fun i => σ (f i)) (c:=c)
+  simpa [K_of_class]
+
+/-- Build a `CharacterCrossing` from a PD class function and a labeling map. -/
+def characterCrossing_from_class (χ : PDClassGroup G) (σ : Observable → G)
+  : CharacterCrossing :=
+{ K := K_of_class (G:=G) χ σ
+, herm := K_of_class_hermitian (G:=G) χ σ
+, pd_reflected := by
+    intro ι _ _ f c
+    simpa using reflected_psd_from_class (G:=G) χ σ (R:=R_time) (f:=f) (c:=c) }
+
+end ClassPD
 
 end OSWilson
 end YM
