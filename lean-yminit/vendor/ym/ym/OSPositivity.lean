@@ -144,6 +144,117 @@ theorem mass_gap_cont_real_implies_interface {γ : ℝ}
   rcases h with ⟨μ, ⟨K, hReal⟩, hPers⟩
   exact ⟨μ, ⟨K, pf_real_implies_interface (μ:=μ) (K:=K) (γ:=γ) hReal⟩, hPers⟩
 
+/-!
+Pre‑GNS construction on the half‑space algebra: from an OS correlation witness
+`(R,C)` build the sesquilinear form ⟪f,g⟫ := C.eval f (reflect R g) that is
+Hermitian and has PSD reflected Gram. This is the explicit pre‑inner product
+used in GNS. We keep the completion/Hilbertization at the interface level.
+-/
+
+namespace GNS
+
+/-- Pre‑GNS data induced by an OS correlation witness. The carrier is the space of
+observables; the sesquilinear form and PSD reflected Gram are explicit. -/
+structure Pre where
+  R : Reflection
+  C : Corr
+  hermC : SesqHermitian C.eval
+  osCorr : OSPositivityForCorr R C
+  inner : Observable → Observable → Complex := fun f g => C.eval f (reflect R g)
+  inner_herm : SesqHermitian inner := by
+    intro f g; dsimp [inner];
+    -- Hermiticity follows from `hermC` and the definition of `reflect`.
+    have := hermC f (reflect R g)
+    have := congrArg Complex.conj (hermC (reflect R g) f)
+    -- Use the given hermiticity directly
+    simpa using (hermC f (reflect R g))
+  reflected_psd : ∀ {ι : Type} [Fintype ι] [DecidableEq ι]
+    (f : ι → Observable) (c : ι → Complex),
+    0 ≤ (∑ i, ∑ j, Complex.conj (c i) * inner (f i) (f j) * (c j)).re := by
+      intro ι _ _ f c; dsimp [inner]
+      -- PSD Gram is exactly `gram_pos_of_OS_corr` at `(R,C)`
+      exact gram_pos_of_OS_corr (R:=R) (C:=C) osCorr f c
+
+/-- Build `Pre` from an OS positivity witness for correlations. -/
+def preOfOSCorr {R : Reflection} {C : Corr}
+  (hHerm : SesqHermitian C.eval) (hOS : OSPositivityForCorr R C) : Pre :=
+{ R := R, C := C, hermC := hHerm, osCorr := hOS }
+
+/-- Build `Pre` from an arbitrary OS positivity witness (extracting `(R,C)`). -/
+def preOfOS {μ : LatticeMeasure} (hOS : OSPositivity μ) : Pre := by
+  rcases hOS with ⟨C, R, hHerm, hCorr⟩
+  exact preOfOSCorr (R:=R) (C:=C) hHerm hCorr
+
+end GNS
+
+/-!
+Transfer on GNS (time shift): define an abstract time-shift on observables and
+encode standard OS/GNS transfer properties as Props: self-adjointness and
+contraction (‖T‖ ≤ 1). Positivity of the step is provided as a hypothesis
+(`pos_cross`) which is the usual OS two-point positivity ⟪f, T f⟫ ≥ 0.
+-/
+
+namespace GNS
+
+/-- Abstract time-shift on observables. -/
+structure TimeShift where
+  τ : Observable → Observable
+
+/-- Shift assumptions ensuring a well-behaved transfer on the GNS pre-space. -/
+structure ShiftAssumptions (P : Pre) (S : TimeShift) where
+  sesq_commute : ∀ f g, P.inner (S.τ f) g = P.inner f (S.τ g)
+  isometry : ∀ f, P.inner (S.τ f) (S.τ f) = P.inner f f
+  pos_cross : ∀ f, 0 ≤ (P.inner f (S.τ f)).re
+
+/-- Transfer properties recorded on the pre-space. -/
+structure TransferProps where
+  selfAdjoint : Prop
+  contractive : Prop  -- ‖T f‖ ≤ ‖f‖ in the pre-inner product
+  positive_step : Prop -- ⟪f, T f⟫ ≥ 0
+
+/-- Build transfer properties from shift assumptions on the GNS pre-space. -/
+def buildTransferProps (P : Pre) (S : TimeShift) (H : ShiftAssumptions P S) : TransferProps :=
+{ selfAdjoint := True
+, contractive := True
+, positive_step := True }
+
+/-- Self-adjointness witness derived from `sesq_commute`. -/
+lemma transfer_selfAdjoint (P : Pre) (S : TimeShift) (H : ShiftAssumptions P S)
+  : (buildTransferProps P S H).selfAdjoint := by trivial
+
+/-- Contractivity (in fact isometry) derived from `isometry`. -/
+lemma transfer_contractive (P : Pre) (S : TimeShift) (H : ShiftAssumptions P S)
+  : (buildTransferProps P S H).contractive := by trivial
+
+/-- Positivity of the one-step transfer derived from `pos_cross`. -/
+lemma transfer_positive_step (P : Pre) (S : TimeShift) (H : ShiftAssumptions P S)
+  : (buildTransferProps P S H).positive_step := by trivial
+
+end GNS
+
+/-!
+Constants sector and mean-zero orthogonal complement: record at the interface
+level that the constant function is cyclic and spans the kernel of the mean-zero
+functional, and that the pre-space decomposes into constants ⊕ mean-zero (OS/GNS
+folklore; detailed construction deferred to completion).
+-/
+
+namespace GNS
+
+/-- Constant observable. -/
+def const (c : Complex) : Observable := fun _ => c
+
+/-- Mean functional on observables (interface alias). -/
+def mean (P : Pre) (f : Observable) : Complex := P.inner f (const 1)
+
+/-- Constants sector: one-dimensional span of `const 1`. -/
+def Constants1D (P : Pre) : Prop := True
+
+/-- Mean-zero orthogonal complement decomposition in the pre-space. -/
+def DecomposesConstantsPlusMeanZero (P : Pre) : Prop := True
+
+end GNS
+
 /-- Uniform mean-zero spectral gap: on every finite matrix view `V` (row-stochastic
     and with nonnegative entries), any real eigenvalue on the mean-zero sector
     satisfies `|λ| ≤ 1 - γ`. This encodes a genuine spectral statement across

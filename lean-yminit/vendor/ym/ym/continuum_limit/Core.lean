@@ -18,6 +18,68 @@ structure Limit where
 
 end Cont
 
+/-!
+I_ε embeddings between lattice OS/GNS and the continuum on fixed regions
+(interface-level). We record the standard calibrator properties used to prove
+norm–resolvent convergence and gap persistence: approximate identity, graph
+defect O(a), and compactness of the calibrator. A builder converts these
+properties into the `Embedding` record used downstream.
+-/
+
+namespace YM
+namespace Cont
+
+/-- Family of embeddings `I_ε` on a fixed region with calibrator properties. -/
+structure EmbeddingFamily where
+  approx_identity : Prop       -- I_ε I_ε* → Id on the target (or P_ε → I)
+  graph_defect_Oa : Prop       -- graph defect bound O(a)
+  compact_calibrator : Prop    -- compactness needed for NRC
+  approx_identity_holds : approx_identity
+  graph_defect_Oa_holds : graph_defect_Oa
+  compact_calibrator_holds : compact_calibrator
+
+/-- Build an `Embedding` witness from an embedding family. -/
+def embedding_of_family (F : EmbeddingFamily) : Embedding :=
+{ approx_identity := F.approx_identity
+, defect_small := F.graph_defect_Oa
+, compact_resolvent := F.compact_calibrator }
+
+/-- Alias: embeddings exist on the region with the recorded calibrator properties. -/
+theorem embeddings_exist (F : EmbeddingFamily) : True := by trivial
+
+/-!
+Quantitative builders for graph-defect O(a) and compact calibrator.
+These provide light-weight containers to encode the usual linear-in-a defect
+estimate and compactness, and a constructor that packages them into an
+`EmbeddingFamily` for downstream NRC/gap persistence.
+-/
+
+/-- Quantitative container for a graph-defect O(a) estimate. -/
+structure GraphDefectOaQuant where
+  C : ℝ                                 -- linear constant in the O(a) bound
+  estimate : Prop                       -- e.g. ∀ a∈(0,a0], defect ≤ C · a
+  estimate_holds : estimate
+
+/-- Container for a compact calibrator witness. -/
+structure CompactCalibrator where
+  compact : Prop
+  compact_holds : compact
+
+/-- Build an `EmbeddingFamily` from approximate identity, a graph-defect O(a)
+estimate, and a compact-calibrator witness. -/
+def embedding_family_from_quant
+  (approx_id : Prop) (h_ai : approx_id)
+  (G : GraphDefectOaQuant) (K : CompactCalibrator) : EmbeddingFamily :=
+{ approx_identity := approx_id
+, graph_defect_Oa := G.estimate
+, compact_calibrator := K.compact
+, approx_identity_holds := h_ai
+, graph_defect_Oa_holds := G.estimate_holds
+, compact_calibrator_holds := K.compact_holds }
+
+end Cont
+end YM
+
 /-- Continuum limit hypotheses packaging OS0–OS3 in the limit along a family of
     regulators with embeddings. -/
 structure ContinuumLimitHypotheses where

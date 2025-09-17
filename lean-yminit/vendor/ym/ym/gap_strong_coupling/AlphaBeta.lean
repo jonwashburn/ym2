@@ -63,6 +63,16 @@ theorem wilson_pf_gap_small_beta_from_Jperp
   have hγpos : 0 < 1 - (2 * β * Jperp) := by linarith
   exact ⟨1 - (2 * β * Jperp), hγpos, hPF⟩
 
+/-- From a Dobrushin coefficient at level `α = 2 β J_⊥`, the PF gap satisfies
+`γ(β) ≥ 1 − 2 β J_⊥`. This isolates the quantitative step used by the
+small‑β route. -/
+theorem pf_gap_from_dobrushin_crosscut
+  (Jperp : ℝ) {β : ℝ}
+  (K_of_μ : LatticeMeasure → TransferKernel) (μ : LatticeMeasure)
+  (hα : YM.OSBridge.DobrushinAlpha (K_of_μ μ) (2 * β * Jperp))
+  : TransferPFGap μ (K_of_μ μ) (1 - (2 * β * Jperp)) :=
+  YM.OSBridge.contraction_of_alpha (μ := μ) (K := K_of_μ μ) (α := 2 * β * Jperp) hα
+
 end StrongCoupling
 
 end YM

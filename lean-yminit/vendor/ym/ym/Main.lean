@@ -123,6 +123,29 @@ by
   have hPers : GapPersists γ0 := gap_persists_via_Lipschitz (γ:=γ0) hpos
   exact ⟨γ0, hEq, hpos, continuum_mass_gap_export hMass hPers⟩
 
+/-- Continuum gap from a real Wilson inter‑slab kernel derived from the Gibbs
+integral with β‑independent domination: export an explicit gap at
+`γ_cut = gamma_cut_from_interface G a Gi`, then persist it to the continuum. -/
+theorem continuum_gap_from_real_W
+  (G : YM.OSWilson.GeometryPack) (μ : LatticeMeasure)
+  (K_of_μ : LatticeMeasure → TransferKernel)
+  {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0)
+  (C : YM.OSWilson.GibbsInterSlabConstruction G a)
+  (H : YM.OSWilson.HeatDomination G a C)
+  : ∃ γ0 : ℝ,
+      γ0 = YM.OSWilson.gamma_cut_from_interface G a
+              (YM.OSWilson.gibbs_interface_from_heat_domination (G:=G) (a:=a) C H)
+      ∧ 0 < γ0 ∧ MassGapCont γ0 :=
+by
+  -- Lattice PF gap at γ_cut from the real W interface
+  have hPF := YM.OSWilson.cut_gap_export_from_heat_domination
+    (G:=G) (μ:=μ) (K_of_μ:=K_of_μ) (a:=a) ha ha_le C H
+  rcases hPF with ⟨γ0, hEq, hpos, hGap⟩
+  -- Persist to the continuum
+  have hMass : MassGap μ γ0 := ⟨K_of_μ μ, hGap⟩
+  have hPers : GapPersists γ0 := gap_persists_via_Lipschitz (γ:=γ0) hpos
+  exact ⟨γ0, hEq, hpos, continuum_mass_gap_export hMass hPers⟩
+
 /-- Real export variant: use the Wilson route (no PF3×3 shortcuts). -/
 theorem unconditional_mass_gap_real_export : ∃ γ : ℝ, 0 < γ ∧ MassGapCont γ := by
   -- Use the same Wilson geometry and best‑of‑two PF‑gap selector as in `unconditional_mass_gap`

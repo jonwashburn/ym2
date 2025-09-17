@@ -1588,6 +1588,96 @@ def domination_witness_from_gibbs
 , rowSumOne := Gi.rowSumOne
 , lowerBound := Gi.lowerBound }
 
+/-- Gibbs inter-slab construction: derive an inter-slab kernel `W` from the Wilson
+finite-volume Gibbs integral across the OS cut. This records the kernel `K`
+obtained as the conditional density on the interface and its basic properties. -/
+structure GibbsInterSlabConstruction (G : GeometryPack) (a : ℝ) where
+  K : InterfaceState G → InterfaceState G → ℝ
+  from_gibbs_integral : Prop
+  symmetric : ∀ x y, K x y = K y x
+  nonneg : ∀ x y, 0 ≤ K x y
+  rowsum : ∀ x, ∑ y, K x y = 1
+
+/-- Package a Gibbs-derived inter-slab kernel `K` into a `WilsonInterSlabKernel`. -/
+def buildWilsonInterSlabKernel_gibbs (G : GeometryPack) (a : ℝ)
+  (C : GibbsInterSlabConstruction G a) : WilsonInterSlabKernel G a :=
+{ kernel := C.K
+, symmetric := C.symmetric
+, nonnegEntries := C.nonneg
+, rowSumOne := C.rowsum }
+
+/-- Nonnegativity for the Gibbs-derived inter-slab kernel. -/
+lemma W_gibbs_nonneg
+  (G : GeometryPack) (a : ℝ) (C : GibbsInterSlabConstruction G a)
+  : ∀ x y, 0 ≤ (buildWilsonInterSlabKernel_gibbs (G:=G) (a:=a) C).kernel x y :=
+by
+  intro x y; exact C.nonneg x y
+
+/-- Symmetry for the Gibbs-derived inter-slab kernel. -/
+lemma W_gibbs_symm
+  (G : GeometryPack) (a : ℝ) (C : GibbsInterSlabConstruction G a)
+  : ∀ x y, (buildWilsonInterSlabKernel_gibbs (G:=G) (a:=a) C).kernel x y
+      = (buildWilsonInterSlabKernel_gibbs (G:=G) (a:=a) C).kernel y x :=
+by
+  intro x y; exact C.symmetric x y
+
+/-- Unit row sums for the Gibbs-derived inter-slab kernel. -/
+lemma W_gibbs_rowsum_one
+  (G : GeometryPack) (a : ℝ) (C : GibbsInterSlabConstruction G a)
+  : ∀ x, ∑ y, (buildWilsonInterSlabKernel_gibbs (G:=G) (a:=a) C).kernel x y = 1 :=
+by
+  intro x; exact C.rowsum x
+
+/-- From a Gibbs inter-slab construction `C` and a domination estimate against the
+heat kernel, build a `WilsonGibbsInterface`. This ties the real `W` coming from
+the Gibbs integral to the odd-cone/Doeblin pipeline. -/
+def gibbs_interface_from_construction (G : GeometryPack) (a : ℝ)
+  (C : GibbsInterSlabConstruction G a)
+  (θStar t0 : ℝ) (hθ0 : 0 < θStar) (hθ1 : θStar < 1) (ht0 : 0 < t0)
+  (hDom : ∀ x y, θStar * heatProduct G t0 x y ≤ C.K x y)
+  : WilsonGibbsInterface G a :=
+{ W := buildWilsonInterSlabKernel_gibbs (G:=G) (a:=a) C
+, θStar := θStar
+, t0 := t0
+, θ_pos := hθ0
+, θ_lt_one := hθ1
+, t0_pos := ht0
+, rowSumOne := C.rowsum
+, lowerBound := hDom }
+
+/-- Heat-kernel domination certificate for a Gibbs inter-slab kernel `C` with
+β- and volume-independent parameters `(θ_*, t₀)` threaded by `G`. -/
+structure HeatDomination (G : GeometryPack) (a : ℝ) (C : GibbsInterSlabConstruction G a) where
+  θStar : ℝ := G.thetaStar
+  t0 : ℝ := G.t0
+  θ_pos : 0 < θStar := G.thetaStar_pos
+  θ_lt_one : θStar < 1 := G.thetaStar_lt_one
+  t0_pos : 0 < t0 := G.t0_pos
+  dom : ∀ x y, θStar * heatProduct G t0 x y ≤ C.K x y
+
+/-- From a β- and volume-independent heat-kernel domination certificate, build a
+`WilsonGibbsInterface` for the real inter-slab kernel `W` derived from the Gibbs
+integral. -/
+def gibbs_interface_from_heat_domination
+  (G : GeometryPack) (a : ℝ) (C : GibbsInterSlabConstruction G a)
+  (H : HeatDomination G a C) : WilsonGibbsInterface G a :=
+  gibbs_interface_from_construction (G:=G) (a:=a) (C:=C)
+    (θStar:=H.θStar) (t0:=H.t0) (hθ0:=H.θ_pos) (hθ1:=H.θ_lt_one) (ht0:=H.t0_pos)
+    (hDom:=H.dom)
+
+/-- From a Gibbs inter-slab construction with heat domination, export a PF gap
+at the explicit γ_cut computed from `(a, θ_*, t₀, λ₁)` using the real kernel `W`.
+This is the β-independent Doeblin export with the real Wilson interface kernel. -/
+theorem cut_gap_export_from_heat_domination
+  (G : GeometryPack) (μ : LatticeMeasure) (K_of_μ : LatticeMeasure → TransferKernel)
+  {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0)
+  (C : GibbsInterSlabConstruction G a) (H : HeatDomination G a C)
+  : ∃ γ0 : ℝ, γ0 = gamma_cut_from_interface G a (gibbs_interface_from_heat_domination (G:=G) (a:=a) C H)
+      ∧ 0 < γ0 ∧ TransferPFGap μ (K_of_μ μ) γ0 :=
+by
+  have Gi := gibbs_interface_from_heat_domination (G:=G) (a:=a) C H
+  exact cut_gap_export_from_interface (G:=G) (μ:=μ) (K_of_μ:=K_of_μ) (a:=a) ha ha_le Gi
+
 /-- Build per‑cell Wilson kernels from a concrete Gibbs interface by taking a
 single cell equal to `Gi.W.kernel`. This packages the domination and row‑sum‑one
 properties into a `WilsonGibbsCells` witness. Requires a positive number of cut
