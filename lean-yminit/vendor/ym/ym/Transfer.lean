@@ -17,6 +17,23 @@ YM transfer-operator interface: block positivity → PF spectral gap adapter.
 -/
 
 namespace YM
+
+/-- Real transfer kernel: carries the continuous operator `T` as in the
+interface kernel, and is intended to bundle additional spectral properties
+(self-adjointness, positivity) at call-sites without forcing them here. -/
+structure TransferKernelReal where
+  T : (LatticeMeasure → ℂ) →L[ℂ] (LatticeMeasure → ℂ)
+  deriving Inhabited
+
+/-- Forgetful map to the interface `TransferKernel`. -/
+def TransferKernelReal.toInterface (KR : TransferKernelReal) : TransferKernel :=
+  { T := KR.T }
+
+/-- Real PF-gap semantics specialized to `TransferKernelReal` by forgetting to
+`TransferKernel` and using the strong mean-zero contraction. -/
+def TransferPFGapRealKR (μ : LatticeMeasure) (KR : TransferKernelReal) (γ : ℝ) : Prop :=
+  Transfer.TransferPFGapStrong μ (KR.toInterface) γ
+
 namespace Transfer
 
 open scoped BigOperators
@@ -697,6 +714,54 @@ def TransferPFGapStrong (μ : LatticeMeasure) (K : TransferKernel) (γ : ℝ) : 
 lemma pf_strong_implies_interface (μ : LatticeMeasure) (K : TransferKernel) {γ : ℝ}
     (h : TransferPFGapStrong μ K γ) : TransferPFGap μ K γ :=
   h.left
+
+/-- Real PF-gap semantics specialized to `TransferKernelReal` by forgetting to
+`TransferKernel` and using the strong mean-zero contraction. -/
+def TransferPFGapRealKR (μ : LatticeMeasure) (KR : TransferKernelReal) (γ : ℝ) : Prop :=
+  Transfer.TransferPFGapStrong μ (KR.toInterface) γ
+
+/-- Mean-zero spectral gap semantics for a finite matrix view: any real
+    eigenvalue on the mean-zero sector satisfies `|λ| ≤ 1 - γ`. -/
+def MeanZeroSpectralGap {ι} [Fintype ι] [DecidableEq ι]
+  (V : MatrixView ι) (γ : ℝ) : Prop :=
+  ∀ {lam : ℝ} {f : ι → ℝ}, (∑ i, f i) = 0 →
+    Module.End.HasEigenvector (Matrix.toLin' V.A) lam f → |lam| ≤ 1 - γ
+
+/-- From a uniform strong PF gap at contraction factor `1-γ` for all finite
+    matrix views, derive a mean-zero spectral bound `|λ| ≤ 1 - γ` for any
+    eigenvalue on the mean-zero sector. -/
+theorem mean_zero_gap_from_strong
+  {ι} [Fintype ι] [DecidableEq ι]
+  (V : MatrixView ι) (hrow : RowStochastic V) (hpos : MatrixNonneg V)
+  {γ : ℝ}
+  (hγ : 0 < γ)
+  (hstrong : ∀ {f : ι → ℝ}, (∑ i, f i) = 0 → ∀ M : ℝ,
+    ((∀ j, |f j| ≤ M) → ∀ i, |applyMV V f i| ≤ (1 - γ) * M))
+  : MeanZeroSpectralGap V γ :=
+by
+  intro lam f hsum hev
+  -- Use the existing pointwise mean-zero contraction lemma to bound |λ|
+  have : |lam| ≤ 1 - γ :=
+  by
+    -- Instantiate the generic eigenvalue bound tool with α = 1-γ
+    have hbound :=
+      eigenvalue_abs_le_of_mean_zero_contraction (V:=V)
+        (α:=1-γ)
+        (hcontr:=by
+          intro g hsumg M hMg i
+          exact hstrong (f:=g) hsumg M hMg i)
+        (hsum:=hsum)
+        (heig:=by
+          -- Rewrite applyMV = (Matrix.toLin' V.A) using the helper lemma
+          have := applyMV_eq_toLin (V:=V) (f:=f)
+          -- (Matrix.toLin' V.A) f = lam • f from eigenvector property
+          have : (Matrix.toLin' V.A) f = lam • f :=
+            (Module.End.mem_eigenspace_iff.mp hev.1)
+          -- pointwise equality
+          funext i; simpa [this, Pi.smul_apply, smul_eq_mul])
+        (hfnz:=hev.2)
+    simpa using hbound
+  exact this
 
 /-/ Uniform mean-zero contraction with factor α for all finite matrix views
 yields the strong PF gap with γ = 1 − α. -/

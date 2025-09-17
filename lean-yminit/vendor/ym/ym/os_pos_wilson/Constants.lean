@@ -15,6 +15,10 @@ independence of β and volume, and monotonicity in a where relevant.
 namespace YM
 namespace OSWilson
 
+/-- Local geometric data for the OS cut: number of cut plaquettes/links. -/
+structure LocalGeom where
+  numCutPlaquettes : ℕ
+
 /-- Conservative lookup table for λ₁(N) (first positive Laplace–Beltrami eigenvalue
     on SU(N) with bi-invariant metric scaling absorbed). For small N we tabulate 1;
     otherwise default to 1. Proofs only require positivity. -/
@@ -91,6 +95,30 @@ lemma J_perp_beta_independent (G : CrossCutGeom) (N : ℕ) : beta_independent (J
   intro _ _; rfl
 
 lemma J_perp_volume_independent (G : CrossCutGeom) (N : ℕ) : volume_independent (J_perp G N) := by
+  intro _ _; rfl
+
+/-- Time-aware cross-cut bound used in the small-β route:
+    J_⊥(geom, λ₁, t) is a nonnegative constant depending only on local geometry
+    and heat-kernel parameters (λ₁, t). Interface-level definition with a
+    conservative formula sufficient for nonnegativity and β/L-independence. -/
+def J_perp_bound_time (geom : LocalGeom) (λ1 t : ℝ) : ℝ :=
+  (geom.numCutPlaquettes : ℝ) * Real.exp (-(λ1) * t)
+
+lemma J_perp_bound_time_nonneg (geom : LocalGeom) (λ1 t : ℝ)
+  : 0 ≤ J_perp_bound_time geom λ1 t := by
+  unfold J_perp_bound_time
+  have h1 : 0 ≤ (geom.numCutPlaquettes : ℝ) := by exact_mod_cast Nat.zero_le _
+  have h2 : 0 ≤ Real.exp (-(λ1) * t) := le_of_lt (Real.exp_pos _)
+  simpa using mul_nonneg h1 h2
+
+/-- `J_perp_bound_time` is independent of β (documentation witness). -/
+lemma J_perp_bound_time_beta_independent (geom : LocalGeom) (λ1 t : ℝ)
+  : beta_independent (J_perp_bound_time geom λ1 t) := by
+  intro _ _; rfl
+
+/-- `J_perp_bound_time` is independent of the volume size L (documentation witness). -/
+lemma J_perp_bound_time_volume_independent (geom : LocalGeom) (λ1 t : ℝ)
+  : volume_independent (J_perp_bound_time geom λ1 t) := by
   intro _ _; rfl
 
 end OSWilson

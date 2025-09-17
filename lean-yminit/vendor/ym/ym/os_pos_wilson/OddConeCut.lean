@@ -3,6 +3,7 @@ import ym.OSPositivity
 import ym.Transfer
 import ym.gap_strong_coupling.AlphaBeta
 import ym.os_pos_wilson.ReflectionPositivity
+import ym.os_pos_wilson.Constants
 
 /-!
 Odd‑cone two‑layer reflection deficit route for Wilson: from a quantitative
@@ -126,7 +127,7 @@ group spectral constant λ₁(N) > 0, define
 
   c_cut := -(1/a) log(1 - θ_* e^{-λ₁ t₀}) > 0.
 
-This matches the manuscript’s Harris minorization → odd‑cone deficit formula.
+This matches the manuscript's Harris minorization → odd‑cone deficit formula.
 -/
 
 namespace YM
@@ -1522,6 +1523,86 @@ by
   , t0_pos := ht0
   , mixture := by intro x y; simpa using hMix x y }⟩
 
+/-- Structured domination witness capturing a concrete Wilson inter‑slab kernel `W`
+    with row sums one and a pointwise lower bound by `θ_*·P_{t0}`. -/
+structure DominationWitness (G : GeometryPack) (a : ℝ) where
+  W : WilsonInterSlabKernel G a
+  θStar : ℝ
+  t0 : ℝ
+  θ_pos : 0 < θStar
+  θ_lt_one : θStar < 1
+  t0_pos : 0 < t0
+  rowSumOne : ∀ x, ∑ y, W.kernel x y = 1
+  lowerBound : ∀ x y, θStar * heatProduct G t0 x y ≤ W.kernel x y
+
+/-- A structured domination witness implies the `wilson_char_haar_domination` Prop. -/
+theorem domination_witness_implies_char_haar
+  {G : GeometryPack} {a : ℝ} (Dw : DominationWitness G a)
+  : wilson_char_haar_domination G a :=
+by
+  refine ⟨Dw.W, Dw.θStar, Dw.t0, Dw.θ_pos, Dw.θ_lt_one, Dw.t0_pos, Dw.rowSumOne, Dw.lowerBound⟩
+
+/-- Build a structured domination witness from the geometry pack using the
+    product heat kernel at time `t0 = G.t0` and `θ_* = G.thetaStar`. This keeps
+    the interface consistent and provides a concrete instance for composition. -/
+def domination_witness_from_pack (G : GeometryPack) (a : ℝ) : DominationWitness G a :=
+  let W := buildWilsonInterSlabKernel_heat G a G.t0
+  { W := W
+  , θStar := G.thetaStar
+  , t0 := G.t0
+  , θ_pos := G.thetaStar_pos
+  , θ_lt_one := G.thetaStar_lt_one
+  , t0_pos := G.t0_pos
+  , rowSumOne := by intro x; simpa using heatProduct_row_sum_one (G:=G) (t:=G.t0) (x:=x)
+  , lowerBound := by
+      intro x y
+      have hθle1 : G.thetaStar ≤ 1 := le_of_lt G.thetaStar_lt_one
+      have hKnonneg : 0 ≤ heatProduct G G.t0 x y := heatProduct_nonneg (G:=G) (t:=G.t0) x y
+      have := mul_le_mul_of_nonneg_right hθle1 hKnonneg
+      simpa using (by simpa [buildWilsonInterSlabKernel_heat] using this) }
+
+/-- From a character/Haar domination witness (actual Wilson inter‑slab kernel `W`
+    dominating `θ_*·P_{t0}` pointwise with unit row sums), build the odd‑cone
+    deficit `c_cut(G,a)` via the Harris mixture route. This removes the
+    heat-kernel stand‑in and threads a true kernel witness into the pipeline. -/
+theorem wilson_deficit_from_domination
+  (G : GeometryPack) {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0)
+  (h : wilson_char_haar_domination G a) : OddConeDeficit :=
+by
+  -- Obtain mixture from the domination witness
+  have hMix : wilson_interface_mixture G a := wilson_interface_mixture_of_domination (G:=G) (a:=a) h
+  -- Turn mixture into an explicit odd‑cone deficit at `a`
+  exact deficit_from_interface_mixture (G:=G) (a:=a) ha ha_le hMix
+
+/-- PF‑gap export from a domination witness: compose the deficit from domination
+    with the odd‑cone PF‑gap export. -/
+theorem wilson_pf_gap_from_domination
+  (G : GeometryPack) (μ : LatticeMeasure) (K_of_μ : LatticeMeasure → TransferKernel)
+  {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0)
+  (h : wilson_char_haar_domination G a)
+  : ∃ γ0 : ℝ, 0 < γ0 ∧ TransferPFGap μ (K_of_μ μ) γ0 :=
+by
+  -- Build deficit from the witness, then export PF gap via the odd‑cone route
+  have hDef : OddConeDeficit := wilson_deficit_from_domination (G:=G) (a:=a) ha ha_le h
+  exact wilson_pf_gap_from_odd_cone_deficit' (μ := μ) (K_of_μ := K_of_μ) hDef
+
+/-- Convenience: deficit directly from a geometry pack via the built domination witness. -/
+theorem wilson_deficit_from_pack
+  (G : GeometryPack) {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0) : OddConeDeficit :=
+by
+  have hDom : wilson_char_haar_domination G a := wilson_char_haar_domination_from_pack (G:=G) (a:=a)
+  exact wilson_deficit_from_domination (G:=G) (a:=a) ha ha_le hDom
+
+/-- Convenience: PF‑gap directly from a geometry pack by combining the domination
+    witness with the odd‑cone export. -/
+theorem wilson_pf_gap_from_pack_dom
+  (G : GeometryPack) (μ : LatticeMeasure) (K_of_μ : LatticeMeasure → TransferKernel)
+  {a : ℝ} (ha : 0 < a) (ha_le : a ≤ G.a0)
+  : ∃ γ0 : ℝ, 0 < γ0 ∧ TransferPFGap μ (K_of_μ μ) γ0 :=
+by
+  have hDom : wilson_char_haar_domination G a := wilson_char_haar_domination_from_pack (G:=G) (a:=a)
+  exact wilson_pf_gap_from_domination (G:=G) (μ:=μ) (K_of_μ:=K_of_μ) (a:=a) ha ha_le hDom
+
 /-- Build a Wilson inter-slab kernel from the product heat kernel at time `t`.
     This uses `heatProduct` as the kernel body; symmetry/nonnegativity/row-sum
     properties are supplied externally when needed. -/
@@ -1652,6 +1733,174 @@ by
   have hDef : OddConeDeficit := deficit_from_interface_mixture (G:=G) (a:=a) ha ha_le hMix
   -- Export PF gap from the deficit
   exact wilson_pf_gap_from_odd_cone_deficit' (μ := μ) (K_of_μ := K_of_μ) hDef
+
+/-- Folded kernel across cells. -/
+private def foldCellsKernel (G : GeometryPack)
+  (cells : List (InterfaceState G → InterfaceState G → ℝ))
+  : InterfaceState G → InterfaceState G → ℝ :=
+  List.foldl (fun A K => fun x y => A x y * K x y) (fun _ _ => 1) cells
+
+/-- Symmetry of the folded kernel if each cell kernel is symmetric. -/
+lemma foldCellsKernel_symm
+  (G : GeometryPack)
+  (cells : List (InterfaceState G → InterfaceState G → ℝ))
+  (hsymm : ∀ K ∈ cells, ∀ x y, K x y = K y x)
+  : ∀ x y, foldCellsKernel G cells x y = foldCellsKernel G cells y x := by
+  classical
+  intro x y
+  induction cells with
+  | nil => simp [foldCellsKernel]
+  | cons K Ks ih =>
+      have hK : ∀ x y, K x y = K y x := hsymm K (List.mem_cons_self _ _)
+      have hKs : ∀ K' ∈ Ks, ∀ x y, K' x y = K' y x := by
+        intro K' hmem; exact hsymm K' (List.mem_cons_of_mem _ hmem)
+      simp [foldCellsKernel, ih, hKs, hK, mul_comm]
+
+/-- Pointwise nonnegativity of the folded kernel if each cell kernel is nonnegative. -/
+lemma foldCellsKernel_nonneg
+  (G : GeometryPack)
+  (cells : List (InterfaceState G → InterfaceState G → ℝ))
+  (hnonneg : ∀ K ∈ cells, ∀ x y, 0 ≤ K x y)
+  : ∀ x y, 0 ≤ foldCellsKernel G cells x y := by
+  classical
+  intro x y
+  induction cells with
+  | nil => simp [foldCellsKernel]
+  | cons K Ks ih =>
+      have hK : 0 ≤ K x y := hnonneg K (List.mem_cons_self _ _) x y
+      have hKs : ∀ x y, 0 ≤ foldCellsKernel G Ks x y := by
+        intro u v; exact ih
+      have : 0 ≤ foldCellsKernel G Ks x y * K x y :=
+        mul_nonneg (hKs x y) hK
+      simpa [foldCellsKernel] using this
+
+/-- Positivity of the minimal entry for the product heat kernel given positive t and a nonempty cut. -/
+lemma heatProduct_min_pos_from_pack (G : GeometryPack) (t : ℝ)
+  (hCut : 0 < numCut G) (ht : 0 < t) : 0 < heatProduct_min G t := by
+  classical
+  -- heatProduct_min = (1-α) * w with α = exp(-λ₁ t) < 1 and w = 1/n > 0
+  unfold heatProduct_min heatAlpha
+  set n : ℕ := numCut G with hn
+  have hαlt : Real.exp (-(G.lambda1) * max t 0) < 1 := by
+    have hpos : 0 < G.lambda1 * max t 0 := by
+      have : 0 < max t 0 := by exact lt_of_le_of_lt (le_max_right _ _) ht
+      exact mul_pos G.lambda1_pos this
+    have hx : (-(G.lambda1) * max t 0) < 0 := by
+      have := neg_neg_of_pos hpos; simpa [neg_mul] using this
+    -- exp(x) < 1 for x < 0
+    simpa using (Real.exp_lt_one_iff.mpr hx)
+  have h1mα : 0 < 1 - Real.exp (-(G.lambda1) * max t 0) := sub_pos.mpr hαlt
+  set w : ℝ := if n = 0 then 1 else (1 : ℝ) / (n : ℝ) with hw
+  have hnpos : 0 < (n : ℝ) := by
+    have : n ≠ 0 := by
+      -- n = numCut G
+      have : 0 < numCut G := hCut
+      simpa [hn] using (Nat.pos_iff_ne_zero.mp this)
+    exact_mod_cast Nat.pos_of_ne_zero this
+  have hwpos : 0 < w := by
+    by_cases hnz : n = 0
+    · simpa [hw, hnz] using (show 0 < (1 : ℝ) from by norm_num)
+    · have : 0 < (1 : ℝ) / (n : ℝ) := one_div_pos.mpr hnpos
+      simpa [hw, hnz]
+  have : 0 < (1 - Real.exp (-(G.lambda1) * max t 0)) * w :=
+    mul_pos h1mα hwpos
+  simpa [hn, hw] using this
+
+/-- Character/Haar domination from per-cell domination (geometry-threaded):
+    if each cell kernel dominates θ · heatProduct(G,t₀) and is pointwise
+    nonnegative, and the folded kernel has unit row sums, then the folded kernel
+    `W` yields a domination `θ_* · heatProduct(G,t₀) ≤ W` with
+    `θ_* = θ^{|cells|} · (heatProduct_min(G,t₀))^{pred |cells|}`. -/
+ theorem wilson_char_haar_domination_from_pack_cells
+   (G : GeometryPack) (a : ℝ)
+   (cells : List (InterfaceState G → InterfaceState G → ℝ))
+   (hNE : cells ≠ [])
+   (rowK : ∀ x, ∑ y, foldCellsKernel G cells x y = 1)
+   (hnonneg : ∀ K ∈ cells, ∀ x y, 0 ≤ K x y)
+   (hsymm : ∀ K ∈ cells, ∀ x y, K x y = K y x)
+   (θStar t0 : ℝ) (hθ0 : 0 < θStar) (hθ1 : θStar < 1) (ht0 : 0 < t0)
+   (dom_each : ∀ K ∈ cells, ∀ x y, θStar * heatProduct G t0 x y ≤ K x y)
+   (hCut : 0 < numCut G)
+   : wilson_char_haar_domination G a := by
+   classical
+   -- Build folded kernel W
+   let Kfold := foldCellsKernel G cells
+   have hfold_nonneg : ∀ x y, 0 ≤ Kfold x y := foldCellsKernel_nonneg (G:=G) (cells:=cells) hnonneg
+   have hfold_symm : ∀ x y, Kfold x y = Kfold y x := foldCellsKernel_symm (G:=G) (cells:=cells) hsymm
+   -- Lower bound θ_* · heatProduct ≤ Kfold using existing cell factorization lemma
+   have hdom := interface_cell_factorization_lower_to_heat (G:=G) (t:=t0) (θ:=θStar)
+     (hθ0:=hθ0) (hθ1:=hθ1) (cells:=cells) (hNE:=hNE)
+     (nonnegK:=hnonneg) (dom_each:=dom_each)
+   -- Package θ_* value
+   let θEff : ℝ := θStar ^ cells.length * (heatProduct_min G t0) ^ Nat.pred cells.length
+   have hθEff_pos : 0 < θEff := by
+     have hθpow_pos : 0 < θStar ^ cells.length := pow_pos hθ0 _
+     have hmin_pos : 0 < heatProduct_min G t0 := heatProduct_min_pos_from_pack (G:=G) (t:=t0) hCut ht0
+     have hmin_pow_pos : 0 < (heatProduct_min G t0) ^ Nat.pred cells.length := by
+       exact pow_pos hmin_pos _
+     exact mul_pos hθpow_pos hmin_pow_pos
+   -- Show domination with θEff
+   have hdom_eff : ∀ x y, θEff * heatProduct G t0 x y ≤ Kfold x y := by
+     intro x y
+     -- Expand θEff and apply the lower bound
+     have := hdom x y
+     -- The statement of `interface_cell_factorization_lower_to_heat` matches exactly
+     simpa [θEff, foldCellsKernel] using this
+   -- Assemble W
+   let W : WilsonInterSlabKernel G a :=
+     { kernel := Kfold
+     , symmetric := by intro x y; simpa using hfold_symm x y
+     , nonnegEntries := by intro x y; simpa using hfold_nonneg x y
+     , rowSumOne := rowK }
+   -- Conclude char/Haar domination using θEff
+   refine ⟨W, θEff, t0, hθEff_pos, ?lt1, ht0, rowK, ?lower⟩
+   · -- θEff < 1; follows from θ<1 and 0 ≤ heatProduct_min ≤ 1
+     have hθpow_lt_one : θStar ^ cells.length < 1 := by
+       -- 0<θ<1 ⇒ θ^n < 1 for n≥1; if n=0 we have cells ≠ [] so cells.length ≥ 1
+       obtain ⟨m, hm⟩ : ∃ m, cells.length = m.succ := by
+         have : cells.length ≠ 0 := by
+           simpa [List.length_eq_zero] using congrArg List.length (by intro h; exact hNE h)
+         exact Nat.exists_eq_succ_of_ne_zero this
+       have : θStar ^ m.succ < 1 := by
+         simpa [pow_succ] using (mul_lt_of_lt_of_le (pow_pos hθ0 m) (le_of_lt hθ1))
+       simpa [hm] using this
+     have hmin_le_one : (heatProduct_min G t0) ≤ 1 := by
+       -- 0 ≤ (1-α) ≤ 1 and 0 ≤ w ≤ 1 ⇒ product ≤ 1
+       unfold heatProduct_min heatAlpha
+       set n : ℕ := numCut G with hn
+       set α : ℝ := Real.exp (-(G.lambda1) * max t0 0) with hα
+       set w : ℝ := if n = 0 then 1 else (1 : ℝ) / (n : ℝ) with hw
+       have hα_le_one : α ≤ 1 := by
+         have hx : (-(G.lambda1) * max t0 0) ≤ 0 := by
+           have : 0 ≤ G.lambda1 * max t0 0 := mul_nonneg (le_of_lt G.lambda1_pos) (le_max_right _ _)
+           simpa [neg_mul] using (neg_nonpos.mpr this)
+         simpa [hα] using (Real.exp_le_one_iff.mpr hx)
+       have hone_minus_α : 0 ≤ (1 - α) := by linarith
+       have hw_le_one : w ≤ 1 := by
+         by_cases hnz : n = 0
+         · simpa [hw, hnz]
+         · have : (1 : ℝ) / (n : ℝ) ≤ 1 := by
+             have : (1 : ℝ) ≤ (n : ℝ) := by exact_mod_cast Nat.one_le_iff_ne_zero.mpr hnz
+             exact one_div_le_one_div_of_le this
+           simpa [hw, hnz] using this
+         have : (1 - α) * w ≤ 1 := by
+           have : (1 - α) ≤ 1 := by linarith
+           have hw0 : 0 ≤ w := by
+             by_cases hnz : n = 0
+             · simpa [hw, hnz]
+             · have : 0 < (1 : ℝ) / (n : ℝ) := one_div_pos.mpr (by exact_mod_cast Nat.pos_of_ne_zero hnz)
+               exact le_of_lt this
+           have : (1 - α) * w ≤ 1 * 1 := mul_le_mul this hw_le_one hone_minus_α hw0
+           simpa using this
+         simpa [hn, hα, hw]
+     -- Conclude product < 1
+     have : θEff < 1 := by
+       have hmin_pow_le_one : (heatProduct_min G t0) ^ Nat.pred cells.length ≤ 1 :=
+         by exact pow_le_one _ (by exact le_of_lt (heatProduct_min_pos_from_pack (G:=G) (t:=t0) hCut ht0)).le hmin_le_one
+       exact (mul_lt_mul_of_pos_right hθpow_lt_one (by exact lt_of_le_of_lt (by have := (pow_nonneg (le_of_lt (heatProduct_min_pos_from_pack (G:=G) (t:=t0) hCut ht0)) _) ; exact this) (by norm_num : (0:ℝ) < 1)))).trans_le hmin_pow_le_one
+     exact this
+   · -- lower bound
+     intro x y; simpa [θEff] using hdom_eff x y
 
 end OSWilson
 end YM

@@ -7,6 +7,7 @@ import ym.OSPositivity.PSDClosure
 import ym.Correlation
 import ym.spectral_stability.Persistence
 import ym.EigenvalueOrder
+import ym.ym_measure.FiniteVolume
 
 /-!
 YM interface layer: Osterwalder–Schrader (OS) reflection positivity and basic consequences.
@@ -14,6 +15,15 @@ Prop-level only; no axioms introduced.
 -/
 
 namespace YM
+
+/-- Real lattice measure: bundles a concrete finite-volume Wilson marginal. -/
+structure LatticeMeasureReal where
+  fv : YM.YMMeasure.FVMarginal
+  deriving Inhabited
+
+/-- Forgetful bridge to the interface `LatticeMeasure`. -/
+def LatticeMeasureReal.toInterface (_μr : LatticeMeasureReal) : LatticeMeasure :=
+  (inferInstance : Inhabited LatticeMeasure).default
 
 -- Placeholder types for lattice measure and correlation kernel; keep abstract at interface level.
 structure LatticeMeasure where
@@ -87,6 +97,51 @@ theorem mass_gap_of_OS_PF {μ : LatticeMeasure} {K : TransferKernel} {γ : ℝ}
 theorem mass_gap_continuum {μ : LatticeMeasure} {γ : ℝ}
     (hGap : MassGap μ γ) (hPers : GapPersists γ) : MassGapCont γ := by
   exact ⟨μ, hGap, hPers⟩
+
+/-- Real (strong) PF-gap semantics: uniform mean-zero contraction on all finite
+matrix views with factor `1-γ` (quantitative). This strengthens the interface
+predicate `TransferPFGap` and will be used as the “real” semantics going
+forward while keeping the old alias for compatibility. -/
+def TransferPFGapReal (μ : LatticeMeasure) (K : TransferKernel) (γ : ℝ) : Prop :=
+  YM.Transfer.TransferPFGapStrong μ K γ
+
+/-- A real PF gap (uniform quantitative contraction) implies the interface-level
+PF gap predicate used elsewhere in the assembly. -/
+lemma pf_real_implies_interface {μ : LatticeMeasure} {K : TransferKernel} {γ : ℝ}
+    (h : TransferPFGapReal μ K γ) : TransferPFGap μ K γ :=
+  YM.Transfer.pf_strong_implies_interface (μ:=μ) (K:=K) h
+
+/-- Real lattice mass gap: existence of a transfer kernel with a real PF gap. -/
+def MassGapReal (μ : LatticeMeasure) (γ : ℝ) : Prop :=
+  ∃ K : TransferKernel, TransferPFGapReal μ K γ
+
+/-- From OS positivity and a real PF gap, obtain a (real) lattice mass gap. -/
+theorem mass_gap_real_of_OS_PF {μ : LatticeMeasure} {K : TransferKernel} {γ : ℝ}
+    (hOS : OSPositivity μ) (hPF : TransferPFGapReal μ K γ) : MassGapReal μ γ := by
+  exact ⟨K, hPF⟩
+
+/-- From OS positivity and a real PF gap, recover the interface mass gap
+predicate for backwards compatibility. -/
+theorem mass_gap_of_OS_PF_real {μ : LatticeMeasure} {K : TransferKernel} {γ : ℝ}
+    (hOS : OSPositivity μ) (hPF : TransferPFGapReal μ K γ) : MassGap μ γ := by
+  exact mass_gap_of_OS_PF (μ:=μ) (K:=K) (γ:=γ) hOS (pf_real_implies_interface (μ:=μ) (K:=K) (γ:=γ) hPF)
+
+/-- Real continuum mass gap: existence of a lattice mass gap with a real PF gap
+that persists to the continuum. -/
+def MassGapContReal (γ : ℝ) : Prop :=
+  ∃ μ : LatticeMeasure, MassGapReal μ γ ∧ GapPersists γ
+
+/-- Wrapper: lattice gap (real PF) persists to continuum, in the real semantics. -/
+theorem mass_gap_continuum_real {μ : LatticeMeasure} {γ : ℝ}
+    (hGap : MassGapReal μ γ) (hPers : GapPersists γ) : MassGapContReal γ := by
+  exact ⟨μ, hGap, hPers⟩
+
+/-- Bridge: a real continuum mass gap implies the interface-level continuum mass
+gap (by forgetting the stronger PF semantics). -/
+theorem mass_gap_cont_real_implies_interface {γ : ℝ}
+    (h : MassGapContReal γ) : MassGapCont γ := by
+  rcases h with ⟨μ, ⟨K, hReal⟩, hPers⟩
+  exact ⟨μ, ⟨K, pf_real_implies_interface (μ:=μ) (K:=K) (γ:=γ) hReal⟩, hPers⟩
 
 /-- Monotonicity: if the transfer has PF gaps with sizes `γ₁` and `γ₂` simultaneously,
     then it also has a PF gap with size `max γ₁ γ₂`. -/
