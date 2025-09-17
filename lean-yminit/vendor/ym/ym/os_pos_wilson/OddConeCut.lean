@@ -1902,5 +1902,39 @@ lemma heatProduct_min_pos_from_pack (G : GeometryPack) (t : ℝ)
    · -- lower bound
      intro x y; simpa [θEff] using hdom_eff x y
 
+namespace YM
+namespace OSWilson
+
+open YM
+
+/-- Uniform mean-zero contraction predicate for a kernel `K` with factor `α` on
+    every finite matrix view (row-stochastic with nonnegative entries). -/
+def UniformContraction (K : TransferKernel) (α : ℝ) : Prop :=
+  0 ≤ α ∧ α < 1 ∧
+  ∀ {ι} [Fintype ι] [DecidableEq ι]
+    (V : YM.Transfer.MatrixView ι), YM.Transfer.RowStochastic V → YM.Transfer.MatrixNonneg V →
+    ∀ f : ι → ℝ, (∑ i, f i) = 0 →
+    ∀ M : ℝ, ( (∀ j, |f j| ≤ M) → ∀ i, |YM.Transfer.applyMV V f i| ≤ α * M )
+
+/-- From uniform mean-zero contraction by `α` on all finite matrix views, obtain a
+    strong PF gap with `γ = 1 − α`. -/
+theorem pf_gap_strong_if_uniform_contraction
+  (μ : LatticeMeasure) (K : TransferKernel) {α : ℝ}
+  (h : UniformContraction K α) :
+  YM.Transfer.TransferPFGapStrong μ K (1 - α) := by
+  rcases h with ⟨hα0, hα1, hcontr⟩
+  exact YM.Transfer.pf_gap_strong_of_uniform_contraction (μ:=μ) (K:=K) ⟨hα0, hα1⟩ (by
+    intro ι _ _ V hrow hpos f hsum M hM i
+    exact hcontr V hrow hpos f hsum M hM i)
+
+/-- From a strong PF gap, obtain a kernel-level uniform mean-zero spectral gap on
+    all finite matrix views. -/ 
+theorem kernel_mz_gap_from_uniform_contraction
+  (μ : LatticeMeasure) (K : TransferKernel) {α : ℝ}
+  (h : UniformContraction K α) :
+  YM.Transfer.KernelMeanZeroSpectralGap μ K (1 - α) := by
+  have hstrong := pf_gap_strong_if_uniform_contraction (μ:=μ) (K:=K) h
+  exact YM.Transfer.kernel_mz_gap_from_strong (μ:=μ) (K:=K) (γ:=1-α) hstrong
+
 end OSWilson
 end YM
