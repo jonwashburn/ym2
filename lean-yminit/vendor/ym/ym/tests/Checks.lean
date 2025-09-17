@@ -13,5 +13,3 @@ Quick verification checks (build-time smoke tests).
 -- If spectral exports are in scope, uncomment these checks when wired:
 -- #check YM.continuum_mass_gap_spectral_export
 -- #print axioms YM.continuum_mass_gap_spectral_export
-
-

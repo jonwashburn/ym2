@@ -148,6 +148,21 @@ theorem unconditional_mass_gap_real_export : ∃ γ : ℝ, 0 < γ ∧ MassGapCon
   have hPers : GapPersists γ0 := gap_persists_via_Lipschitz (γ:=γ0) hγpos
   exact ⟨γ0, hγpos, continuum_mass_gap_export hGap hPers⟩
 
+/-- Spectral statement alias: existence of a continuum mass gap in the spectral
+    (mean-zero) sense. -/
+def unconditional_mass_gap_spectral_statement : Prop :=
+  ∃ γ : ℝ, 0 < γ ∧ MassGapContSpectral γ
+
+/-- Export: if there is a real PF lattice gap for some `μ` and persistence holds,
+    then the spectral (mean-zero) continuum mass gap holds. This wires the
+    spectral wrappers into the main API without removing the legacy aliases. -/
+theorem unconditional_mass_gap_spectral_export_if_real_pf
+  {μ : LatticeMeasure} {γ : ℝ}
+  (hGapReal : ∃ K : TransferKernel, TransferPFGapReal μ K γ)
+  (hPers : GapPersists γ) : unconditional_mass_gap_spectral_statement := by
+  have hContSpec : MassGapContSpectral γ := continuum_mass_gap_spectral_export (μ:=μ) (γ:=γ) hGapReal hPers
+  exact ⟨γ, hPers.2, hContSpec⟩
+
 /-- Public statement alias used by docs/tests. -/
 def unconditional_mass_gap_statement : Prop :=
   ∃ γ : ℝ, 0 < γ ∧ MassGapCont γ
