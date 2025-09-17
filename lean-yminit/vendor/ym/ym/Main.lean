@@ -184,6 +184,14 @@ theorem wilson_pipeline_yields_spectral_gap_if_uniform_contraction
     continuum_mass_gap_spectral_export (μ:=μ) (γ:=1-α) ⟨K_of_μ μ, hReal⟩ hPers
   exact ⟨1 - α, by have : α < 1 := (And.right (And.left hContr)); have : 0 < 1 - α := by linarith; exact this, hSpec⟩
 
+/-- Helper: directly expose a kernel-level uniform mean-zero spectral gap for the
+    Wilson OS transfer kernel under a uniform contraction hypothesis. -/
+theorem wilson_kernel_mz_gap_if_uniform_contraction
+  (μ : LatticeMeasure) (K_of_μ : LatticeMeasure → TransferKernel)
+  {α : ℝ} (h : YM.OSWilson.UniformContraction (K_of_μ μ) α)
+  : YM.Transfer.KernelMeanZeroSpectralGap μ (K_of_μ μ) (1 - α) :=
+  YM.OSWilson.kernel_mz_gap_from_uniform_contraction (μ:=μ) (K:=(K_of_μ μ)) h
+
 /-- Public statement alias used by docs/tests. -/
 def unconditional_mass_gap_statement : Prop :=
   ∃ γ : ℝ, 0 < γ ∧ MassGapCont γ
