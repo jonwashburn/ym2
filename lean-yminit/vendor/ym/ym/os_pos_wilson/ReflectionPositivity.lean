@@ -73,9 +73,9 @@ theorem wilson_corr_to_OS
 
 theorem reflection_positivity_stub : True := by trivial
 
-/-!  
-Character‑expansion OS2: package a crossing kernel together with Hermitian and 
-reflected positive‑definite properties, and export OS positivity.  
+/-!
+Character‑expansion OS2: package a crossing kernel together with Hermitian and
+reflected positive‑definite properties, and export OS positivity.
 This provides a concrete, non‑placeholder hook for the Wilson character expansion.
 -/
 
@@ -85,6 +85,17 @@ structure CharacterCrossing where
   pd_reflected : ∀ {ι : Type} [Fintype ι] [DecidableEq ι]
     (f : ι → Observable) (c : ι → Complex),
     0 ≤ (∑ i, ∑ j, Complex.conj (c i) * K (f i) (reflect R_time (f j)) * (c j)).re
+
+/-- Package a given Hermitian kernel together with a reflected PSD Gram into a
+`CharacterCrossing`. -/
+@[simp] def characterCrossingOfKernel
+  (K : Observable → Observable → Complex)
+  (hHerm : SesqHermitian K)
+  (hPSD : ∀ {ι : Type} [Fintype ι] [DecidableEq ι]
+    (f : ι → Observable) (c : ι → Complex),
+    0 ≤ (∑ i, ∑ j, Complex.conj (c i) * K (f i) (reflect R_time (f j)) * (c j)).re)
+  : CharacterCrossing :=
+{ K := K, herm := hHerm, pd_reflected := by intro ι _ _ f c; simpa using hPSD (f:=f) (c:=c) }
 
 /-- From a Hermitian crossing kernel with PSD reflected Gram, obtain OS positivity. -/
 theorem wilson_OS_from_character_crossing
