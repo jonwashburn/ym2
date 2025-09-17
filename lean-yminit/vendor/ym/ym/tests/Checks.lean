@@ -10,6 +10,5 @@ Quick verification checks (build-time smoke tests).
 
 #print axioms YM.unconditional_mass_gap
 
--- If spectral exports are in scope, uncomment these checks when wired:
--- #check YM.continuum_mass_gap_spectral_export
--- #print axioms YM.continuum_mass_gap_spectral_export
+#check YM.unconditional_mass_gap_spectral_export_if_real_pf
+#print axioms YM.unconditional_mass_gap_spectral_export_if_real_pf
