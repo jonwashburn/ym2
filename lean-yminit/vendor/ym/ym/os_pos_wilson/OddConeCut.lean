@@ -1814,6 +1814,36 @@ def gibbs_cells_from_inter_slab (G : GeometryPack) (a : ℝ)
 , dom_each := H.dom_each
 , cut_pos := H.cut_pos }
 
+/-- Concrete per‑cell Gibbs witness built from the product heat kernel at time `G.t0`.
+Requires a positive number of cut cells to carry geometry (used elsewhere). -/
+def gibbs_cells_heat (G : GeometryPack) (a : ℝ)
+  (hCut : 0 < numCut G) : WilsonGibbsCells G a :=
+{ cells := [heatProduct G G.t0]
+, nonempty := by simp
+, rowSumOne_fold := by
+    intro x; simp [foldCellsKernel, List.foldl, heatProduct_row_sum_one]
+, nonneg_each := by
+    intro K hmem x y
+    rcases List.mem_singleton.mp hmem with rfl
+    exact heatProduct_nonneg (G:=G) (t:=G.t0) x y
+, symm_each := by
+    intro K hmem x y
+    rcases List.mem_singleton.mp hmem with rfl
+    exact heatProduct_symm (G:=G) (t:=G.t0) x y
+, θStar := G.thetaStar
+, t0 := G.t0
+, θ_pos := G.thetaStar_pos
+, θ_lt_one := G.thetaStar_lt_one
+, t0_pos := G.t0_pos
+, dom_each := by
+    intro K hmem x y
+    rcases List.mem_singleton.mp hmem with rfl
+    have hθle1 : G.thetaStar ≤ 1 := le_of_lt G.thetaStar_lt_one
+    have hKnonneg : 0 ≤ heatProduct G G.t0 x y := heatProduct_nonneg (G:=G) (t:=G.t0) x y
+    have := mul_le_mul_of_nonneg_right hθle1 hKnonneg
+    simpa using this
+, cut_pos := hCut }
+
 /-- PF gap from a concrete Wilson Gibbs per‑cell witness by folding cells and
 applying the Harris/odd‑cone route. -/
 theorem wilson_pf_gap_from_gibbs_cells
