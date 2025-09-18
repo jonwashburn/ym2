@@ -452,6 +452,13 @@ theorem gamma_eq_derive_c_cut (P : GapFromDoeblinParams) :
   rcases (by simpa using (gap_from_doeblin_via_derive P)) with ⟨_, _, _, hγ⟩
   simpa using hγ
 
+@[simp] theorem to_continuum_params_gamma_eq_derive_c_cut (P : GapFromDoeblinParams) :
+  (to_continuum_params (build_gap_from_doeblin P)).gamma_phys =
+    (YM.OSWilson.DeriveGap.build_derive
+      { minor := { thetaStar := P.kappa0, t0 := P.t0 }, lambda1 := P.lambda1, S0 := P.S0, a := P.a }).c_cut := by
+  -- Reduce the LHS via `to_continuum_params_build_gamma` then reuse `gamma_eq_derive_c_cut`.
+  simpa using (gamma_eq_derive_c_cut P)
+
 /-! Glue: obtain per-tick contraction parameters directly from DoeblinSetupOut. -/
 
 def build_per_tick_from_doeblin_setup (S : YM.OSWilson.Doeblin.DoeblinSetupOut) : PerTickParams :=
