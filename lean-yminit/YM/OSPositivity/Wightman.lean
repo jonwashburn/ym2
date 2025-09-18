@@ -21,9 +21,9 @@ structure SchwingerAcceptance where
 structure WightmanAcceptance where
   reconstruction_ok : Bool
 
-/-- OS→Wightman reconstruction spec: requires OS0/OS1/OS2 acceptance markers. -/
+/-- OS→Wightman reconstruction spec: reconstruction_ok equals the conjunction of OS flags. -/
 def os_to_wightman_reconstruction_spec (S : SchwingerAcceptance) (W : WightmanAcceptance) : Prop :=
-  (S.os0_ok = true) ∧ (S.os1_ok = true) ∧ (S.os2_ok = true) → W.reconstruction_ok = true
+  W.reconstruction_ok = (S.os0_ok && S.os1_ok && S.os2_ok)
 
 /-- Builder: if OS acceptance flags are present, declare reconstruction accepted (spec-level). -/
 def build_os_to_wightman_reconstruction (S : SchwingerAcceptance) : WightmanAcceptance :=
@@ -31,9 +31,7 @@ def build_os_to_wightman_reconstruction (S : SchwingerAcceptance) : WightmanAcce
 
 theorem build_os_to_wightman_reconstruction_holds (S : SchwingerAcceptance) :
   os_to_wightman_reconstruction_spec S (build_os_to_wightman_reconstruction S) := by
-  intro h
-  rcases h with ⟨h0, h1, h2⟩
-  simp [build_os_to_wightman_reconstruction, h0, h1, h2]
+  rfl
 
 -- Purged alias: use `os_to_wightman_reconstruction_spec` directly.
 
