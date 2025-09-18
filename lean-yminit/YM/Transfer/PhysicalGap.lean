@@ -622,6 +622,32 @@ def c_cut_of (a beta0 : Float) : Float :=
 @[simp] theorem c_cut_of_def (a beta0 : Float) :
   c_cut_of a beta0 = - (Float.log (Float.max 1e-9 (1.0 - beta0))) / a := rfl
 
+/-- Helper: the argument inside log used by `c_cut_of`. -/
+def ccut_arg (beta0 : Float) : Float := Float.max 1e-9 (1.0 - beta0)
+
+@[simp] theorem ccut_arg_def (beta0 : Float) :
+  ccut_arg beta0 = Float.max 1e-9 (1.0 - beta0) := rfl
+
+@[simp] theorem ccut_arg_of_right (beta0 : Float)
+  (h : 1e-9 ≤ 1.0 - beta0) :
+  ccut_arg beta0 = (1.0 - beta0) := by
+  simpa [ccut_arg] using (max_eq_right h)
+
+@[simp] theorem ccut_arg_of_left (beta0 : Float)
+  (h : 1.0 - beta0 ≤ 1e-9) :
+  ccut_arg beta0 = 1e-9 := by
+  simpa [ccut_arg] using (max_eq_left h)
+
+@[simp] theorem c_cut_of_simplify_right (a beta0 : Float)
+  (h : 1e-9 ≤ 1.0 - beta0) :
+  c_cut_of a beta0 = - (Float.log (1.0 - beta0)) / a := by
+  simp [c_cut_of, max_eq_right h]
+
+@[simp] theorem c_cut_of_simplify_left (a beta0 : Float)
+  (h : 1.0 - beta0 ≤ 1e-9) :
+  c_cut_of a beta0 = - (Float.log 1e-9) / a := by
+  simp [c_cut_of, max_eq_left h]
+
 /-- Gamma equals c_cut in the current normalization. -/
 theorem gamma_phys_eq_c_cut_of (P : GapFromDoeblinParams) :
   (build_gap_from_doeblin P).gamma_phys = c_cut_of P.a (build_gap_from_doeblin P).beta0 := by
