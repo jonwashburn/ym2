@@ -28,6 +28,9 @@ def build_per_tick (P : PerTickParams) : PerTickOut :=
 theorem build_per_tick_satisfies (P : PerTickParams) :
   per_tick_spec P (build_per_tick P) := by rfl
 
+@[simp] theorem build_per_tick_factor (P : PerTickParams) :
+  (build_per_tick P).factor = P.thetaStar := rfl
+
 /-- Helper: extract (θ_*, t0) from Doeblin setup. -/
 def build_per_tick_from_doeblin (O : YM.OSWilson.Doeblin.DoeblinSetupOut) (lambda1 : Float) : PerTickParams :=
   { thetaStar := O.doeblin.kappa0, t0 := O.conv.t0, lambda1 := lambda1 }
@@ -48,6 +51,9 @@ def build_eight_tick (P : EightTickParams) : EightTickOut :=
 theorem build_eight_tick_satisfies (P : EightTickParams) :
   eight_tick_spec P (build_eight_tick P) := by rfl
 
+@[simp] theorem build_eight_tick_gamma (P : EightTickParams) :
+  (build_eight_tick P).gamma_cut = P.c_cut := rfl
+
 /-- Physical normalization. -/
 structure PhysNormParams where
   gamma_cut : Float
@@ -64,6 +70,9 @@ def build_physnorm (P : PhysNormParams) : PhysNormOut :=
 theorem build_physnorm_satisfies (P : PhysNormParams) :
   physnorm_spec P (build_physnorm P) := by rfl
 
+@[simp] theorem build_physnorm_gamma (P : PhysNormParams) :
+  (build_physnorm P).gamma_phys = P.gamma_cut := rfl
+
 /-- Continuum gap persistence alias. -/
 structure PersistParams where
   gamma_phys : Float
@@ -79,6 +88,9 @@ def build_persist (P : PersistParams) : PersistOut :=
 
 theorem build_persist_satisfies (P : PersistParams) :
   persist_spec P (build_persist P) := by rfl
+
+@[simp] theorem build_persist_ok (P : PersistParams) :
+  (build_persist P).ok = true := rfl
 
 @[simp] theorem to_continuum_params_gamma (O : GapFromDoeblinOut) :
   (to_continuum_params O).gamma_phys = O.gamma_phys := rfl
