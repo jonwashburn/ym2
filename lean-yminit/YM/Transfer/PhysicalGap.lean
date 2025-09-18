@@ -155,6 +155,15 @@ by
   T15_accept P (build_T15 P) := by
   simpa using (T15_accept_holds P)
 
+@[simp] theorem build_T15_gamma (P : T15Params) :
+  (build_T15 P).phys.gamma_phys = P.c_cut := by
+  -- reduce via the component builders
+  simp [build_T15_phys]
+
+@[simp] theorem build_T15_persist_ok (P : T15Params) :
+  (build_T15 P).pers.ok = true := by
+  simp [build_T15_pers]
+
 end YM.Transfer.PhysicalGap
 
 import YM.OSWilson.Doeblin
