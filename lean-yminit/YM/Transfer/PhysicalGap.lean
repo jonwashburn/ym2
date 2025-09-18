@@ -28,6 +28,9 @@ def build_per_tick (P : PerTickParams) : PerTickOut :=
 theorem build_per_tick_satisfies (P : PerTickParams) :
   per_tick_spec P (build_per_tick P) := by rfl
 
+@[simp] theorem per_tick_spec_build (P : PerTickParams) :
+  per_tick_spec P (build_per_tick P) := rfl
+
 @[simp] theorem build_per_tick_factor (P : PerTickParams) :
   (build_per_tick P).factor = P.thetaStar := rfl
 
@@ -51,6 +54,9 @@ def build_eight_tick (P : EightTickParams) : EightTickOut :=
 theorem build_eight_tick_satisfies (P : EightTickParams) :
   eight_tick_spec P (build_eight_tick P) := by rfl
 
+@[simp] theorem eight_tick_spec_build (P : EightTickParams) :
+  eight_tick_spec P (build_eight_tick P) := rfl
+
 @[simp] theorem build_eight_tick_gamma (P : EightTickParams) :
   (build_eight_tick P).gamma_cut = P.c_cut := rfl
 
@@ -70,6 +76,9 @@ def build_physnorm (P : PhysNormParams) : PhysNormOut :=
 theorem build_physnorm_satisfies (P : PhysNormParams) :
   physnorm_spec P (build_physnorm P) := by rfl
 
+@[simp] theorem physnorm_spec_build (P : PhysNormParams) :
+  physnorm_spec P (build_physnorm P) := rfl
+
 @[simp] theorem build_physnorm_gamma (P : PhysNormParams) :
   (build_physnorm P).gamma_phys = P.gamma_cut := rfl
 
@@ -88,6 +97,9 @@ def build_persist (P : PersistParams) : PersistOut :=
 
 theorem build_persist_satisfies (P : PersistParams) :
   persist_spec P (build_persist P) := by rfl
+
+@[simp] theorem persist_spec_build (P : PersistParams) :
+  persist_spec P (build_persist P) := rfl
 
 @[simp] theorem build_persist_ok (P : PersistParams) :
   (build_persist P).ok = true := rfl
