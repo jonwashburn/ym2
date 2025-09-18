@@ -407,6 +407,9 @@ def gamma_cut_from_interface_spec (I : YM.OSWilson.Doeblin.WilsonGibbsInterface)
 theorem gamma_cut_from_interface_holds (I : YM.OSWilson.Doeblin.WilsonGibbsInterface) :
   gamma_cut_from_interface_spec I := rfl
 
+@[simp] theorem gamma_cut_from_interface_def_simp (I : YM.OSWilson.Doeblin.WilsonGibbsInterface) :
+  gamma_cut_from_interface I = (YM.OSWilson.Doeblin.export_from_interface I).gamma_c := rfl
+
 /-- Best-of-two integration: select max{γ_cut, γ_α} (spec-level). -/
 structure BestOfTwo where
   gamma_alpha : Float
