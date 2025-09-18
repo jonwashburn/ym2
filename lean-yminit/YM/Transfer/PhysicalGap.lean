@@ -582,6 +582,9 @@ def best_of_two_spec (B : BestOfTwo) : Prop :=
 
 theorem best_of_two_holds (B : BestOfTwo) : best_of_two_spec B := rfl
 
+@[simp] theorem best_of_two_spec_iff (B : BestOfTwo) :
+  best_of_two_spec B ↔ best_of_two B = Float.max B.gamma_alpha B.gamma_cut := Iff.rfl
+
 @[simp] theorem best_of_two_eval (a b : Float) :
   best_of_two { gamma_alpha := a, gamma_cut := b } = Float.max a b := rfl
 
@@ -688,6 +691,10 @@ def export_gamma_from_routes_spec (R : GapRoutes) : Prop :=
 
 theorem export_gamma_from_routes_holds (R : GapRoutes) :
   export_gamma_from_routes_spec R := rfl
+
+@[simp] theorem export_gamma_from_routes_spec_iff (R : GapRoutes) :
+  export_gamma_from_routes_spec R ↔
+    export_gamma_from_routes R = Float.max R.gamma_alpha (gamma_cut_from_interface R.iface) := Iff.rfl
 
 @[simp] theorem export_equals_best_of_two (R : GapRoutes) :
   export_gamma_from_routes R =
