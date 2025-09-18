@@ -916,6 +916,25 @@ theorem gamma_phys_eq_c_cut_of (P : GapFromDoeblinParams) :
   dsimp [build_gap_from_doeblin, c_cut_of]
   rfl
 
+/-- Comparison helper: c_cut inequality rewritten in terms of the explicit pipeline formula. -/
+@[simp] theorem c_cut_compare_via_pipeline (P P' : GapFromDoeblinParams) :
+  ((build_gap_from_doeblin P).c_cut ≤ (build_gap_from_doeblin P').c_cut) ↔
+    (c_cut_of P.a (beta0_of (rho_of P.kappa0 P.t0 P.lambda1) P.S0)
+      ≤ c_cut_of P'.a (beta0_of (rho_of P'.kappa0 P'.t0 P'.lambda1) P'.S0)) := by
+  simp [build_gap_from_doeblin_c_cut_of]
+
+/-- Comparison helper: γ_phys inequality is equivalent to c_cut inequality (current normalization). -/
+@[simp] theorem gamma_compare_eq_ccut (P P' : GapFromDoeblinParams) :
+  ((build_gap_from_doeblin P).gamma_phys ≤ (build_gap_from_doeblin P').gamma_phys) ↔
+    ((build_gap_from_doeblin P).c_cut ≤ (build_gap_from_doeblin P').c_cut) := by
+  simp [gamma_phys_eq_c_cut_of]
+
+/-- Inheritance: if the cut improves, the continuum γ does not decrease. -/
+@[simp] theorem gamma_inherits_c_cut (P P' : GapFromDoeblinParams)
+  (h : (build_gap_from_doeblin P).c_cut ≤ (build_gap_from_doeblin P').c_cut) :
+  (build_gap_from_doeblin P).gamma_phys ≤ (build_gap_from_doeblin P').gamma_phys := by
+  simpa [gamma_phys_eq_c_cut_of] using h
+
 /-- Monotonicity: if both candidate routes improve, the exported γ does not decrease. -/
 def export_gamma_monotone (R R' : GapRoutes) : Prop :=
   (R'.gamma_alpha ≥ R.gamma_alpha) ∧
