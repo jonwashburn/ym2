@@ -517,6 +517,22 @@ theorem best_of_two_holds (B : BestOfTwo) : best_of_two_spec B := rfl
     dsimp [best_of_two]
     exact le_max_right _ _
 
+@[simp] theorem best_of_two_eq_alpha_of_ge (B : BestOfTwo)
+  (h : B.gamma_cut ≤ B.gamma_alpha) :
+  best_of_two B = B.gamma_alpha := by
+  cases B with
+  | mk ga gc =>
+    dsimp [best_of_two] at *
+    simpa [max_eq_left h]
+
+@[simp] theorem best_of_two_eq_cut_of_le (B : BestOfTwo)
+  (h : B.gamma_alpha ≤ B.gamma_cut) :
+  best_of_two B = B.gamma_cut := by
+  cases B with
+  | mk ga gc =>
+    dsimp [best_of_two] at *
+    simpa [max_eq_right h]
+
 /-- Monotonicity of best_of_two in both arguments. -/
 def best_of_two_monotone (B B' : BestOfTwo) : Prop :=
   (B'.gamma_alpha ≥ B.gamma_alpha) ∧ (B'.gamma_cut ≥ B.gamma_cut) →
@@ -579,6 +595,18 @@ theorem export_gamma_from_routes_holds (R : GapRoutes) :
   gamma_cut_from_interface R.iface ≤ export_gamma_from_routes R := by
   dsimp [export_gamma_from_routes]
   exact le_max_right _ _
+
+@[simp] theorem export_gamma_eq_cut_of_le (R : GapRoutes)
+  (h : R.gamma_alpha ≤ gamma_cut_from_interface R.iface) :
+  export_gamma_from_routes R = gamma_cut_from_interface R.iface := by
+  dsimp [export_gamma_from_routes]
+  simpa [max_eq_right h]
+
+@[simp] theorem export_gamma_eq_alpha_of_ge (R : GapRoutes)
+  (h : gamma_cut_from_interface R.iface ≤ R.gamma_alpha) :
+  export_gamma_from_routes R = R.gamma_alpha := by
+  dsimp [export_gamma_from_routes]
+  simpa [max_eq_left h]
 
 /-- Monotonicity corollary: increasing only the alpha route does not decrease the export. -/
 theorem export_gamma_monotone_alpha (ga ga' : Float)
