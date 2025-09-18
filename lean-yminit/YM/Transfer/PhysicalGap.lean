@@ -80,6 +80,9 @@ def build_persist (P : PersistParams) : PersistOut :=
 theorem build_persist_satisfies (P : PersistParams) :
   persist_spec P (build_persist P) := by rfl
 
+@[simp] theorem to_continuum_params_gamma (O : GapFromDoeblinOut) :
+  (to_continuum_params O).gamma_phys = O.gamma_phys := rfl
+
 /-- Aggregated T15 bundle. -/
 structure T15Params where
   per   : PerTickParams
@@ -420,6 +423,16 @@ theorem best_of_two_holds (B : BestOfTwo) : best_of_two_spec B := rfl
 @[simp] theorem best_of_two_eval (a b : Float) :
   best_of_two { gamma_alpha := a, gamma_cut := b } = Float.max a b := rfl
 
+@[simp] theorem best_of_two_ge_alpha (a b : Float) :
+  a ≤ best_of_two { gamma_alpha := a, gamma_cut := b } := by
+  dsimp [best_of_two]
+  exact le_max_left _ _
+
+@[simp] theorem best_of_two_ge_cut (a b : Float) :
+  b ≤ best_of_two { gamma_alpha := a, gamma_cut := b } := by
+  dsimp [best_of_two]
+  exact le_max_right _ _
+
 /-- Monotonicity of best_of_two in both arguments. -/
 def best_of_two_monotone (B B' : BestOfTwo) : Prop :=
   (B'.gamma_alpha ≥ B.gamma_alpha) ∧ (B'.gamma_cut ≥ B.gamma_cut) →
@@ -472,6 +485,16 @@ theorem export_gamma_from_routes_holds (R : GapRoutes) :
 @[simp] theorem export_gamma_from_routes_eval (ga : Float) (I : YM.OSWilson.Doeblin.WilsonGibbsInterface) :
   export_gamma_from_routes { gamma_alpha := ga, iface := I } =
     Float.max ga (gamma_cut_from_interface I) := rfl
+
+@[simp] theorem export_gamma_ge_alpha (R : GapRoutes) :
+  R.gamma_alpha ≤ export_gamma_from_routes R := by
+  dsimp [export_gamma_from_routes]
+  exact le_max_left _ _
+
+@[simp] theorem export_gamma_ge_cut (R : GapRoutes) :
+  gamma_cut_from_interface R.iface ≤ export_gamma_from_routes R := by
+  dsimp [export_gamma_from_routes]
+  exact le_max_right _ _
 
 /-- Helper: ρ from (κ0, t0, λ1). -/
 def rho_of (kappa0 t0 lambda1 : Float) : Float :=
