@@ -29,7 +29,7 @@ structure CylinderAlgebra where
 
 /-- Acceptance predicate for a cylinder algebra (spec-level, concrete equality). -/
 def cylinder_algebra_spec (A : CylinderAlgebra) : Prop :=
-  (A.gen.size = A.gen.size) ∧ (A.closed_under_ops = A.closed_under_ops) ∧ (A.H.dim = A.H.dim)
+  (A.closed_under_ops = true) ∧ (A.gen.size ≥ 0) ∧ (A.H.dim ≥ 0)
 
 /-- Minimal builder for a cylinder algebra on a given half-space. -/
 def build_cylinder_algebra (H : TimeHalfSpace) (genSize : Nat := 0) : CylinderAlgebra :=
@@ -38,7 +38,10 @@ def build_cylinder_algebra (H : TimeHalfSpace) (genSize : Nat := 0) : CylinderAl
 /-- The built cylinder algebra satisfies the spec predicate. -/
 theorem build_cylinder_algebra_satisfies (H : TimeHalfSpace) (genSize : Nat := 0) :
   cylinder_algebra_spec (build_cylinder_algebra H genSize) := by
-  exact And.intro rfl (And.intro rfl rfl)
+  dsimp [cylinder_algebra_spec, build_cylinder_algebra]
+  constructor
+  · rfl
+  · constructor <;> decide
 
 /-- OS reflection action (spec-level), recording invariance of Haar/product structure. -/
 structure OSReflection where
@@ -51,7 +54,7 @@ def build_os_reflection : OSReflection :=
 
 /-- Reflection stability of a cylinder algebra (spec-level acceptance). -/
 def reflection_stable_spec (A : CylinderAlgebra) (θ : OSReflection) : Prop :=
-  (θ.preserves_haar = θ.preserves_haar) ∧ (θ.is_involution = θ.is_involution) ∧ cylinder_algebra_spec A
+  (θ.preserves_haar = true) ∧ (θ.is_involution = true) ∧ cylinder_algebra_spec A
 
 /-- CERT_FN-style alias for reflection stability acceptance. -/
 def reflection_stable (A : CylinderAlgebra) (θ : OSReflection) : Prop :=

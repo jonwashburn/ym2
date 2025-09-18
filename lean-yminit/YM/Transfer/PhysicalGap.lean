@@ -22,7 +22,7 @@ structure PerTickOut where
   factor : Float
 
 def per_tick_spec (P : PerTickParams) (O : PerTickOut) : Prop :=
-  O.factor = O.factor
+  O.factor = P.thetaStar
 
 def build_per_tick (P : PerTickParams) : PerTickOut :=
   { factor := P.thetaStar }
@@ -42,7 +42,7 @@ structure EightTickOut where
   gamma_cut : Float
 
 def eight_tick_spec (P : EightTickParams) (O : EightTickOut) : Prop :=
-  O.gamma_cut = O.gamma_cut
+  O.gamma_cut = P.c_cut
 
 def build_eight_tick (P : EightTickParams) : EightTickOut :=
   { gamma_cut := P.c_cut }
@@ -58,7 +58,7 @@ structure PhysNormOut where
   gamma_phys : Float
 
 def physnorm_spec (P : PhysNormParams) (O : PhysNormOut) : Prop :=
-  O.gamma_phys = O.gamma_phys
+  O.gamma_phys = P.gamma_cut
 
 def build_physnorm (P : PhysNormParams) : PhysNormOut :=
   { gamma_phys := P.gamma_cut }

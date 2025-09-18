@@ -167,9 +167,9 @@ structure ConvolutionHK where
   t0 : Float
   c_star : Float
 
- -- Convolution lower-bound spec: concrete reflexive predicate (avoid order on Nat/Float).
+ -- Convolution lower-bound spec: simple positivity/lower-bound constraints.
  def convolution_lower_bound_spec (C : ConvolutionHK) : Prop :=
-   (C.m_star = C.m_star) ∧ (C.t0 = C.t0) ∧ (C.c_star = C.c_star)
+   (C.m_star ≥ 1) ∧ (C.t0 > 0.0) ∧ (C.c_star > 0.0)
 
 /-- Minimal constructor for the convolution lower-bound parameters. -/
 def build_convolution_hk (N : Nat) (r_star : Float) : ConvolutionHK :=
@@ -180,7 +180,13 @@ def build_convolution_hk (N : Nat) (r_star : Float) : ConvolutionHK :=
  theorem build_convolution_hk_satisfies (N : Nat) (r_star : Float) :
    convolution_lower_bound_spec (build_convolution_hk N r_star) :=
  by
-   exact And.intro rfl (And.intro rfl rfl)
+   dsimp [convolution_lower_bound_spec, build_convolution_hk]
+   constructor
+   · have : Nat.succ (Nat.succ N) ≥ 1 := by decide
+     simpa using this
+   · constructor
+     · exact (by decide : (0.0 : Float) < 1.0)
+     · exact (by decide : (0.0 : Float) < 0.1)
 
 /-- Existence form for ConvolutionHK: for any N and r_*, suitable
     DSC-style parameters exist at the spec level. -/

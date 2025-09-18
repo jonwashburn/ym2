@@ -26,7 +26,7 @@ structure GramLocalityOut where
   nu : Float
 
 def gram_locality_spec (P : GramLocalityParams) (O : GramLocalityOut) : Prop :=
-  O.A = O.A ∧ O.mu = O.mu ∧ O.Cg = O.Cg ∧ O.nu = O.nu
+  O.A = P.A ∧ O.mu = P.mu ∧ O.Cg = P.Cg ∧ O.nu = P.nu
 
 def build_gram_locality (P : GramLocalityParams) : GramLocalityOut :=
   { A := P.A, mu := P.mu, Cg := P.Cg, nu := P.nu }
@@ -44,7 +44,7 @@ structure MixedGramOut where
   S0 : Float
 
 def mixed_gram_decay_spec (P : MixedGramParams) (O : MixedGramOut) : Prop :=
-  O.S0 = O.S0
+  O.S0 = P.B
 
 def build_mixed_gram_decay (P : MixedGramParams) : MixedGramOut :=
   { S0 := P.B }
@@ -61,7 +61,7 @@ structure DiagMixedOut where
   rho : Float
 
 def diag_mixed_contr_spec (P : DiagMixedParams) (O : DiagMixedOut) : Prop :=
-  O.rho = O.rho
+  O.rho = P.rho
 
 def build_diag_mixed_contr (P : DiagMixedParams) : DiagMixedOut :=
   { rho := P.rho }
@@ -79,7 +79,7 @@ structure GershgorinOut where
   beta0 : Float
 
 def gershgorin_row_spec (P : GershgorinParams) (O : GershgorinOut) : Prop :=
-  O.beta0 = O.beta0
+  O.beta0 = P.S0
 
 def build_gershgorin_row (P : GershgorinParams) : GershgorinOut :=
   { beta0 := P.S0 }
@@ -97,7 +97,7 @@ structure TickPoincareOut where
   c_cut : Float
 
 def tick_poincare_spec (P : TickPoincareParams) (O : TickPoincareOut) : Prop :=
-  O.c_cut = O.c_cut
+  O.c_cut = P.beta0
 
 def build_tick_poincare (P : TickPoincareParams) : TickPoincareOut :=
   { c_cut := P.beta0 }

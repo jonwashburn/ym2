@@ -19,7 +19,7 @@ structure TreeGaugeOut where
 
 -- Tree-gauge spec: concrete reflexive predicate on output fields.
 def tree_gauge_local_spec (P : TreeGaugeParams) (O : TreeGaugeOut) : Prop :=
-  (O.m = O.m) ∧ (O.d0 = O.d0)
+  (O.m = 100) ∧ (O.d0 = 6)
 
 /-- Minimal constructor for tree-gauge outputs. -/
 def build_tree_gauge_local (P : TreeGaugeParams) : TreeGaugeOut :=
@@ -48,7 +48,7 @@ structure LSIBetaOut where
 
 -- Local LSI–beta spec: reflexive equality as a concrete (non-True) predicate.
 def local_lsi_beta_spec (P : LSIBetaParams) (O : LSIBetaOut) : Prop :=
-  O.rho_R = O.rho_R
+  O.rho_R = P.beta_min * 0.1
 
 /-- Minimal constructor for local LSI–beta output. -/
 def build_local_lsi_beta (P : LSIBetaParams) : LSIBetaOut :=
@@ -77,7 +77,7 @@ structure LipschitzOut where
 
 -- Lipschitz S_R spec: make it a concrete (non-True) reflexive predicate.
 def lipschitz_S_R_spec (P : LipschitzParams) (O : LipschitzOut) : Prop :=
-  O.G_R = O.G_R
+  O.G_R = 0.01 * P.a0
 
 /-- Minimal constructor for Lipschitz bound of S_R. -/
 def build_lipschitz_S_R (P : LipschitzParams) : LipschitzOut :=
@@ -105,7 +105,7 @@ structure HerbstOut where
 
 -- Herbst spec: concrete reflexive predicate to avoid Float order.
 def herbst_eta_spec (P : HerbstParams) (O : HerbstOut) : Prop :=
-  O.eta_R = O.eta_R
+  O.eta_R = Float.min 1.0 (Float.sqrt (Float.max 1e-12 (P.rho_R / (P.G_R + 1e-12))))
 
 /-- Minimal constructor for Herbst output. -/
 def build_herbst_eta (P : HerbstParams) : HerbstOut :=
@@ -133,7 +133,7 @@ structure UEIOut where
 
 -- UEI fixed-region spec: concrete reflexive predicate to avoid Float order.
 def uei_fixed_region_spec (P : UEIParams) (O : UEIOut) : Prop :=
-  O.C_R = O.C_R
+  O.C_R = Float.exp (P.eta_R * P.mean_bound) * Float.exp 0.5
 
 /-- Minimal constructor for UEI fixed-region output. -/
 def build_uei_fixed_region (P : UEIParams) : UEIOut :=

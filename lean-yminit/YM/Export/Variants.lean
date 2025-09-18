@@ -18,10 +18,10 @@ structure SpectralVariant where
   rc_ok : Bool
 
 def spectral_export_spec (R : NRCParams) (V : SpectralVariant) : Prop :=
-  (norm_resolvent_convergence_nonreal_z R) ∧ (V.rc_ok = V.rc_ok)
+  (nrc_all_nonreal_rescaled R) ∧ (V.rc_ok = true)
 
 def build_spectral_export (R : NRCParams) : SpectralVariant :=
-  { rc_ok := True }
+  { rc_ok := true }
 
 theorem build_spectral_export_holds (R : NRCParams) :
   spectral_export_spec R (build_spectral_export R) := by
