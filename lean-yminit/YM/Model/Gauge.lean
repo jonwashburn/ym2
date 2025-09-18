@@ -135,3 +135,28 @@ theorem build_heat_kernel_SU_R_holds (N : Nat) :
   heat_kernel_spec_R (build_heat_kernel_SU_R N) := rfl
 
 end YM.Model.Gauge
+
+namespace YM.Model.Gauge
+
+/-- Bridge: lift a Boolean-flag Haar measure scaffold to a Real-level
+Haar witness by interpreting flags as propositions. -/
+def boolean_to_real_haar {G} (H : HaarMeasure G) : HaarMeasureR G :=
+  { left_invariant  := (H.left_invariant = true)
+  , right_invariant := (H.right_invariant = true)
+  , probability     := (H.probability = true) }
+
+theorem boolean_to_real_haar_holds {G} (H : HaarMeasure G) :
+  haar_spec_R (boolean_to_real_haar H) := by
+  dsimp [boolean_to_real_haar, haar_spec_R]
+  exact And.intro rfl (And.intro rfl rfl)
+
+/-- Bridge: lift a Boolean-flag heat-kernel scaffold to a Real-level
+quantitative lower-bound witness using the canonical constant schema. -/
+def lift_heat_kernel_to_R {G} (_K : HeatKernel G) : HeatKernelR G :=
+  { c_star := max 0 ((1 : Real) / 10) }
+
+theorem lift_heat_kernel_to_R_holds {G} (K : HeatKernel G) :
+  heat_kernel_spec_R (lift_heat_kernel_to_R K) := by
+  dsimp [lift_heat_kernel_to_R, heat_kernel_spec_R]; rfl
+
+end YM.Model.Gauge

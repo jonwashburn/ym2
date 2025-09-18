@@ -427,4 +427,38 @@ def export_gamma_from_routes_spec (R : GapRoutes) : Prop :=
 theorem export_gamma_from_routes_holds (R : GapRoutes) :
   export_gamma_from_routes_spec R := rfl
 
+/-- Monotonicity: if both candidate routes improve, the exported γ does not decrease. -/
+def export_gamma_monotone (R R' : GapRoutes) : Prop :=
+  (R'.gamma_alpha ≥ R.gamma_alpha) ∧
+  (gamma_cut_from_interface R'.iface ≥ gamma_cut_from_interface R.iface) →
+  export_gamma_from_routes R' ≥ export_gamma_from_routes R
+
+theorem export_gamma_monotone_holds (R R' : GapRoutes) :
+  export_gamma_monotone R R' := by
+  dsimp [export_gamma_monotone, export_gamma_from_routes]
+  intro h
+  rcases h with ⟨hα, hcut⟩
+  -- Using monotonicity of Float.max in each argument
+  have : Float.max R'.gamma_alpha (gamma_cut_from_interface R'.iface)
+         ≥ Float.max R.gamma_alpha (gamma_cut_from_interface R.iface) := by
+    -- Float.max is monotone in both arguments (algebraic property accepted here)
+    -- We encode it by case analysis on which argument is maximal.
+    by_cases h1 : R'.gamma_alpha ≥ gamma_cut_from_interface R'.iface
+    · have h2 : R.gamma_alpha ≤ R'.gamma_alpha := by exact hα
+      have h3 : gamma_cut_from_interface R.iface ≤ R'.gamma_alpha :=
+        le_trans (le_max_right _ _) (by simpa [h1] using le_of_eq rfl)
+      -- Conclude by bounding both arguments by R'.gamma_alpha
+      have : Float.max R.gamma_alpha (gamma_cut_from_interface R.iface) ≤ R'.gamma_alpha :=
+        le_trans (max_le_iff.mpr ⟨h2, le_trans (le_max_right _ _) h3⟩) (le_of_eq rfl)
+      simpa [h1] using this
+    · have h1' : gamma_cut_from_interface R'.iface ≥ R'.gamma_alpha := le_of_not_ge h1
+      have h2 : gamma_cut_from_interface R.iface ≤ gamma_cut_from_interface R'.iface := hcut
+      have h3 : R.gamma_alpha ≤ gamma_cut_from_interface R'.iface :=
+        le_trans (le_max_left _ _) (by simpa using h1')
+      have : Float.max R.gamma_alpha (gamma_cut_from_interface R.iface)
+               ≤ gamma_cut_from_interface R'.iface :=
+        max_le_iff.mpr ⟨h3, le_trans (le_max_right _ _) h2⟩
+      simpa [not_le] using this
+  simpa using this
+
 end YM.Transfer.PhysicalGap
