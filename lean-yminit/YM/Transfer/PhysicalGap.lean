@@ -451,6 +451,20 @@ theorem best_of_two_holds (B : BestOfTwo) : best_of_two_spec B := rfl
   dsimp [best_of_two]
   exact le_max_right _ _
 
+@[simp] theorem best_of_two_ge_alpha_struct (B : BestOfTwo) :
+  B.gamma_alpha ≤ best_of_two B := by
+  cases B with
+  | mk ga gc =>
+    dsimp [best_of_two]
+    exact le_max_left _ _
+
+@[simp] theorem best_of_two_ge_cut_struct (B : BestOfTwo) :
+  B.gamma_cut ≤ best_of_two B := by
+  cases B with
+  | mk ga gc =>
+    dsimp [best_of_two]
+    exact le_max_right _ _
+
 /-- Monotonicity of best_of_two in both arguments. -/
 def best_of_two_monotone (B B' : BestOfTwo) : Prop :=
   (B'.gamma_alpha ≥ B.gamma_alpha) ∧ (B'.gamma_cut ≥ B.gamma_cut) →
