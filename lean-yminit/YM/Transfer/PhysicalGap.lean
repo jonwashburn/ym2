@@ -682,14 +682,14 @@ def ccut_arg (beta0 : Float) : Float := Float.max 1e-9 (1.0 - beta0)
   simp [c_cut_of, max_eq_left h]
 
 /-- Gamma equals c_cut in the current normalization. -/
-theorem gamma_phys_eq_c_cut_of (P : GapFromDoeblinParams) :
+@[simp] theorem gamma_phys_eq_c_cut_of (P : GapFromDoeblinParams) :
   (build_gap_from_doeblin P).gamma_phys = c_cut_of P.a (build_gap_from_doeblin P).beta0 := by
   dsimp [build_gap_from_doeblin, c_cut_of]
   rfl
 
 /-- Composed pipeline identity: γ_phys(a, κ0, t0, λ1, S0)
     = c_cut_of a (beta0_of (rho_of κ0 t0 λ1) S0). -/
-theorem gamma_pipeline_def (P : GapFromDoeblinParams) :
+@[simp] theorem gamma_pipeline_def (P : GapFromDoeblinParams) :
   (build_gap_from_doeblin P).gamma_phys =
     c_cut_of P.a (beta0_of (rho_of P.kappa0 P.t0 P.lambda1) P.S0) := by
   dsimp [build_gap_from_doeblin, rho_of, beta0_of, c_cut_of]
