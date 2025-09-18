@@ -427,6 +427,42 @@ def export_gamma_from_routes_spec (R : GapRoutes) : Prop :=
 theorem export_gamma_from_routes_holds (R : GapRoutes) :
   export_gamma_from_routes_spec R := rfl
 
+/-- Helper: ρ from (κ0, t0, λ1). -/
+def rho_of (kappa0 t0 lambda1 : Float) : Float :=
+  Float.sqrt (Float.max 0.0 (1.0 - kappa0 * Float.exp (-(lambda1 * t0))))
+
+@[simp] theorem rho_of_def (kappa0 t0 lambda1 : Float) :
+  rho_of kappa0 t0 lambda1 =
+    Float.sqrt (Float.max 0.0 (1.0 - kappa0 * Float.exp (-(lambda1 * t0)))) := rfl
+
+/-- Helper: β0 from (ρ, S0). -/
+def beta0_of (rho S0 : Float) : Float :=
+  Float.max 0.0 (1.0 - (rho + S0))
+
+@[simp] theorem beta0_of_def (rho S0 : Float) :
+  beta0_of rho S0 = Float.max 0.0 (1.0 - (rho + S0)) := rfl
+
+/-- Helper: c_cut from (a, β0). See also `c_cut_of_def`. -/
+def c_cut_of (a beta0 : Float) : Float :=
+  - (Float.log (Float.max 1e-9 (1.0 - beta0))) / a
+
+@[simp] theorem c_cut_of_def (a beta0 : Float) :
+  c_cut_of a beta0 = - (Float.log (Float.max 1e-9 (1.0 - beta0))) / a := rfl
+
+/-- Gamma equals c_cut in the current normalization. -/
+theorem gamma_phys_eq_c_cut_of (P : GapFromDoeblinParams) :
+  (build_gap_from_doeblin P).gamma_phys = c_cut_of P.a (build_gap_from_doeblin P).beta0 := by
+  dsimp [build_gap_from_doeblin, c_cut_of]
+  rfl
+
+/-- Composed pipeline identity: γ_phys(a, κ0, t0, λ1, S0)
+    = c_cut_of a (beta0_of (rho_of κ0 t0 λ1) S0). -/
+theorem gamma_pipeline_def (P : GapFromDoeblinParams) :
+  (build_gap_from_doeblin P).gamma_phys =
+    c_cut_of P.a (beta0_of (rho_of P.kappa0 P.t0 P.lambda1) P.S0) := by
+  dsimp [build_gap_from_doeblin, rho_of, beta0_of, c_cut_of]
+  rfl
+
 /-- Spec-level acceptance: c_cut is monotone in β0 (placeholder acceptance). -/
 structure CcutMonoBeta where
   ok : Bool
