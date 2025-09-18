@@ -180,6 +180,10 @@ by
   -- reduce via the component builders
   simp [build_T15_phys]
 
+@[simp] theorem build_T15_gamma_eq_eight (P : T15Params) :
+  (build_T15 P).phys.gamma_phys = (build_T15 P).eight.gamma_cut := by
+  simp [build_T15_phys]
+
 @[simp] theorem build_T15_persist_ok (P : T15Params) :
   (build_T15 P).pers.ok = true := by
   simp [build_T15_pers]
