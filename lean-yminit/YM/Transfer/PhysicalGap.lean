@@ -140,6 +140,11 @@ theorem build_persist_satisfies (P : PersistParams) :
     c_cut_of P.a (beta0_of (rho_of P.kappa0 P.t0 P.lambda1) P.S0) := by
   simpa [to_continuum_params_gamma] using (gamma_pipeline_def P)
 
+@[simp] theorem to_continuum_params_build_eq_c_cut (P : GapFromDoeblinParams) :
+  (to_continuum_params (build_gap_from_doeblin P)).gamma_phys =
+    (build_gap_from_doeblin P).c_cut := by
+  simp
+
 /-- Aggregated T15 bundle. -/
 structure T15Params where
   per   : PerTickParams
