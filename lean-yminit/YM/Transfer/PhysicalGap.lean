@@ -673,6 +673,12 @@ theorem export_gamma_from_routes_holds (R : GapRoutes) :
   export_gamma_from_routes R =
     best_of_two { gamma_alpha := R.gamma_alpha, gamma_cut := gamma_cut_from_interface R.iface } := rfl
 
+@[simp] theorem export_equals_best_of_two_comm (R : GapRoutes) :
+  export_gamma_from_routes R =
+    best_of_two { gamma_alpha := gamma_cut_from_interface R.iface, gamma_cut := R.gamma_alpha } := by
+  have h := export_equals_best_of_two R
+  simpa [best_of_two_comm] using h
+
 @[simp] theorem export_gamma_from_routes_eval (ga : Float) (I : YM.OSWilson.Doeblin.WilsonGibbsInterface) :
   export_gamma_from_routes { gamma_alpha := ga, iface := I } =
     Float.max ga (gamma_cut_from_interface I) := rfl
