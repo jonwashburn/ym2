@@ -30,6 +30,11 @@ theorem build_compact_group_SU_holds (N : Nat) :
   compact_group_spec (build_compact_group_SU N) := by
   dsimp [compact_group_spec, build_compact_group_SU]; repeat (first | constructor | rfl)
 
+@[simp] theorem build_compact_group_SU_flags (N : Nat) :
+  let C := build_compact_group_SU N;
+  C.has_mul = true ∧ C.has_inv = true ∧ C.has_id = true ∧ C.compact_ok = true ∧ C.hausdorff = true := by
+  dsimp [build_compact_group_SU]; repeat (first | constructor | rfl)
+
 /-- Haar measure model (spec-level). -/
 structure HaarMeasure (G : Type) where
   left_invariant  : Bool
@@ -47,6 +52,11 @@ theorem build_haar_SU_holds (N : Nat) :
   haar_spec (build_haar_SU N) := by
   dsimp [haar_spec, build_haar_SU]; repeat (first | constructor | rfl)
 
+@[simp] theorem build_haar_SU_flags (N : Nat) :
+  let H := build_haar_SU N;
+  H.left_invariant = true ∧ H.right_invariant = true ∧ H.probability = true := by
+  dsimp [build_haar_SU]; repeat (first | constructor | rfl)
+
 /-- Heat kernel scaffold (spec-level flags). -/
 structure HeatKernel (G : Type) where
   symmetric  : Bool
@@ -63,6 +73,11 @@ theorem build_heat_kernel_SU_holds (N : Nat) :
   heat_kernel_spec (build_heat_kernel_SU N) := by
   dsimp [heat_kernel_spec, build_heat_kernel_SU]; repeat (first | constructor | rfl)
 
+@[simp] theorem build_heat_kernel_SU_flags (N : Nat) :
+  let K := build_heat_kernel_SU N;
+  K.symmetric = true ∧ K.positive = true ∧ K.mass_one = true := by
+  dsimp [build_heat_kernel_SU]; repeat (first | constructor | rfl)
+
 /-- Configuration σ‑algebra scaffold for lattice interfaces (spec-level). -/
 structure SigmaAlgebra where
   countably_generated : Bool
@@ -77,6 +92,10 @@ def build_sigma_algebra_config : SigmaAlgebra :=
 theorem build_sigma_algebra_config_holds :
   sigma_algebra_spec build_sigma_algebra_config := by
   dsimp [sigma_algebra_spec, build_sigma_algebra_config]; constructor <;> rfl
+
+@[simp] theorem build_sigma_algebra_config_flags :
+  build_sigma_algebra_config.countably_generated = true ∧ build_sigma_algebra_config.complete = true := by
+  dsimp [build_sigma_algebra_config]; constructor <;> rfl
 
 /-- Markov kernel scaffold on a finite/abstract configuration space (spec-level). -/
 structure MarkovKernel (X : Type) where
@@ -93,6 +112,11 @@ def build_markov_kernel (X : Type) : MarkovKernel X :=
 theorem build_markov_kernel_holds (X : Type) :
   markov_kernel_spec (build_markov_kernel X) := by
   dsimp [markov_kernel_spec, build_markov_kernel]; repeat (first | constructor | rfl)
+
+@[simp] theorem build_markov_kernel_flags (X : Type) :
+  let K := build_markov_kernel X;
+  K.row_stochastic = true ∧ K.nonnegative = true ∧ K.time_homog = true := by
+  dsimp [build_markov_kernel]; repeat (first | constructor | rfl)
 
 /-- ℝ-level sigma algebra (props instead of flags). -/
 structure SigmaAlgebraR where
