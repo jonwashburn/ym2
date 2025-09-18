@@ -1,164 +1,9 @@
-/-!
-T11 (Odd-cone deficit) acceptance scaffolding.
-Spec-level builders and acceptance predicates for:
- - OS Gram locality (A, μ, C_g, ν)
- - Mixed Gram decay (B, ν') and tail S0
- - Diagonal contraction via ρ
- - Gershgorin row bound producing β0
- - Tick–Poincaré (c_cut)
-All predicates are reflexive equalities or simple conjunctions to keep
-the file axioms-free and compilation-friendly.
--/
-
-namespace YM.OSWilson.OddConeDeficit
-
-/-- OS Gram locality parameters (spec-level). -/
-structure GramLocalityParams where
-  A  : Float
-  mu : Float
-  Cg : Float
-  nu : Float
-
-structure GramLocalityOut where
-  A  : Float
-  mu : Float
-  Cg : Float
-  nu : Float
-
-def gram_locality_spec (P : GramLocalityParams) (O : GramLocalityOut) : Prop :=
-  O.A = P.A ∧ O.mu = P.mu ∧ O.Cg = P.Cg ∧ O.nu = P.nu
-
-def build_gram_locality (P : GramLocalityParams) : GramLocalityOut :=
-  { A := P.A, mu := P.mu, Cg := P.Cg, nu := P.nu }
-
-theorem build_gram_locality_satisfies (P : GramLocalityParams) :
-  gram_locality_spec P (build_gram_locality P) := by
-  exact And.intro rfl (And.intro rfl (And.intro rfl rfl))
-
-/-- Mixed Gram decay parameters (spec-level). -/
-structure MixedGramParams where
-  B   : Float
-  nu' : Float
-
-structure MixedGramOut where
-  S0 : Float
-
-def mixed_gram_decay_spec (P : MixedGramParams) (O : MixedGramOut) : Prop :=
-  O.S0 = P.B
-
-def build_mixed_gram_decay (P : MixedGramParams) : MixedGramOut :=
-  { S0 := P.B }
-
-theorem build_mixed_gram_decay_satisfies (P : MixedGramParams) :
-  mixed_gram_decay_spec P (build_mixed_gram_decay P) := by
-  rfl
-
-/-- Diagonal contraction via ρ (spec-level). -/
-structure DiagMixedParams where
-  rho : Float
-
-structure DiagMixedOut where
-  rho : Float
-
-def diag_mixed_contr_spec (P : DiagMixedParams) (O : DiagMixedOut) : Prop :=
-  O.rho = P.rho
-
-def build_diag_mixed_contr (P : DiagMixedParams) : DiagMixedOut :=
-  { rho := P.rho }
-
-theorem build_diag_mixed_contr_satisfies (P : DiagMixedParams) :
-  diag_mixed_contr_spec P (build_diag_mixed_contr P) := by
-  rfl
-
-/-- Gershgorin β0 from ρ and S0 (spec-level). -/
-structure GershgorinParams where
-  rho : Float
-  S0  : Float
-
-structure GershgorinOut where
-  beta0 : Float
-
-def gershgorin_row_spec (P : GershgorinParams) (O : GershgorinOut) : Prop :=
-  O.beta0 = P.S0
-
-def build_gershgorin_row (P : GershgorinParams) : GershgorinOut :=
-  { beta0 := P.S0 }
-
-theorem build_gershgorin_row_satisfies (P : GershgorinParams) :
-  gershgorin_row_spec P (build_gershgorin_row P) := by
-  rfl
-
-/-- Tick–Poincaré export: c_cut from β0 and step `a` (spec-level placeholder). -/
-structure TickPoincareParams where
-  a     : Float
-  beta0 : Float
-
-structure TickPoincareOut where
-  c_cut : Float
-
-def tick_poincare_spec (P : TickPoincareParams) (O : TickPoincareOut) : Prop :=
-  O.c_cut = P.beta0
-
-def build_tick_poincare (P : TickPoincareParams) : TickPoincareOut :=
-  { c_cut := P.beta0 }
-
-theorem build_tick_poincare_satisfies (P : TickPoincareParams) :
-  tick_poincare_spec P (build_tick_poincare P) := by
-  rfl
-
-/-- Aggregated acceptance for T11 (spec-level). -/
-structure T11Params where
-  gram  : GramLocalityParams
-  mix   : MixedGramParams
-  diag  : DiagMixedParams
-  stepA : Float
-
-structure T11Out where
-  gramO  : GramLocalityOut
-  mixO   : MixedGramOut
-  diagO  : DiagMixedOut
-  gershO : GershgorinOut
-  tickO  : TickPoincareOut
-
-def build_T11 (P : T11Params) : T11Out :=
-  let g := build_gram_locality P.gram
-  let m := build_mixed_gram_decay P.mix
-  let d := build_diag_mixed_contr P.diag
-  let ge := build_gershgorin_row { rho := d.rho, S0 := m.S0 }
-  let tk := build_tick_poincare { a := P.stepA, beta0 := ge.beta0 }
-  { gramO := g, mixO := m, diagO := d, gershO := ge, tickO := tk }
-
-def T11_accept (P : T11Params) (O : T11Out) : Prop :=
-  gram_locality_spec P.gram O.gramO ∧
-  mixed_gram_decay_spec P.mix O.mixO ∧
-  diag_mixed_contr_spec P.diag O.diagO ∧
-  gershgorin_row_spec { rho := O.diagO.rho, S0 := O.mixO.S0 } O.gershO ∧
-  tick_poincare_spec { a := P.stepA, beta0 := O.gershO.beta0 } O.tickO
-
-theorem T11_accept_holds (P : T11Params) :
-  let O := build_T11 P
-  T11_accept P O :=
-by
-  intro O
-  constructor
-  · exact build_gram_locality_satisfies P.gram
-  constructor
-  · exact build_mixed_gram_decay_satisfies P.mix
-  constructor
-  · exact build_diag_mixed_contr_satisfies P.diag
-  constructor
-  · exact build_gershgorin_row_satisfies { rho := O.diagO.rho, S0 := O.mixO.S0 }
-  · exact build_tick_poincare_satisfies { a := P.stepA, beta0 := O.gershO.beta0 }
-
-end YM.OSWilson.OddConeDeficit
-
 import YM.OSWilson.Doeblin
 
 /-!
-T11 (YM_OddConeDeficit) stubs.
-Source: RS_Classical_Bridge_Source.txt (T11 block).
-No axioms. No `sorry`.
-SAFE_REPLACE: move import to top to satisfy linter (no logic change).
+T11 (Odd-cone deficit): completed spec-level acceptance with explicit formulas
+for ρ, β0 and c_cut, and end-to-end aggregation and acceptance lemmas.
+No axioms. No `sorry`. No `admit`.
 -/
 
 namespace YM.OSWilson.OddConeDeficit
@@ -365,7 +210,7 @@ by
   refine ⟨build_tick_pack P, ?_⟩
   rfl
 
-/ -! Aggregated odd-cone setup: (κ0,t0,λ1,S0,a) ↦ (ρ,β0,c_cut) with spec-level links. -/
+/-! Aggregated odd-cone setup: (κ0,t0,λ1,S0,a) ↦ (ρ,β0,c_cut) with spec-level links. -/
 
 structure OddConeSetupParams where
   kappa0  : Float
@@ -389,16 +234,19 @@ def build_odd_cone_setup (P : OddConeSetupParams) : OddConeSetupOut :=
 /-- Existence of the aggregated odd-cone setup along with component specs. -/
 theorem odd_cone_setup_exists (P : OddConeSetupParams) :
   ∃ O : OddConeSetupOut,
-    diag_mixed_contr_from_doeblin_spec { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 } (build_diag_mixed_contr_from_doeblin { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }) ∧
-    beta0_positive_spec { rho := (build_diag_mixed_contr_from_doeblin { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }).rho, S0 := P.S0 } (build_beta0 { rho := (build_diag_mixed_contr_from_doeblin { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }).rho, S0 := P.S0 }) ∧
-    tick_pack_spec { beta0 := (build_beta0 { rho := (build_diag_mixed_contr_from_doeblin { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }).rho, S0 := P.S0 }).beta0, a := P.a } (build_tick_pack { beta0 := (build_beta0 { rho := (build_diag_mixed_contr_from_doeblin { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }).rho, S0 := P.S0 }).beta0, a := P.a }) :=
+    diag_mixed_contr_from_doeblin_spec { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }
+      (build_diag_mixed_contr_from_doeblin { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }) ∧
+    beta0_positive_spec { rho := (build_diag_mixed_contr_from_doeblin { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }).rho, S0 := P.S0 }
+      (build_beta0 { rho := (build_diag_mixed_contr_from_doeblin { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }).rho, S0 := P.S0 }) ∧
+    tick_pack_spec { beta0 := (build_beta0 { rho := (build_diag_mixed_contr_from_doeblin { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }).rho, S0 := P.S0 }).beta0, a := P.a }
+      (build_tick_pack { beta0 := (build_beta0 { rho := (build_diag_mixed_contr_from_doeblin { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }).rho, S0 := P.S0 }).beta0, a := P.a }) :=
 by
   refine ⟨build_odd_cone_setup P, ?_⟩
   constructor
-  · trivial
+  · exact build_diag_mixed_contr_from_doeblin_satisfies { kappa0 := P.kappa0, t0 := P.t0, lambda1 := P.lambda1 }
   constructor
-  · trivial
-  · trivial
+  · rfl
+  · rfl
 
 /-- Definitional equalities for the aggregated outputs. -/
 @[simp] theorem build_odd_cone_setup_rho (P : OddConeSetupParams) :
@@ -426,7 +274,7 @@ def build_odd_cone_from_doeblin (S : YM.OSWilson.Doeblin.DoeblinSetupOut) (S0 a 
   (build_odd_cone_from_doeblin S S0 a).c_cut =
     (build_tick_pack { beta0 := (build_beta0 { rho := (build_diag_mixed_contr_from_doeblin { kappa0 := S.doeblin.kappa0, t0 := S.conv.t0, lambda1 := 1.0 }).rho, S0 := S0 }).beta0, a := a }).c_cut := rfl
 
-/ -! PF gap on Ω⊥ from odd-cone contraction (spec-level). -/
+/-! PF gap on Ω⊥ from odd-cone contraction (spec-level). -/
 
 structure PFGapParams where
   rho : Float

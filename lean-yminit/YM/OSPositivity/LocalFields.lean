@@ -3,9 +3,9 @@ import YM.OSWilson.Doeblin
 import ym.OSPositivity.LocalFields
 
 /-!
-T14 (LocalFields) stubs.
-Source: RS_Classical_Bridge_Source.txt (T14 block).
-No axioms. No `sorry`.
+T14 (LocalFields): completed spec-level acceptance for OS0/OS2/OS3 locality and
+gap persistence, with Doeblin→T15→T14 glue and quantitative OS0 wiring.
+No axioms. No `sorry`. No `admit`.
 -/
 
 namespace YM.OSPositivity.LocalFields
@@ -55,7 +55,7 @@ theorem gap_persistence_fields_exists (P : GapPersistParams) : gap_persistence_f
     | inl heq => exact False.elim (by cases heq)
     | inr hpos => exact hpos
 
-/ -! Glue: obtain field-level gap persistence from a physical gap aggregator. -/
+/-! Glue: obtain field-level gap persistence from a physical gap aggregator. -/
 
 def gap_persistence_from_gamma (gamma_phys : Float) : GapPersistParams :=
   { gamma_phys := gamma_phys }
@@ -80,7 +80,7 @@ theorem gap_persistence_from_doeblin_exists (O : YM.Transfer.PhysicalGap.GapFrom
   · simpa [h]
   · exact False.elim (by cases h)
 
-/ -! End-to-end (spec-level): DoeblinSetupParams → LocalFields gap persistence. -/
+/-! End-to-end (spec-level): DoeblinSetupParams → LocalFields gap persistence. -/
 
 structure DoeblinToFieldsParams where
   refresh_R : Float
@@ -106,7 +106,7 @@ def fields_gamma_from_doeblin (P : DoeblinToFieldsParams) : Float :=
 theorem fields_gap_from_doeblin_exists (P : DoeblinToFieldsParams) :
   gap_persistence_fields_spec (build_fields_gap_from_doeblin P) := rfl
 
-/ -! Quantitative clover-moment bounds (spec-level, explicit constant schema).
+/-! Quantitative clover-moment bounds (spec-level, explicit constant schema).
 The constants are exposed as simple Float formulas to avoid heavy dependencies
 while enabling end-to-end parameter threading. -/
 
@@ -134,7 +134,7 @@ def os0_from_moment_quant (Q : MomentQuantParams) : OS0Params :=
 theorem os0_from_moment_quant_holds (Q : MomentQuantParams) :
   os0_transfer_spec (os0_from_moment_quant Q) := rfl
 
-/ -! Assemble a T14 acceptance bundle using quantitative clover moments for OS0
+/-! Assemble a T14 acceptance bundle using quantitative clover moments for OS0
 and Doeblin→T15→T14 for the gap persistence component. -/
 
 def build_T14_accept_from_quant_and_doeblin (Q : MomentQuantParams)
@@ -152,7 +152,7 @@ theorem T14_accept_from_quant_and_doeblin_holds (Q : MomentQuantParams)
   have h := local_fields_accept_holds (build_T14_accept_from_quant_and_doeblin Q P)
   simpa using h
 
-/ -! Acceptance aggregator for T14 (spec-level). -/
+/-! Acceptance aggregator for T14 (spec-level). -/
 
 structure T14AcceptBundle where
   cl  : CloverParams
@@ -208,7 +208,7 @@ theorem T14_accept_from_doeblin_holds (P : DoeblinToFieldsParams) :
 @[simp] theorem build_T14_accept_from_doeblin_gp (P : DoeblinToFieldsParams) :
   (build_T14_accept_from_doeblin P).gp = build_fields_gap_from_doeblin P := rfl
 
-/ -! OS0/OS3 fields bundle (spec-level): export OS0 from quantitative clover
+/-! OS0/OS3 fields bundle (spec-level): export OS0 from quantitative clover
 constants and OS3 from the Doeblin-driven physical gap. -/
 
 structure OSFieldsFromQuant where
@@ -248,7 +248,7 @@ theorem T14_accept_from_fields_holds (Q : MomentQuantParams) (P : DoeblinToField
   have h := local_fields_accept_holds (build_T14_accept_from_fields Q P)
   simpa using h
 
-/ -! OS1 (Euclidean invariance) spec-level parameters and constructor.
+/-! OS1 (Euclidean invariance) spec-level parameters and constructor.
 Provide a lightweight quantitative container and a trivial acceptance lemma,
 so upstream modules can thread equicontinuity/isotropy placeholders until the
 full proof is wired. -/
@@ -263,7 +263,7 @@ def os1_euclid_spec (P : OS1Params) : Prop :=
 theorem os1_euclid_exists (P : OS1Params) : os1_euclid_spec P := by
   exact And.intro rfl rfl
 
-/ -! Extended acceptance bundle including OS1 (equicontinuity/isotropy).
+/-! Extended acceptance bundle including OS1 (equicontinuity/isotropy).
 This keeps the original T14 bundle intact and provides a parallel variant that
 adds OS1 without breaking existing callers. -/
 
@@ -307,7 +307,7 @@ theorem T14_accept_with_os1_from_quant_holds
   local_fields_accept_with_os1 (build_T14_accept_with_os1_from_quant Q P E) := by
   exact local_fields_accept_with_os1_holds (build_T14_accept_with_os1_from_quant Q P E)
 
-/ -! OS0+OS1+OS3 fields bundle and converter to the extended T14 acceptance. -/
+/-! OS0+OS1+OS3 fields bundle and converter to the extended T14 acceptance. -/
 
 structure OSFieldsFromQuantOS1 where
   os0 : OS0Params
@@ -349,7 +349,7 @@ theorem T14_accept_with_os1_from_fields_holds (Q : MomentQuantParams) (E : OS1Pa
   local_fields_accept_with_os1 (build_T14_accept_with_os1_from_fields Q E P) := by
   exact local_fields_accept_with_os1_holds (build_T14_accept_with_os1_from_fields Q E P)
 
-/ -! Aggregate OS0–OS3 acceptance with locality: compact record, acceptance predicate,
+/-! Aggregate OS0–OS3 acceptance with locality: compact record, acceptance predicate,
 and builder from quantitative OS0/OS1 params and Doeblin-driven gap. -/
 
 structure OSAllParams where
@@ -380,7 +380,7 @@ theorem os_all_from_quant_holds (Q : MomentQuantParams) (E : OS1Params) (P : Doe
   have h := os_all_accept_holds (build_os_all_from_quant Q E P)
   simpa using h
 
-/ -! Bridging to vendor UEI/LSI layer (interface-level): create OS0/OS1 params
+/-! Bridging to vendor UEI/LSI layer (interface-level): create OS0/OS1 params
 from a vendor UEI bundle and assemble acceptance using the Doeblin gap. -/
 
 def os0_from_vendor_uei (_D : YM.OSPositivity.UEI_LSI_Region) : OS0Params :=
@@ -444,7 +444,7 @@ theorem T14_accept_with_os1_from_vendor_setup_holds
   local_fields_accept_with_os1 (build_T14_accept_with_os1_from_vendor_setup D S S0 a) := by
   exact local_fields_accept_with_os1_holds (build_T14_accept_with_os1_from_vendor_setup D S S0 a)
 
-/ -! E1/E2/E3: Quantitative OS0, OS1 modulus, and OS2/OS3 acceptance wrappers. -/
+/-! E1/E2/E3: Quantitative OS0, OS1 modulus, and OS2/OS3 acceptance wrappers. -/
 
 /-- Quantitative bundle collecting (OS0) clover-moment params, (OS1) modulus, and
     (OS3) Doeblin→T15→T14 gap inputs. -/

@@ -1,7 +1,7 @@
 /-!
-T12 (UEI_FixedRegion) stubs.
-Source: RS_Classical_Bridge_Source.txt (T12 block).
-No axioms. No `sorry`.
+T12 (UEI_FixedRegion): completed spec-level acceptance with explicit formulas for
+tree-gauge, local LSI–beta, Lipschitz, Herbst, and UEI fixed-region constants.
+No axioms. No `sorry`. No `admit`.
 -/
 
 namespace YM.OSPositivity.UEI

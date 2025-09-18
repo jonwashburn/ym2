@@ -1,7 +1,7 @@
 import Mathlib
 import ym.Transfer
 
-/ -!
+/-!
 Concrete Dobrushin coefficient: overlap bound and quantitative α ∈ [0,1).
 
 We work with finite-state Markov kernels `K : MarkovKernel ι` (row-stochastic,

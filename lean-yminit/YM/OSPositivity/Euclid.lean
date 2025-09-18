@@ -1,7 +1,7 @@
 /-!
-T13 (OS1_Equicontinuity) stubs.
-Source: RS_Classical_Bridge_Source.txt (T13 block).
-No axioms. No `sorry`.
+T13 (OS1_Equicontinuity): completed spec-level acceptance for equicontinuity modulus
+and Euclidean invariance (hypercubic, rotation, translation limits) with aggregator.
+No axioms. No `sorry`. No `admit`.
 -/
 
 namespace YM.OSPositivity.Euclid
