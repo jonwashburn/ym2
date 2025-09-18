@@ -155,6 +155,10 @@ by
   T15_accept P (build_T15 P) := by
   simpa using (T15_accept_holds P)
 
+@[simp] theorem build_T15_eight_gamma_cut (P : T15Params) :
+  (build_T15 P).eight.gamma_cut = P.c_cut := by
+  simp [build_T15_eight]
+
 @[simp] theorem build_T15_gamma (P : T15Params) :
   (build_T15 P).phys.gamma_phys = P.c_cut := by
   -- reduce via the component builders
@@ -407,6 +411,10 @@ theorem physnorm_from_compose_exists (a : Float) (C : ComposeParams) :
 
 @[simp] theorem build_physnorm_from_compose_c_cut_a (a : Float) (C : ComposeParams) :
   (build_physnorm_from_compose a C).c_cut_a = C.c_cut_a := rfl
+
+@[simp] theorem build_physnorm_on_from_compose_gamma (a : Float) (C : ComposeParams) :
+  (build_physnorm (build_physnorm_from_compose a C)).gamma_phys = C.c_cut_a := by
+  simp [build_physnorm_from_compose]
 
 /-- Acceptance bundle for T15 (spec-level): collect all components. -/
 structure T15AcceptBundle where
