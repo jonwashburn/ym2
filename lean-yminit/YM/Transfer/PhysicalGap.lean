@@ -38,6 +38,10 @@ theorem build_per_tick_satisfies (P : PerTickParams) :
 def build_per_tick_from_doeblin (O : YM.OSWilson.Doeblin.DoeblinSetupOut) (lambda1 : Float) : PerTickParams :=
   { thetaStar := O.doeblin.kappa0, t0 := O.conv.t0, lambda1 := lambda1 }
 
+@[simp] theorem build_per_tick_from_doeblin_factor (O : YM.OSWilson.Doeblin.DoeblinSetupOut)
+  (lambda1 : Float) :
+  (build_per_tick (build_per_tick_from_doeblin O lambda1)).factor = O.doeblin.kappa0 := rfl
+
 /-- Eight-tick composition. -/
 structure EightTickParams where
   c_cut : Float
