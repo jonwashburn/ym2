@@ -536,6 +536,16 @@ theorem best_of_two_holds (B : BestOfTwo) : best_of_two_spec B := rfl
     best_of_two { gamma_alpha := b, gamma_cut := a } := by
   simp [best_of_two, max_comm]
 
+@[simp] theorem best_of_two_le_iff (a b c : Float) :
+  best_of_two { gamma_alpha := a, gamma_cut := b } ≤ c ↔ (a ≤ c ∧ b ≤ c) := by
+  dsimp [best_of_two]
+  simpa using (max_le_iff)
+
+@[simp] theorem le_best_of_two_iff (c a b : Float) :
+  c ≤ best_of_two { gamma_alpha := a, gamma_cut := b } ↔ (c ≤ a ∨ c ≤ b) := by
+  dsimp [best_of_two]
+  simpa using (le_max_iff)
+
 @[simp] theorem best_of_two_ge_alpha (a b : Float) :
   a ≤ best_of_two { gamma_alpha := a, gamma_cut := b } := by
   dsimp [best_of_two]
