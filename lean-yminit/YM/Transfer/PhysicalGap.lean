@@ -531,6 +531,11 @@ theorem best_of_two_holds (B : BestOfTwo) : best_of_two_spec B := rfl
   best_of_two { gamma_alpha := x, gamma_cut := x } = x := by
   simp [best_of_two]
 
+@[simp] theorem best_of_two_comm (a b : Float) :
+  best_of_two { gamma_alpha := a, gamma_cut := b } =
+    best_of_two { gamma_alpha := b, gamma_cut := a } := by
+  simp [best_of_two, max_comm]
+
 @[simp] theorem best_of_two_ge_alpha (a b : Float) :
   a ≤ best_of_two { gamma_alpha := a, gamma_cut := b } := by
   dsimp [best_of_two]
