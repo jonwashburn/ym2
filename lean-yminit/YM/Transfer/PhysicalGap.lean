@@ -528,6 +528,31 @@ theorem export_gamma_from_routes_holds (R : GapRoutes) :
   dsimp [export_gamma_from_routes]
   exact le_max_right _ _
 
+/-- Monotonicity corollary: increasing only the alpha route does not decrease the export. -/
+theorem export_gamma_monotone_alpha (ga ga' : Float)
+  (I : YM.OSWilson.Doeblin.WilsonGibbsInterface)
+  (h : ga' ≥ ga) :
+  export_gamma_from_routes { gamma_alpha := ga', iface := I } ≥
+  export_gamma_from_routes { gamma_alpha := ga,  iface := I } := by
+  dsimp [export_gamma_from_routes]
+  -- max is monotone in the first argument
+  have : Float.max ga' (gamma_cut_from_interface I) ≥ Float.max ga (gamma_cut_from_interface I) := by
+    -- Use that max is monotone in each coordinate
+    exact max_le_max h (le_of_eq rfl)
+  simpa using this
+
+/-- Monotonicity corollary: improving only the cut route does not decrease the export. -/
+theorem export_gamma_monotone_cut (ga : Float)
+  (I I' : YM.OSWilson.Doeblin.WilsonGibbsInterface)
+  (h : gamma_cut_from_interface I' ≥ gamma_cut_from_interface I) :
+  export_gamma_from_routes { gamma_alpha := ga, iface := I' } ≥
+  export_gamma_from_routes { gamma_alpha := ga, iface := I  } := by
+  dsimp [export_gamma_from_routes]
+  -- max is monotone in the second argument
+  have : Float.max ga (gamma_cut_from_interface I') ≥ Float.max ga (gamma_cut_from_interface I) := by
+    exact max_le_max (le_of_eq rfl) h
+  simpa using this
+
 /-- Helper: ρ from (κ0, t0, λ1). -/
 def rho_of (kappa0 t0 lambda1 : Float) : Float :=
   Float.sqrt (Float.max 0.0 (1.0 - kappa0 * Float.exp (-(lambda1 * t0))))
