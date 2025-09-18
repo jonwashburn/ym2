@@ -11,12 +11,13 @@ namespace YM.OSPositivity.Vacuum
 open YM.OSPositivity.GNS
 open YM.Transfer.PhysicalGap
 
-/-- Acceptance predicate for unique vacuum on GNS. -/
+/-- Acceptance predicate for unique vacuum on GNS (concrete equality):
+`U.one_dim_constants` equals `C.one_dim`, and the constants sector is one-dimensional. -/
 structure UniqueVacuum where
   one_dim_constants : Bool
 
 def unique_vacuum_spec (C : ConstantsSector) (U : UniqueVacuum) : Prop :=
-  (C.one_dim = true) ∧ (U.one_dim_constants = true)
+  (U.one_dim_constants = C.one_dim) ∧ (C.one_dim = true)
 
 def build_unique_vacuum (C : ConstantsSector) : UniqueVacuum :=
   { one_dim_constants := C.one_dim }
