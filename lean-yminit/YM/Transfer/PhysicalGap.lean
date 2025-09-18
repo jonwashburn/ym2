@@ -420,7 +420,7 @@ def build_compose_from_tickpack (beta0 a : Float) : ComposeParams :=
   let _tp := YM.OSWilson.OddConeDeficit.build_tick_pack { beta0 := beta0, a := a }
   { c_cut_a := _tp.c_cut }
 
-theorem compose_from_tickpack_exists (beta0 a : Float) :
+@[simp] theorem compose_from_tickpack_exists (beta0 a : Float) :
   compose_eight_ticks_spec (build_compose_from_tickpack beta0 a) := by
   rfl
 
@@ -431,7 +431,7 @@ theorem compose_from_tickpack_exists (beta0 a : Float) :
 def build_physnorm_from_compose (a : Float) (C : ComposeParams) : PhysNormParams :=
   { a := a, c_cut_a := C.c_cut_a }
 
-theorem physnorm_from_compose_exists (a : Float) (C : ComposeParams) :
+@[simp] theorem physnorm_from_compose_exists (a : Float) (C : ComposeParams) :
   physical_normalization_spec (build_physnorm_from_compose a C) := by
   exact And.intro rfl rfl
 
@@ -521,6 +521,10 @@ theorem best_of_two_holds (B : BestOfTwo) : best_of_two_spec B := rfl
 
 @[simp] theorem best_of_two_eval (a b : Float) :
   best_of_two { gamma_alpha := a, gamma_cut := b } = Float.max a b := rfl
+
+@[simp] theorem best_of_two_eq_when_equal (x : Float) :
+  best_of_two { gamma_alpha := x, gamma_cut := x } = x := by
+  simp [best_of_two]
 
 @[simp] theorem best_of_two_ge_alpha (a b : Float) :
   a ≤ best_of_two { gamma_alpha := a, gamma_cut := b } := by
@@ -614,6 +618,11 @@ theorem export_gamma_from_routes_holds (R : GapRoutes) :
 @[simp] theorem export_gamma_from_routes_eval (ga : Float) (I : YM.OSWilson.Doeblin.WilsonGibbsInterface) :
   export_gamma_from_routes { gamma_alpha := ga, iface := I } =
     Float.max ga (gamma_cut_from_interface I) := rfl
+
+@[simp] theorem export_gamma_eq_when_equal (x : Float) (I : YM.OSWilson.Doeblin.WilsonGibbsInterface)
+  (h : x = gamma_cut_from_interface I) :
+  export_gamma_from_routes { gamma_alpha := x, iface := I } = x := by
+  simpa [h, export_gamma_from_routes]
 
 @[simp] theorem export_gamma_ge_alpha (R : GapRoutes) :
   R.gamma_alpha ≤ export_gamma_from_routes R := by
