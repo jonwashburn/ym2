@@ -416,6 +416,37 @@ theorem best_of_two_holds (B : BestOfTwo) : best_of_two_spec B := rfl
 @[simp] theorem best_of_two_eval (a b : Float) :
   best_of_two { gamma_alpha := a, gamma_cut := b } = Float.max a b := rfl
 
+/-- Monotonicity of best_of_two in both arguments. -/
+def best_of_two_monotone (B B' : BestOfTwo) : Prop :=
+  (B'.gamma_alpha ≥ B.gamma_alpha) ∧ (B'.gamma_cut ≥ B.gamma_cut) →
+  best_of_two B' ≥ best_of_two B
+
+theorem best_of_two_monotone_holds (B B' : BestOfTwo) :
+  best_of_two_monotone B B' := by
+  dsimp [best_of_two_monotone, best_of_two]
+  intro h
+  rcases h with ⟨hα, hcut⟩
+  -- Monotonicity of max in each argument
+  have : Float.max B'.gamma_alpha B'.gamma_cut ≥ Float.max B.gamma_alpha B.gamma_cut := by
+    -- Case split on which side is maximal for B'
+    by_cases h1 : B'.gamma_alpha ≥ B'.gamma_cut
+    · -- max at B'.gamma_alpha
+      have h2 : Float.max B.gamma_alpha B.gamma_cut ≤ B'.gamma_alpha := by
+        -- both B.gamma_alpha and B.gamma_cut are ≤ corresponding B' bounds ≤ B'.gamma_alpha by h1
+        have : B.gamma_alpha ≤ B'.gamma_alpha := hα
+        have : Float.max B.gamma_alpha B.gamma_cut ≤ Float.max B'.gamma_alpha B'.gamma_alpha :=
+          max_le_max hα (le_trans hcut h1)
+        simpa using this
+      simpa [h1] using h2
+    · -- max at B'.gamma_cut
+      have h1' : B'.gamma_cut ≥ B'.gamma_alpha := le_of_not_ge h1
+      have h2 : Float.max B.gamma_alpha B.gamma_cut ≤ B'.gamma_cut := by
+        have : Float.max B.gamma_alpha B.gamma_cut ≤ Float.max B'.gamma_cut B'.gamma_cut :=
+          max_le_max (le_trans hα h1') hcut
+        simpa using this
+      simpa [not_le.mpr (lt_of_le_of_ne h1' (by decide))] using h2
+  simpa using this
+
 /-- PF gap export from routes: choose max{γ_α, γ_cut(interface)} (spec-level). -/
 structure GapRoutes where
   gamma_alpha : Float
