@@ -696,6 +696,14 @@ theorem export_gamma_from_routes_holds (R : GapRoutes) :
   export_gamma_from_routes_spec R ↔
     export_gamma_from_routes R = Float.max R.gamma_alpha (gamma_cut_from_interface R.iface) := Iff.rfl
 
+@[simp] theorem T15_accept_iff (P : T15Params) (O : T15Out) :
+  T15_accept P O ↔
+    (O.perO.factor = P.per.thetaStar) ∧
+    (O.eight.gamma_cut = P.c_cut) ∧
+    (O.phys.gamma_phys = O.eight.gamma_cut) ∧
+    (O.pers.ok = true) := by
+  simp [T15_accept, per_tick_spec, eight_tick_spec, physnorm_spec, persist_spec]
+
 @[simp] theorem export_equals_best_of_two (R : GapRoutes) :
   export_gamma_from_routes R =
     best_of_two { gamma_alpha := R.gamma_alpha, gamma_cut := gamma_cut_from_interface R.iface } := rfl
