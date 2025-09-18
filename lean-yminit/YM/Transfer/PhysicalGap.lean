@@ -463,6 +463,26 @@ theorem gamma_pipeline_def (P : GapFromDoeblinParams) :
   dsimp [build_gap_from_doeblin, rho_of, beta0_of, c_cut_of]
   rfl
 
+/-- Link to helpers: the ρ field equals `rho_of` for the same parameters. -/
+@[simp] theorem build_gap_from_doeblin_rho_of (P : GapFromDoeblinParams) :
+  (build_gap_from_doeblin P).rho = rho_of P.kappa0 P.t0 P.lambda1 := by
+  dsimp [build_gap_from_doeblin, rho_of]
+  rfl
+
+/-- Link to helpers: the β0 field equals `beta0_of (rho_of ...) S0`. -/
+@[simp] theorem build_gap_from_doeblin_beta0_of (P : GapFromDoeblinParams) :
+  (build_gap_from_doeblin P).beta0 =
+    beta0_of (rho_of P.kappa0 P.t0 P.lambda1) P.S0 := by
+  dsimp [build_gap_from_doeblin, rho_of, beta0_of]
+  rfl
+
+/-- Link to helpers: the c_cut field equals `c_cut_of a (beta0_of ...)`. -/
+@[simp] theorem build_gap_from_doeblin_c_cut_of (P : GapFromDoeblinParams) :
+  (build_gap_from_doeblin P).c_cut =
+    c_cut_of P.a (beta0_of (rho_of P.kappa0 P.t0 P.lambda1) P.S0) := by
+  dsimp [build_gap_from_doeblin, rho_of, beta0_of, c_cut_of]
+  rfl
+
 /-- Spec-level acceptance: c_cut is monotone in β0 (placeholder acceptance). -/
 structure CcutMonoBeta where
   ok : Bool
