@@ -416,6 +416,11 @@ theorem physnorm_from_compose_exists (a : Float) (C : ComposeParams) :
   (build_physnorm (build_physnorm_from_compose a C)).gamma_phys = C.c_cut_a := by
   simp [build_physnorm_from_compose]
 
+@[simp] theorem gamma_from_tickpack (beta0 a : Float) :
+  (build_physnorm (build_physnorm_from_compose a (build_compose_from_tickpack beta0 a))).gamma_phys =
+    (YM.OSWilson.OddConeDeficit.build_tick_pack { beta0 := beta0, a := a }).c_cut := by
+  simp [build_physnorm_from_compose, build_compose_from_tickpack]
+
 /-- Acceptance bundle for T15 (spec-level): collect all components. -/
 structure T15AcceptBundle where
   pt  : PerTickParams
