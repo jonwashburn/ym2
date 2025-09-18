@@ -94,6 +94,42 @@ theorem build_markov_kernel_holds (X : Type) :
   markov_kernel_spec (build_markov_kernel X) := by
   dsimp [markov_kernel_spec, build_markov_kernel]; repeat (first | constructor | rfl)
 
+/-- ℝ-level sigma algebra (props instead of flags). -/
+structure SigmaAlgebraR where
+  countably_generated : Prop
+  complete            : Prop
+
+def sigma_algebra_spec_R (S : SigmaAlgebraR) : Prop :=
+  S.countably_generated ∧ S.complete
+
+def lift_sigma_algebra_to_R (S : SigmaAlgebra) : SigmaAlgebraR :=
+  { countably_generated := (S.countably_generated = true)
+  , complete            := (S.complete = true) }
+
+theorem lift_sigma_algebra_to_R_holds (S : SigmaAlgebra) :
+  sigma_algebra_spec_R (lift_sigma_algebra_to_R S) := by
+  dsimp [lift_sigma_algebra_to_R, sigma_algebra_spec_R]
+  exact And.intro rfl rfl
+
+/-- ℝ-level Markov kernel predicate (props instead of flags). -/
+structure MarkovKernelR (X : Type) where
+  row_stochastic : Prop
+  nonnegative    : Prop
+  time_homog     : Prop
+
+def markov_kernel_spec_R {X} (K : MarkovKernelR X) : Prop :=
+  K.row_stochastic ∧ K.nonnegative ∧ K.time_homog
+
+def lift_markov_kernel_to_R {X} (K : MarkovKernel X) : MarkovKernelR X :=
+  { row_stochastic := (K.row_stochastic = true)
+  , nonnegative    := (K.nonnegative = true)
+  , time_homog     := (K.time_homog = true) }
+
+theorem lift_markov_kernel_to_R_holds {X} (K : MarkovKernel X) :
+  markov_kernel_spec_R (lift_markov_kernel_to_R K) := by
+  dsimp [lift_markov_kernel_to_R, markov_kernel_spec_R]
+  exact And.intro rfl (And.intro rfl rfl)
+
 end YM.Model.Gauge
 
 /‑‑!

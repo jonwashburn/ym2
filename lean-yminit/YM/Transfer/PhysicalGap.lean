@@ -427,6 +427,19 @@ def export_gamma_from_routes_spec (R : GapRoutes) : Prop :=
 theorem export_gamma_from_routes_holds (R : GapRoutes) :
   export_gamma_from_routes_spec R := rfl
 
+/-- Definitional helper: closed-form for c_cut from (a, β0). -/
+def c_cut_of (a beta0 : Float) : Float :=
+  - (Float.log (Float.max 1e-9 (1.0 - beta0))) / a
+
+@[simp] theorem c_cut_of_def (a beta0 : Float) :
+  c_cut_of a beta0 = - (Float.log (Float.max 1e-9 (1.0 - beta0))) / a := rfl
+
+/-- Gamma equals c_cut in the current normalization. -/
+theorem gamma_phys_eq_c_cut_of (P : GapFromDoeblinParams) :
+  (build_gap_from_doeblin P).gamma_phys = c_cut_of P.a (build_gap_from_doeblin P).beta0 := by
+  dsimp [build_gap_from_doeblin, c_cut_of]
+  rfl
+
 /-- Monotonicity: if both candidate routes improve, the exported γ does not decrease. -/
 def export_gamma_monotone (R R' : GapRoutes) : Prop :=
   (R'.gamma_alpha ≥ R.gamma_alpha) ∧
