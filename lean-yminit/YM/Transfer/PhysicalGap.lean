@@ -86,6 +86,10 @@ theorem build_persist_satisfies (P : PersistParams) :
 @[simp] theorem to_continuum_params_mk (rho beta0 c_cut gamma_phys : Float) :
   (to_continuum_params { rho := rho, beta0 := beta0, c_cut := c_cut, gamma_phys := gamma_phys }).gamma_phys = gamma_phys := rfl
 
+@[simp] theorem to_continuum_params_build (P : GapFromDoeblinParams) :
+  to_continuum_params (build_gap_from_doeblin P) =
+    { gamma_phys := (build_gap_from_doeblin P).gamma_phys } := rfl
+
 /-- Aggregated T15 bundle. -/
 structure T15Params where
   per   : PerTickParams
