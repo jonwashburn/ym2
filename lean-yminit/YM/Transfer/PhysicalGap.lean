@@ -104,6 +104,18 @@ def build_T15 (P : T15Params) : T15Out :=
   let pr := build_persist { gamma_phys := ph.gamma_phys }
   { perO := perO, eight := e, phys := ph, pers := pr }
 
+@[simp] theorem build_T15_perO (P : T15Params) :
+  (build_T15 P).perO = build_per_tick P.per := rfl
+
+@[simp] theorem build_T15_eight (P : T15Params) :
+  (build_T15 P).eight = build_eight_tick { c_cut := P.c_cut } := rfl
+
+@[simp] theorem build_T15_phys (P : T15Params) :
+  (build_T15 P).phys = build_physnorm { gamma_cut := (build_eight_tick { c_cut := P.c_cut }).gamma_cut } := rfl
+
+@[simp] theorem build_T15_pers (P : T15Params) :
+  (build_T15 P).pers = build_persist { gamma_phys := (build_physnorm { gamma_cut := (build_eight_tick { c_cut := P.c_cut }).gamma_cut }).gamma_phys } := rfl
+
 def T15_accept (P : T15Params) (O : T15Out) : Prop :=
   per_tick_spec P.per O.perO ∧
   eight_tick_spec { c_cut := P.c_cut } O.eight ∧
