@@ -270,12 +270,18 @@ structure ContinuumPersistParams where
 
 def continuum_gap_persistence_spec (P : ContinuumPersistParams) : Prop := P.gamma_phys > 0.0
 
+@[simp] theorem continuum_gap_persistence_spec_iff (P : ContinuumPersistParams) :
+  continuum_gap_persistence_spec P ↔ P.gamma_phys > 0.0 := Iff.rfl
+
 structure ConstIndepParams where
   R_star : Float
   a0 : Float
   N : Nat
 
 def constants_independence_spec (P : ConstIndepParams) : Prop := (P.R_star ≥ 0.0) ∧ (P.a0 ≥ 0.0) ∧ (P.N ≥ 1)
+
+@[simp] theorem constants_independence_spec_iff (P : ConstIndepParams) :
+  constants_independence_spec P ↔ (P.R_star ≥ 0.0 ∧ P.a0 ≥ 0.0 ∧ P.N ≥ 1) := Iff.rfl
 
 /-- Existence lemmas (spec-level) for T15 components. -/
 theorem per_tick_contraction_exists (P : PerTickParams) : per_tick_contraction_spec P := by
