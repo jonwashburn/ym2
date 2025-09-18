@@ -168,7 +168,7 @@ structure NRCParams where
 
 -- NRC all-z spec: tautological equality predicate.
 def nrc_all_nonreal_rescaled_spec (P : NRCParams) : Prop :=
-  P = P
+  True
 
 /-- Minimal constructor for NRC parameters. -/
 def build_nrc_all_nonreal_rescaled (rc : ResolventComparisonParams) : NRCParams :=
@@ -182,7 +182,7 @@ def nrc_all_nonreal_rescaled (P : NRCParams) : Prop :=
 theorem build_nrc_all_nonreal_rescaled_satisfies (rc : ResolventComparisonParams) :
   nrc_all_nonreal_rescaled (build_nrc_all_nonreal_rescaled rc) :=
 by
-  rfl
+  trivial
 
 -- Purged placeholder alias: use `nrc_all_nonreal_rescaled` directly as the acceptance predicate.
 
@@ -273,7 +273,7 @@ by
   have hRC : resolvent_comparison_rescaled_spec B.setup.rc :=
     build_resolvent_comparison_rescaled_satisfies I.gd I.pc I.cc
   have hQ : nrc_quant_bound_spec I B.setup.nq := rfl
-  have hNR : nrc_all_nonreal_rescaled (build_nrc_all_nonreal_rescaled B.setup.rc) := rfl
+  have hNR : nrc_all_nonreal_rescaled (build_nrc_all_nonreal_rescaled B.setup.rc) := trivial
   exact And.intro hRC (And.intro hQ hNR)
 
 end YM.SpectralStability.RescaledNRC

@@ -74,10 +74,10 @@ structure PersistOut where
   ok : Bool
 
 def persist_spec (P : PersistParams) (O : PersistOut) : Prop :=
-  O.ok = O.ok
+  O.ok = true
 
 def build_persist (P : PersistParams) : PersistOut :=
-  { ok := True }
+  { ok := true }
 
 theorem build_persist_satisfies (P : PersistParams) :
   persist_spec P (build_persist P) := by rfl

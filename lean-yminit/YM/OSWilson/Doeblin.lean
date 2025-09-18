@@ -294,9 +294,9 @@ structure OddConeParams where
 structure OddConeOut where
   rho : Float
 
--- Odd-cone contraction spec (spec-level reflexive equality).
-def odd_cone_contraction_spec (P : OddConeParams) (O : OddConeOut) : Prop :=
-  O.rho = O.rho
+ -- Odd-cone contraction spec: tie output to input κ₀ at spec level.
+ def odd_cone_contraction_spec (P : OddConeParams) (O : OddConeOut) : Prop :=
+  O.rho = P.kappa0
 
 /-- Minimal constructor for odd-cone contraction output from parameters. -/
 def build_odd_cone_contraction (P : OddConeParams) : OddConeOut :=
@@ -575,17 +575,24 @@ structure HaarDomination where
   t0     : Float
 
 def haar_domination_spec (D : HaarDomination) : Prop :=
-  (D.θStar = D.θStar) ∧ (D.t0 = D.t0) ∧ inter_slab_row_sum_one D.W ∧ inter_slab_nonneg_entries D.W
+  (0.0 < D.θStar) ∧ (D.θStar ≤ 1.0) ∧ (D.t0 > 0.0) ∧ inter_slab_row_sum_one D.W ∧ inter_slab_nonneg_entries D.W
 
 def build_haar_domination_uniform (n : Nat) : HaarDomination :=
   { W := build_inter_slab_uniform n, θStar := 0.5, t0 := 1.0 }
 
 theorem build_haar_domination_uniform_satisfies (n : Nat) :
   haar_domination_spec (build_haar_domination_uniform n) := by
-  -- Spec-level: θ* and t0 equal themselves; row-sum-one and nonnegativity hold for uniform kernel.
-  refine And.intro rfl ?hrest
-  · refine And.intro rfl ?hacc
-    exact And.intro (inter_slab_row_sum_one_holds n) (inter_slab_nonneg_entries_holds n)
+  -- θ* = 0.5, t0 = 1.0 for the uniform builder; kernel is nonnegative and rows sum to 1
+  dsimp [build_haar_domination_uniform, haar_domination_spec]
+  constructor
+  · exact (by decide : (0.0 : Float) < 0.5)
+  · constructor
+    · exact (by decide : (0.5 : Float) ≤ 1.0)
+    · constructor
+      · exact (by decide : (0.0 : Float) < 1.0)
+      · constructor
+        · exact inter_slab_row_sum_one_holds n
+        · exact inter_slab_nonneg_entries_holds n
 
 /-- Build a Haar domination witness from the spec-level Wilson kernel (row-normalized).
 This packages `(θ*, t0)` with unit row sums and nonnegativity at the interface level. -/
@@ -594,10 +601,16 @@ def build_haar_domination_wilson (n : Nat) : HaarDomination :=
 
 theorem build_haar_domination_wilson_satisfies (n : Nat) :
   haar_domination_spec (build_haar_domination_wilson n) := by
-  refine And.intro rfl ?hrest
-  · refine And.intro rfl ?hacc
-    have h := inter_slab_accept_holds_wilson n
-    exact And.intro h.right h.left
+  dsimp [build_haar_domination_wilson, haar_domination_spec]
+  constructor
+  · exact (by decide : (0.0 : Float) < 0.5)
+  · constructor
+    · exact (by decide : (0.5 : Float) ≤ 1.0)
+    · constructor
+      · exact (by decide : (0.0 : Float) < 1.0)
+      · constructor
+        · have h := inter_slab_accept_holds_wilson n; exact h.left
+        · have h := inter_slab_accept_holds_wilson n; exact h.right
 
 /-- Alias acceptance for Doeblin domination θ·P_{t0} ≤ W (spec-level). -/
 def doeblin_domination_accept (D : HaarDomination) : Prop :=

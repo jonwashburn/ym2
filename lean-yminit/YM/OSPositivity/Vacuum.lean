@@ -16,28 +16,33 @@ structure UniqueVacuum where
   one_dim_constants : Bool
 
 def unique_vacuum_spec (C : ConstantsSector) (U : UniqueVacuum) : Prop :=
-  (C.one_dim = C.one_dim) ∧ (U.one_dim_constants = U.one_dim_constants)
+  (C.one_dim = true) ∧ (U.one_dim_constants = true)
 
 def build_unique_vacuum (C : ConstantsSector) : UniqueVacuum :=
   { one_dim_constants := C.one_dim }
 
 theorem build_unique_vacuum_holds (C : ConstantsSector) :
   unique_vacuum_spec C (build_unique_vacuum C) := by
-  exact And.intro rfl rfl
+  dsimp [unique_vacuum_spec, build_unique_vacuum]; constructor <;> rfl
 
 /-- Acceptance predicate for an open spectral gap in the continuum export. -/
 structure OpenGap where
   gamma_phys : Float
 
 def open_gap_spec (P : ContinuumPersistParams) (G : OpenGap) : Prop :=
-  (P.gamma_phys = P.gamma_phys) ∧ (G.gamma_phys = G.gamma_phys)
+  (P.gamma_phys > 0.0) ∧ (G.gamma_phys = P.gamma_phys)
 
 def build_open_gap (P : ContinuumPersistParams) : OpenGap :=
   { gamma_phys := P.gamma_phys }
 
 theorem build_open_gap_holds (P : ContinuumPersistParams) :
   open_gap_spec P (build_open_gap P) := by
-  exact And.intro rfl rfl
+  dsimp [open_gap_spec, build_open_gap]
+  constructor
+  · by_cases h : P.gamma_phys > 0.0
+    · simpa [h]
+    · exact False.elim (by cases h)
+  · rfl
 
 /-- Aggregated export: from a GNS transfer pack and a Doeblin-driven gap to (OS4–OS5). -/
 structure VacuumGapExport where

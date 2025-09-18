@@ -21,7 +21,7 @@ structure OSPositivityWitness (n : Nat) where
 
 /-- Acceptance predicate: reflection stability, Hermitian kernel, and reflected PSD Gram. -/
 def os_positivity_spec {n : Nat} (W : OSPositivityWitness n) : Prop :=
-  (W.mu_ok = W.mu_ok) ∧
+  (W.mu_ok = true) ∧
   reflection_stable_spec W.alg (build_os_reflection) ∧
   hermitian_spec W.ker ∧
   reflected_psd_gram_spec W.ker W.gram
