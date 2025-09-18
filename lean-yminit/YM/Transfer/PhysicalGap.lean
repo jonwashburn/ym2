@@ -686,6 +686,18 @@ theorem export_gamma_from_routes_holds (R : GapRoutes) :
   dsimp [export_gamma_from_routes]
   exact le_max_right _ _
 
+@[simp] theorem export_gamma_le_iff (R : GapRoutes) (c : Float) :
+  export_gamma_from_routes R ≤ c ↔
+    (R.gamma_alpha ≤ c ∧ gamma_cut_from_interface R.iface ≤ c) := by
+  dsimp [export_gamma_from_routes]
+  simpa using (max_le_iff)
+
+@[simp] theorem le_export_gamma_iff (c : Float) (R : GapRoutes) :
+  c ≤ export_gamma_from_routes R ↔
+    (c ≤ R.gamma_alpha ∨ c ≤ gamma_cut_from_interface R.iface) := by
+  dsimp [export_gamma_from_routes]
+  simpa using (le_max_iff)
+
 @[simp] theorem export_gamma_eq_cut_of_le (R : GapRoutes)
   (h : R.gamma_alpha ≤ gamma_cut_from_interface R.iface) :
   export_gamma_from_routes R = gamma_cut_from_interface R.iface := by
