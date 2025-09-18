@@ -390,6 +390,10 @@ theorem gamma_cut_from_refresh_holds (a θStar t0 lambda1 : Float) :
   gamma_cut_from_refresh_spec a θStar t0 lambda1 := by
   rfl
 
+@[simp] theorem gamma_cut_from_refresh_def_simp (a θStar t0 lambda1 : Float) :
+  gamma_cut_from_refresh a θStar t0 lambda1 =
+    (YM.OSWilson.Doeblin.build_cut_export a θStar t0 lambda1).gamma_c := rfl
+
 /-- Top export from a WilsonGibbsInterface (spec-level). -/
 def gamma_cut_from_interface (I : YM.OSWilson.Doeblin.WilsonGibbsInterface) : Float :=
   (YM.OSWilson.Doeblin.export_from_interface I).gamma_c
@@ -464,6 +468,10 @@ theorem export_gamma_from_routes_holds (R : GapRoutes) :
 @[simp] theorem export_equals_best_of_two (R : GapRoutes) :
   export_gamma_from_routes R =
     best_of_two { gamma_alpha := R.gamma_alpha, gamma_cut := gamma_cut_from_interface R.iface } := rfl
+
+@[simp] theorem export_gamma_from_routes_eval (ga : Float) (I : YM.OSWilson.Doeblin.WilsonGibbsInterface) :
+  export_gamma_from_routes { gamma_alpha := ga, iface := I } =
+    Float.max ga (gamma_cut_from_interface I) := rfl
 
 /-- Helper: ρ from (κ0, t0, λ1). -/
 def rho_of (kappa0 t0 lambda1 : Float) : Float :=
