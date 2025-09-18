@@ -214,6 +214,26 @@ by
   (build_T15 P).pers.ok = true := by
   simp [build_T15_pers]
 
+@[simp] theorem T15_accept_build_per (P : T15Params) :
+  per_tick_spec P.per (build_T15 P).perO := by
+  have h := T15_accept_build P
+  exact And.left h
+
+@[simp] theorem T15_accept_build_eight (P : T15Params) :
+  eight_tick_spec { c_cut := P.c_cut } (build_T15 P).eight := by
+  have h := T15_accept_build P
+  exact And.left (And.right h)
+
+@[simp] theorem T15_accept_build_phys (P : T15Params) :
+  physnorm_spec { gamma_cut := (build_T15 P).eight.gamma_cut } (build_T15 P).phys := by
+  have h := T15_accept_build P
+  exact And.left (And.right (And.right h))
+
+@[simp] theorem T15_accept_build_pers (P : T15Params) :
+  persist_spec { gamma_phys := (build_T15 P).phys.gamma_phys } (build_T15 P).pers := by
+  have h := T15_accept_build P
+  exact And.right (And.right (And.right h))
+
 end YM.Transfer.PhysicalGap
 
 import YM.OSWilson.Doeblin
