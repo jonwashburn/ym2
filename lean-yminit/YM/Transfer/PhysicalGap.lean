@@ -382,12 +382,22 @@ theorem compose_from_tickpack_exists (beta0 a : Float) :
   compose_eight_ticks_spec (build_compose_from_tickpack beta0 a) := by
   rfl
 
+@[simp] theorem build_compose_from_tickpack_c_cut_a (beta0 a : Float) :
+  (build_compose_from_tickpack beta0 a).c_cut_a =
+    (YM.OSWilson.OddConeDeficit.build_tick_pack { beta0 := beta0, a := a }).c_cut := rfl
+
 def build_physnorm_from_compose (a : Float) (C : ComposeParams) : PhysNormParams :=
   { a := a, c_cut_a := C.c_cut_a }
 
 theorem physnorm_from_compose_exists (a : Float) (C : ComposeParams) :
   physical_normalization_spec (build_physnorm_from_compose a C) := by
   exact And.intro rfl rfl
+
+@[simp] theorem build_physnorm_from_compose_a (a : Float) (C : ComposeParams) :
+  (build_physnorm_from_compose a C).a = a := rfl
+
+@[simp] theorem build_physnorm_from_compose_c_cut_a (a : Float) (C : ComposeParams) :
+  (build_physnorm_from_compose a C).c_cut_a = C.c_cut_a := rfl
 
 /-- Acceptance bundle for T15 (spec-level): collect all components. -/
 structure T15AcceptBundle where
