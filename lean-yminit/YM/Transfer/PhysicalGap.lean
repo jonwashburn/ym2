@@ -22,6 +22,9 @@ structure PerTickOut where
 def per_tick_spec (P : PerTickParams) (O : PerTickOut) : Prop :=
   O.factor = P.thetaStar
 
+@[simp] theorem per_tick_spec_iff (P : PerTickParams) (O : PerTickOut) :
+  per_tick_spec P O ↔ O.factor = P.thetaStar := Iff.rfl
+
 def build_per_tick (P : PerTickParams) : PerTickOut :=
   { factor := P.thetaStar }
 
@@ -52,6 +55,9 @@ structure EightTickOut where
 def eight_tick_spec (P : EightTickParams) (O : EightTickOut) : Prop :=
   O.gamma_cut = P.c_cut
 
+@[simp] theorem eight_tick_spec_iff (P : EightTickParams) (O : EightTickOut) :
+  eight_tick_spec P O ↔ O.gamma_cut = P.c_cut := Iff.rfl
+
 def build_eight_tick (P : EightTickParams) : EightTickOut :=
   { gamma_cut := P.c_cut }
 
@@ -74,6 +80,9 @@ structure PhysNormOut where
 def physnorm_spec (P : PhysNormParams) (O : PhysNormOut) : Prop :=
   O.gamma_phys = P.gamma_cut
 
+@[simp] theorem physnorm_spec_iff (P : PhysNormParams) (O : PhysNormOut) :
+  physnorm_spec P O ↔ O.gamma_phys = P.gamma_cut := Iff.rfl
+
 def build_physnorm (P : PhysNormParams) : PhysNormOut :=
   { gamma_phys := P.gamma_cut }
 
@@ -95,6 +104,9 @@ structure PersistOut where
 
 def persist_spec (P : PersistParams) (O : PersistOut) : Prop :=
   O.ok = true
+
+@[simp] theorem persist_spec_iff (P : PersistParams) (O : PersistOut) :
+  persist_spec P O ↔ O.ok = true := Iff.rfl
 
 def build_persist (P : PersistParams) : PersistOut :=
   { ok := true }
