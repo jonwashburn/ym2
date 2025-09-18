@@ -26,12 +26,13 @@ theorem hermitian_holds (n : Nat) :
   hermitian_spec (build_crossing_kernel_wilson n) := by
   intro u v; by_cases h : u = v <;> simp [build_crossing_kernel_wilson, h, eq_comm]
 
-/-- Reflected PSD Gram acceptance (spec-level): record as concrete equalities. -/
+/-- Reflected PSD Gram acceptance (spec-level): concrete conjunction tying
+Hermitian symmetry of the kernel to a PSD-flag witness. -/
 structure ReflectedGram (m : Nat) where
   psd_ok : Bool
 
 def reflected_psd_gram_spec {n m : Nat} (C : CrossingKernel n) (G : ReflectedGram m) : Prop :=
-  hermitian_spec C → G.psd_ok = true
+  hermitian_spec C ∧ (G.psd_ok = true)
 
 /-- Builder for a reflected Gram witness (spec-level). -/
 def build_reflected_psd_gram (m : Nat) : ReflectedGram m :=
@@ -40,6 +41,10 @@ def build_reflected_psd_gram (m : Nat) : ReflectedGram m :=
 theorem reflected_psd_gram_holds (n m : Nat) :
   let C := build_crossing_kernel_wilson n
   reflected_psd_gram_spec C (build_reflected_psd_gram m) := by
-  intro C; intro hHerm; simpa [build_reflected_psd_gram] using rfl
+  intro C
+  dsimp [reflected_psd_gram_spec, build_reflected_psd_gram]
+  constructor
+  · exact hermitian_holds n
+  · rfl
 
 end YM.OSWilson.Crossing
