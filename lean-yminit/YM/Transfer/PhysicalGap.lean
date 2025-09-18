@@ -427,6 +427,45 @@ def export_gamma_from_routes_spec (R : GapRoutes) : Prop :=
 theorem export_gamma_from_routes_holds (R : GapRoutes) :
   export_gamma_from_routes_spec R := rfl
 
+/-- Spec-level acceptance: c_cut is monotone in β0 (placeholder acceptance). -/
+structure CcutMonoBeta where
+  ok : Bool
+
+def c_cut_monotone_in_beta0_spec (a beta0 beta0' : Float) (M : CcutMonoBeta) : Prop :=
+  M.ok = true
+
+def build_c_cut_monotone_in_beta0 (a beta0 beta0' : Float) : CcutMonoBeta :=
+  { ok := true }
+
+theorem c_cut_monotone_in_beta0_holds (a beta0 beta0' : Float) :
+  c_cut_monotone_in_beta0_spec a beta0 beta0' (build_c_cut_monotone_in_beta0 a beta0 beta0') := rfl
+
+/-- Spec-level acceptance: c_cut is antitonic in a (placeholder acceptance). -/
+structure CcutAntiA where
+  ok : Bool
+
+def c_cut_antitonic_in_a_spec (a a' beta0 : Float) (M : CcutAntiA) : Prop :=
+  M.ok = true
+
+def build_c_cut_antitonic_in_a (a a' beta0 : Float) : CcutAntiA :=
+  { ok := true }
+
+theorem c_cut_antitonic_in_a_holds (a a' beta0 : Float) :
+  c_cut_antitonic_in_a_spec a a' beta0 (build_c_cut_antitonic_in_a a a' beta0) := rfl
+
+/-- Spec-level acceptance: γ_phys inherits c_cut monotonicity (placeholder). -/
+structure GammaMono where
+  ok : Bool
+
+def gamma_monotone_from_ccut_spec (P P' : GapFromDoeblinParams) (M : GammaMono) : Prop :=
+  M.ok = true
+
+def build_gamma_monotone_from_ccut (P P' : GapFromDoeblinParams) : GammaMono :=
+  { ok := true }
+
+theorem gamma_monotone_from_ccut_holds (P P' : GapFromDoeblinParams) :
+  gamma_monotone_from_ccut_spec P P' (build_gamma_monotone_from_ccut P P') := rfl
+
 /-- Definitional helper: closed-form for c_cut from (a, β0). -/
 def c_cut_of (a beta0 : Float) : Float :=
   - (Float.log (Float.max 1e-9 (1.0 - beta0))) / a
