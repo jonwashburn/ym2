@@ -151,6 +151,10 @@ by
   · exact build_physnorm_satisfies { gamma_cut := O.eight.gamma_cut }
   · exact build_persist_satisfies { gamma_phys := O.phys.gamma_phys }
 
+@[simp] theorem T15_accept_build (P : T15Params) :
+  T15_accept P (build_T15 P) := by
+  simpa using (T15_accept_holds P)
+
 end YM.Transfer.PhysicalGap
 
 import YM.OSWilson.Doeblin
