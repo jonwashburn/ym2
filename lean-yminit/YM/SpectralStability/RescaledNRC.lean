@@ -115,7 +115,7 @@ structure ProjectionControlParams where
   Lambda : Float
 
 def projection_control_lowE_spec (P : ProjectionControlParams) : Prop :=
-  P.Lambda = P.Lambda
+  P.Lambda > 0.0
 
 /-- Minimal constructor for low-energy projection control parameters. -/
 def build_projection_control_lowE (Lambda : Float) : ProjectionControlParams :=
@@ -125,7 +125,7 @@ def build_projection_control_lowE (Lambda : Float) : ProjectionControlParams :=
 theorem build_projection_control_lowE_satisfies (Lambda : Float) :
   projection_control_lowE_spec (build_projection_control_lowE Lambda) :=
 by
-  rfl
+  simp [projection_control_lowE_spec, build_projection_control_lowE]
 
 /-- Existence form for ProjectionControlLowE spec. -/
 theorem projection_control_lowE_exists (Lambda : Float) :
@@ -140,7 +140,7 @@ structure ResolventComparisonParams where
   calib : CalibratorParams
 
 def resolvent_comparison_rescaled_spec (P : ResolventComparisonParams) : Prop :=
-  (P.defect = P.defect) ∧ (P.proj = P.proj) ∧ (P.calib = P.calib)
+  graph_defect_rescaled_spec P.defect ∧ projection_control_lowE_spec P.proj ∧ compact_calibrator_spec P.calib
 
 /-- Minimal constructor for resolvent-comparison parameters. -/
 def build_resolvent_comparison_rescaled
@@ -153,7 +153,7 @@ theorem build_resolvent_comparison_rescaled_satisfies
   (gd : GraphDefectParams) (pc : ProjectionControlParams) (cc : CalibratorParams) :
   resolvent_comparison_rescaled_spec (build_resolvent_comparison_rescaled gd pc cc) :=
 by
-  exact And.intro rfl (And.intro rfl rfl)
+  exact And.intro (by rfl) (And.intro (by cases pc; simp [projection_control_lowE_spec]) (by rfl))
 
 /-- Existence form for ResolventComparisonRescaled spec. -/
 theorem resolvent_comparison_rescaled_exists
@@ -206,18 +206,18 @@ structure NRCQuantOut where
 
 -- Quantitative NRC bound spec: concrete reflexive predicate (non-True) to avoid Float order.
 def nrc_quant_bound_spec (I : NRCQuantInputs) (O : NRCQuantOut) : Prop :=
-  O = O
+  O.C ≥ 0.0
 
 /-- Minimal constructor for quantitative NRC bound bundle with C>0. -/
 def build_nrc_quant_bound (I : NRCQuantInputs) : NRCQuantOut :=
-  { C := 1.0 }
+  { C := Float.max 0.0 (I.gd.bound_const * Float.abs I.a) }
 
 /-- Existence form for quantitative NRC bound (spec-level). -/
 theorem nrc_quant_bound_exists (I : NRCQuantInputs) :
   ∃ O : NRCQuantOut, nrc_quant_bound_spec I O :=
 by
   refine ⟨build_nrc_quant_bound I, ?_⟩
-  rfl
+  simp [nrc_quant_bound_spec, build_nrc_quant_bound]
 
 /-- Named accessor for the NRC quantitative constant. -/
 def nrc_quant_constant (I : NRCQuantInputs) : Float :=

@@ -20,15 +20,15 @@ structure ClusteringAcceptance where
 
 /-- OS3 clustering spec: record dependence on γ_phys and region. -/
 def clustering_spec (P : ClusteringParams) (A : ClusteringAcceptance) : Prop :=
-  (P.gamma_phys = P.gamma_phys) ∧ (P.region_size = P.region_size) ∧ (A.ok = A.ok)
+  (P.gamma_phys > 0.0) → A.ok = true
 
 /-- Builder: declare clustering accepted when a positive γ_phys is supplied (spec-level). -/
 def build_clustering (P : ClusteringParams) : ClusteringAcceptance :=
-  { ok := true }
+  { ok := (P.gamma_phys > 0.0) }
 
 theorem build_clustering_holds (P : ClusteringParams) :
   clustering_spec P (build_clustering P) := by
-  exact And.intro rfl (And.intro rfl rfl)
+  intro hpos; simp [build_clustering, hpos]
 
 /-- Glue: derive clustering acceptance from a Doeblin-driven physical gap pack. -/
 def build_clustering_from_doeblin (G : YM.Transfer.PhysicalGap.GapFromDoeblinOut) (R : Float) : ClusteringAcceptance :=

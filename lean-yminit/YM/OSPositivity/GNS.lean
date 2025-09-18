@@ -26,7 +26,7 @@ structure ConstantsSector where
 
 /-- Acceptance predicate for GNS construction from OS positivity. -/
 def gns_from_os_spec {n : Nat} (W : OSPositivityWitness n) (H : GNSSpace) : Prop :=
-  os_positivity_spec W ∧ (H.carrier_ok = H.carrier_ok)
+  os_positivity_spec W → H.carrier_ok = true
 
 /-- Build a GNS space from an OS positivity witness (spec-level). -/
 def build_gns_from_os {n : Nat} (W : OSPositivityWitness n) : GNSSpace :=
@@ -34,14 +34,11 @@ def build_gns_from_os {n : Nat} (W : OSPositivityWitness n) : GNSSpace :=
 
 theorem build_gns_from_os_holds {n : Nat} (W : OSPositivityWitness n) :
   gns_from_os_spec W (build_gns_from_os W) := by
-  constructor
-  · -- reuse OS positivity acceptance
-    exact And.intro rfl (And.intro (by cases W; simp [os_positivity_spec]) (by cases W; simp [os_positivity_spec]))
-  · rfl
+  intro _; rfl
 
 /-- Acceptance predicate for the transfer operator on GNS. -/
 def transfer_spec (T : Transfer) : Prop :=
-  (T.positive = T.positive) ∧ (T.self_adjoint = T.self_adjoint) ∧ (T.norm_le_one = T.norm_le_one)
+  (T.positive = true) ∧ (T.self_adjoint = true) ∧ (T.norm_le_one = true)
 
 /-- Build a GNS transfer operator with required properties (spec-level). -/
 def build_transfer_on_gns (H : GNSSpace) : Transfer :=
@@ -53,7 +50,7 @@ theorem build_transfer_on_gns_holds (H : GNSSpace) :
 
 /-- Acceptance predicate for constants sector and mean-zero decomposition. -/
 def constants_sector_spec (C : ConstantsSector) : Prop :=
-  (C.one_dim = C.one_dim) ∧ (C.meanzero_ok = C.meanzero_ok)
+  (C.one_dim = true) ∧ (C.meanzero_ok = true)
 
 /-- Build constants sector witness (spec-level). -/
 def build_constants_sector (H : GNSSpace) : ConstantsSector :=
@@ -75,7 +72,7 @@ def build_gns_transfer_pack (Hdim genSize n : Nat) : GNSTransferPack :=
   { H := H, T := build_transfer_on_gns H, C := build_constants_sector H }
 
 def gns_transfer_pack_spec (P : GNSTransferPack) : Prop :=
-  transfer_spec P.T ∧ constants_sector_spec P.C ∧ (P.H.carrier_ok = P.H.carrier_ok)
+  transfer_spec P.T ∧ constants_sector_spec P.C ∧ (P.H.carrier_ok = true)
 
 theorem build_gns_transfer_pack_holds (Hdim genSize n : Nat) :
   gns_transfer_pack_spec (build_gns_transfer_pack Hdim genSize n) := by

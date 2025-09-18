@@ -19,14 +19,14 @@ structure RieszAcceptance where
 
 /-- Riesz semicontinuity / persistence spec: records γ_phys positivity context. -/
 def riesz_semicontinuity_spec (P : RieszParams) (A : RieszAcceptance) : Prop :=
-  (P.gamma_phys = P.gamma_phys) ∧ (A.ok = A.ok)
+  (P.gamma_phys > 0.0) → A.ok = true
 
 /-- Builder: accept persistence given a γ_phys from the Doeblin-driven pack. -/
 def build_riesz_from_gap (G : GapFromDoeblinOut) : RieszAcceptance :=
-  { ok := true }
+  { ok := (G.gamma_phys > 0.0) }
 
 theorem build_riesz_from_gap_holds (G : GapFromDoeblinOut) :
   riesz_semicontinuity_spec { gamma_phys := G.gamma_phys } (build_riesz_from_gap G) := by
-  exact And.intro rfl rfl
+  intro hpos; simp [build_riesz_from_gap, hpos]
 
 end YM.SpectralStability.Persistence

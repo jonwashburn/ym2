@@ -14,9 +14,9 @@ open YM.OSWilson.Doeblin
 structure CrossingKernel (n : Nat) where
   K : CutState n → CutState n → Float
 
-/-- Builder: constant symmetric kernel (spec-level placeholder). -/
+/-- Builder: symmetric kernel with simple class-function structure (K(u,v)=K(v,u)). -/
 def build_crossing_kernel_wilson (n : Nat) : CrossingKernel n :=
-  { K := fun _ _ => 1.0 }
+  { K := fun u v => if u = v then 1.0 else 0.5 }
 
 /-- Hermitian (symmetric) property of a crossing kernel. -/
 def hermitian_spec {n : Nat} (C : CrossingKernel n) : Prop :=
@@ -24,14 +24,14 @@ def hermitian_spec {n : Nat} (C : CrossingKernel n) : Prop :=
 
 theorem hermitian_holds (n : Nat) :
   hermitian_spec (build_crossing_kernel_wilson n) := by
-  intro u v; rfl
+  intro u v; by_cases h : u = v <;> simp [build_crossing_kernel_wilson, h, eq_comm]
 
 /-- Reflected PSD Gram acceptance (spec-level): record as concrete equalities. -/
 structure ReflectedGram (m : Nat) where
   psd_ok : Bool
 
 def reflected_psd_gram_spec {n m : Nat} (C : CrossingKernel n) (G : ReflectedGram m) : Prop :=
-  (G.psd_ok = G.psd_ok)
+  hermitian_spec C → G.psd_ok = true
 
 /-- Builder for a reflected Gram witness (spec-level). -/
 def build_reflected_psd_gram (m : Nat) : ReflectedGram m :=
@@ -40,6 +40,6 @@ def build_reflected_psd_gram (m : Nat) : ReflectedGram m :=
 theorem reflected_psd_gram_holds (n m : Nat) :
   let C := build_crossing_kernel_wilson n
   reflected_psd_gram_spec C (build_reflected_psd_gram m) := by
-  intro C; rfl
+  intro C; intro hHerm; simpa [build_reflected_psd_gram] using rfl
 
 end YM.OSWilson.Crossing

@@ -30,20 +30,35 @@ structure RefreshWitness where
 /-! Specification predicate: admissible refresh requires strictly positive
     radius and a probability weight ≤ 1. -/
 def refresh_event_spec (P : RefreshParams) (W : RefreshWitness) : Prop :=
-  (W.r_star = W.r_star) ∧ (W.alpha_ref = W.alpha_ref) ∧ (W.alpha_ref = W.alpha_ref)
+  (W.r_star > 0.0) ∧ (0.0 < W.alpha_ref) ∧ (W.alpha_ref ≤ 1.0)
 
 /-- A minimal, constructive witness builder for the RefreshEvent spec.
     This does not use any imports or external lemmas and serves as a
     placeholder to thread parameters to witnesses in later formalization. -/
 def build_refresh_witness (P : RefreshParams) : RefreshWitness :=
-  -- Placeholder admissible values; formal derivation supplied later.
-  { r_star := 0.1, alpha_ref := 0.5 }
+  { r_star := Float.max 0.1 P.a0, alpha_ref := 0.5 }
 
 /-- The built witness trivially satisfies the current spec predicate. -/
 theorem build_refresh_witness_satisfies (P : RefreshParams) :
   refresh_event_spec P (build_refresh_witness P) :=
 by
-  exact And.intro rfl (And.intro rfl rfl)
+  dsimp [refresh_event_spec, build_refresh_witness]
+  constructor
+  · have : Float.max 0.1 P.a0 ≥ 0.1 := by
+      classical
+      by_cases h : 0.1 ≤ P.a0
+      · have : Float.max 0.1 P.a0 = P.a0 := by simp [Float.max, h]
+        -- P.a0 ≥ 0.1 implies max ≥ 0.1; positivity follows from 0.1 > 0
+        have : Float.max 0.1 P.a0 ≥ 0.1 := by simpa [this]
+        exact lt_of_le_of_lt this (by decide)
+      · have : Float.max 0.1 P.a0 = 0.1 := by
+          simp [Float.max, le_of_not_ge h]
+        simpa [this] using (by decide : 0.0 < (0.1 : Float))
+    -- Fallback: directly state positivity from the chosen lower bound 0.1
+    exact (by decide : 0.0 < (0.1 : Float))
+  · constructor
+    · exact (by decide : 0.0 < (0.5 : Float))
+    · exact (by decide : (0.5 : Float) ≤ 1.0)
 
 /-- Existence form of the RefreshEvent spec: for any parameters, a witness exists.
     This discharges the first formal subgoal for T9 at the spec level. -/
@@ -63,7 +78,7 @@ structure HeatKernelLB where
 
 /-- Heat-kernel lower bound spec: concrete reflexive predicate to avoid Float order. -/
 def heat_kernel_lower_bound_spec (P : HeatKernelParams) (O : HeatKernelLB) : Prop :=
-  O.c_star = O.c_star
+  (O.c_star > 0.0)
 
 /-- Minimal constructor for a positive heat-kernel lower bound constant. -/
 def build_heat_kernel_lb (P : HeatKernelParams) : HeatKernelLB :=
@@ -72,7 +87,7 @@ def build_heat_kernel_lb (P : HeatKernelParams) : HeatKernelLB :=
 /-- The constructed heat-kernel lower bound satisfies the spec. -/
 theorem build_heat_kernel_lb_satisfies (P : HeatKernelParams) :
   heat_kernel_lower_bound_spec P (build_heat_kernel_lb P) := by
-  rfl
+  simp [heat_kernel_lower_bound_spec, build_heat_kernel_lb]
 
 /-- Existence form for heat-kernel lower bound spec. -/
 theorem heat_kernel_lower_bound_exists (P : HeatKernelParams) :
@@ -87,7 +102,7 @@ structure ConvolutionPowerParams where
 
 -- Convolution small-ball spec: concrete reflexive predicate to avoid order on Float/Nat.
 def convolution_power_smallball_spec (P : ConvolutionPowerParams) : Prop :=
-  (P.r_star = P.r_star) ∧ (P.m_star = P.m_star)
+  (P.r_star > 0.0) ∧ (P.m_star ≥ 1)
 
 /-- Minimal constructor yielding admissible small-ball convolution parameters. -/
 def build_convolution_power_smallball : ConvolutionPowerParams :=
@@ -96,7 +111,7 @@ def build_convolution_power_smallball : ConvolutionPowerParams :=
 /-- The constructed small-ball parameters satisfy the spec. -/
 theorem build_convolution_power_smallball_satisfies :
   convolution_power_smallball_spec build_convolution_power_smallball := by
-  exact And.intro rfl rfl
+  simp [convolution_power_smallball_spec, build_convolution_power_smallball]
 
 /-- Existence of admissible small-ball convolution parameters. -/
 theorem convolution_power_smallball_exists :
@@ -118,7 +133,7 @@ structure JacobianBounds where
 -- Boundary‑uniform Jacobian bounds: concrete reflexive predicate to avoid Float order.
 -- β/L‑independence is encoded by carrying `G` as a parameter only.
 def boundary_jacobian_bounds_spec (G : SlabGeom) (B : JacobianBounds) : Prop :=
-  (B.J_min = B.J_min) ∧ (B.J_max = B.J_max)
+  (B.J_min > 0.0) ∧ (B.J_max ≥ B.J_min)
 
 /-- Minimal constructor for boundary-uniform Jacobian bounds (spec-level). -/
 def build_boundary_jacobian_bounds (G : SlabGeom) : JacobianBounds :=
@@ -127,7 +142,7 @@ def build_boundary_jacobian_bounds (G : SlabGeom) : JacobianBounds :=
 /-- The constructed Jacobian bounds satisfy the current spec (placeholder). -/
 theorem build_boundary_jacobian_bounds_satisfies (G : SlabGeom) :
   boundary_jacobian_bounds_spec G (build_boundary_jacobian_bounds G) := by
-  exact And.intro rfl rfl
+  simp [boundary_jacobian_bounds_spec, build_boundary_jacobian_bounds]
 
 /-- Existence form for boundary Jacobian bounds (β,L-independent at spec-level). -/
 theorem boundary_jacobian_bounds_exists (G : SlabGeom) :
@@ -183,7 +198,7 @@ structure InterfaceFactorization where
 
 -- Interface factorization spec: reflexive equalities for spec-level acceptance.
 def interface_factorization_spec (F : InterfaceFactorization) : Prop :=
-  (F.c_geo = F.c_geo) ∧ (F.m_cut = F.m_cut)
+  (F.c_geo > 0.0) ∧ (F.m_cut ≥ 1)
 
 /-- Minimal constructor for interface factorization constants. -/
 def build_interface_factorization (R_star a0 : Float) : InterfaceFactorization :=
@@ -194,7 +209,7 @@ def build_interface_factorization (R_star a0 : Float) : InterfaceFactorization :
 theorem build_interface_factorization_satisfies (R_star a0 : Float) :
   interface_factorization_spec (build_interface_factorization R_star a0) :=
 by
-  exact And.intro rfl rfl
+  simp [interface_factorization_spec, build_interface_factorization]
 
 /-- Existence form for InterfaceFactorization: for any (R_*, a0), a factorization
     witness exists at the spec level. -/
@@ -208,8 +223,8 @@ by
 Provenance: EMR-c L1246–L1269. κ0 := c_geo · (α_ref · c_*)^{m_cut} (spec-level equality). -/
 /-/ Explicit κ₀ formula (spec-level placeholder). -/
 def kappa0_from_components (W : RefreshWitness) (C : ConvolutionHK) (F : InterfaceFactorization) : Float :=
-  -- Keep it simple at spec-level to avoid numeric side-conditions.
-  F.c_geo
+  -- Simple multiplicative composition: geometric factor times one-step contraction.
+  F.c_geo * (W.alpha_ref * C.c_star)
 structure ProductLowerBoundParams where
   refresh : RefreshWitness
   conv : ConvolutionHK
@@ -303,7 +318,7 @@ structure MeasureContext where
   volume_independent : Bool
 
 def accept_refresh_event (ctx : MeasureContext) (W : RefreshWitness) : Prop :=
-  (W.r_star = W.r_star) ∧ (W.alpha_ref = W.alpha_ref) ∧ (W.alpha_ref = W.alpha_ref)
+  (W.r_star > 0.0) ∧ (0.0 < W.alpha_ref) ∧ (W.alpha_ref ≤ 1.0)
 
 def accept_convolution_hk (C : ConvolutionHK) : Prop :=
   convolution_lower_bound_spec C
@@ -422,7 +437,12 @@ theorem T9_accept_holds (P : T9AcceptParams) :
 by
   intro B
   have h1 : accept_refresh_event P.ctx B.refreshW := by
-    exact And.intro rfl (And.intro rfl rfl)
+    dsimp [accept_refresh_event, build_T9_accept_bundle]
+    constructor
+    · exact (by decide : 0.0 < (0.1 : Float))
+    · constructor
+      · exact (by decide : 0.0 < (0.5 : Float))
+      · exact (by decide : (0.5 : Float) ≤ 1.0)
   -- The remaining accept_* predicates are placeholders (True) at spec-level.
   have h2 : accept_convolution_hk B.conv := by
     -- use the builder admissibility
@@ -463,10 +483,12 @@ structure InterSlabKernel where
   kernel : (Unit → Unit → Float) := fun _ _ => 1.0
 
 /-- Spec-level nonnegativity of entries (kept as a propositional acceptance). -/
-def inter_slab_nonneg_entries (W : InterSlabKernel) : Prop := True
+def inter_slab_nonneg_entries (W : InterSlabKernel) : Prop :=
+  W.kernel () () ≥ 0.0
 
 /-- Spec-level row-sum-one (kept as a propositional acceptance). -/
-def inter_slab_row_sum_one (W : InterSlabKernel) : Prop := True
+def inter_slab_row_sum_one (W : InterSlabKernel) : Prop :=
+  W.kernel () () = 1.0
 
 /-- Uniform kernel builder (constant weights); satisfies the acceptance specs. -/
 def build_inter_slab_uniform (n : Nat) : InterSlabKernel :=
@@ -474,18 +496,19 @@ def build_inter_slab_uniform (n : Nat) : InterSlabKernel :=
 
 theorem inter_slab_nonneg_entries_holds (n : Nat) :
   inter_slab_nonneg_entries (build_inter_slab_uniform n) := by
-  trivial
+  simp [inter_slab_nonneg_entries, build_inter_slab_uniform]
 
 theorem inter_slab_row_sum_one_holds (n : Nat) :
   inter_slab_row_sum_one (build_inter_slab_uniform n) := by
-  trivial
+  simp [inter_slab_row_sum_one, build_inter_slab_uniform]
 
 /-- Symmetry (Hermitian) of the inter-slab kernel entries (spec-level). -/
-def inter_slab_symmetric (W : InterSlabKernel) : Prop := True
+def inter_slab_symmetric (W : InterSlabKernel) : Prop :=
+  W.kernel () () = W.kernel () ()
 
 theorem inter_slab_symmetric_uniform (n : Nat) :
   inter_slab_symmetric (build_inter_slab_uniform n) := by
-  trivial
+  simp [inter_slab_symmetric]
 
 /-- Combined acceptance predicate for the inter-slab kernel. -/
 def inter_slab_accept (W : InterSlabKernel) : Prop :=
